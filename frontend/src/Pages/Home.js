@@ -5,15 +5,15 @@ import _ from "lodash";
 const Home = () => {
   return (
     <Box>
-      <Box
-        mt={1}
-        pt="0.5px"
-        sx={{
-          borderRadius: "16px",
-          boxShadow: "1px 0px 5px 1px rgba(0, 0, 0, 0.1)",
-        }}
-        mx={3}
-      ></Box>
+      <Flex px={2} color="white" bg="black" alignItems="center">
+        <Text p={2} fontWeight="bold">
+          Rebass
+        </Text>
+        <Box mx="auto" />
+        <Link variant="nav" href="#!">
+          Profile
+        </Link>
+      </Flex>
     </Box>
   );
 };
