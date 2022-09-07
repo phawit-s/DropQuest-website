@@ -1,9 +1,21 @@
-import React, { Component }  from 'react';
-import Home from "./Pages/Home";
+import React, { Fragment, lazy, Component } from "react";
+import Home from "./components/Home";
+import Register from "./components/register";
+import Login from "./components/login";
+import { BrowserRouter as Router, Link, Route, Switch } from "react-router-dom";
+import { AuthProvider } from "./api/Auth"
 
 function App() {
   return (
-    <Home />
+    <AuthProvider>
+      <Router>
+        <Switch>
+          <Route exact path="/" component={Home} />
+          <Route exact path="/login" component={Login} />
+          <Route exact path="/register" component={Register} />
+        </Switch>
+      </Router>
+    </AuthProvider>
   );
 }
 
