@@ -4,15 +4,11 @@ import { useLocation, useHistory, Redirect } from "react-router-dom";
 import { motion, useTransform } from "framer-motion";
 import { Box, Heading, Text, Card, Flex, Link, Button, Image } from "rebass";
 import { Label, Input, Select, Textarea, Radio, Checkbox } from "@rebass/forms";
-import {
-  createUserWithEmailAndPassword,
-  onAuthStateChanged,
-} from "firebase/auth";
-import { auth } from "../api/config";
+import { updateProfile } from "firebase/auth";
 import _ from "lodash";
-import api from "../api/register";
+import { useAuth } from "../contexts/AuthContext";
 
-export default function() {
+export default function Register() {
   const history = useHistory();
   const [picture, setPicture] = useState("");
   const [isselected, setIsselected] = useState(false);
@@ -23,6 +19,7 @@ export default function() {
   const [password, setPassword] = useState("");
   const [confirmpassword, setComfirmpassword] = useState("");
   const [currentUser, setCurrentUser] = useState(null);
+  const { registeremail } = useAuth();
 
   const onImageChange = (event) => {
     if (event.target.files && event.target.files[0]) {
@@ -33,17 +30,21 @@ export default function() {
   };
 
   const register = () => {
-    try {
-      createUserWithEmailAndPassword(auth, email, password);
-      setCurrentUser(true);
-    } catch (err) {
-      console.log(err.message);
+    if (email === "" || password === "") {
+      alert("please input");
+    } else {
+      try {
+        registeremail(email, password, username);
+        setCurrentUser(true)
+      } catch (err) {
+        console.log(err.message);
+      }
     }
   };
   if (currentUser) {
     return <Redirect to="/login" />;
   }
-  
+
   return (
     <Box>
       <Box m={6} ml="auto" mr="auto" width={[4 / 5, 4 / 5, 2 / 5]}>
@@ -56,7 +57,7 @@ export default function() {
           }}
           bg="#fff"
         >
-          <Box m={3} mx={36}>
+          <Box m={3} mx={56}>
             {isselected ? (
               <Image
                 ml="auto"
@@ -174,6 +175,7 @@ export default function() {
               }}
               id="email"
               name="email"
+              required
               onChange={(event) => {
                 setEmail(event.target.value);
               }}
