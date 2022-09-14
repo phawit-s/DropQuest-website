@@ -1,39 +1,41 @@
-import React, { useContext, useEffect, useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { useLocation, useHistory, Redirect } from "react-router-dom";
-import { motion, useTransform } from "framer-motion";
-import { Box, Heading, Text, Card, Flex, Link, Button, Image } from "rebass";
-import { Label, Input, Select, Textarea, Radio, Checkbox } from "@rebass/forms";
-import { FaGoogle } from "react-icons/fa";
-import _ from "lodash";
+import React, { useEffect, useState } from "react";
+import { useHistory, Redirect } from "react-router-dom";
+import { Box, Text, Card, Flex, Button, Image } from "rebass";
+import { Label, Input } from "@rebass/forms";
+import { FaGoogle, FaFacebookF } from "react-icons/fa";
+import { useToasts } from "react-toast-notifications";
 import { useAuth } from "../contexts/AuthContext";
 
 const Login = () => {
   const history = useHistory();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isLogin, setIsLogin] = useState(false);
   const { loginemail, signInWithGoogle, signInWithFacebook } = useAuth();
+  const { addToast } = useToasts();
+
+
   const loginsubmit = async () => {
-    try {
-      const user = loginemail(email, password);
-      if (user) {
-        history.push({
-          pathname: `/`,
-        });
-      }
-    } catch (err) {
-      console.log(err.message);
-    }
+    loginemail(email, password).then(()=>{
+      setIsLogin(true)
+    })
+
   };
 
-  const goback = () => {
+  const gotoregister = () => {
     history.push({
       pathname: `/register`,
     });
   };
 
+  const forget = () => {
+    history.push({
+      pathname: `/forgotpassword`,
+    });
+  };
+
   const { currentUser } = useAuth();
-  if (currentUser) {
+  if (currentUser && isLogin) {
     return <Redirect to="/" />;
   }
 
@@ -44,14 +46,18 @@ const Login = () => {
           width={1}
           py={4}
           sx={{
-            borderRadius: "16px",
+            borderRadius: "10px",
+            fontWeight: "500",
+            fontSize: "20px",
             boxShadow: "0px 2px 20px 2px rgba(255, 0, 0, 0.25);",
           }}
           bg="#fff"
         >
           <Box m={3} mx={56}>
-            <Text sx={{ textAlign: "center" }}>เข้าสู่ระบบ</Text>
-            <Label mb={2} mt={1} htmlFor="email">
+            <Text sx={{ textAlign: "center", fontSize: "50px" }}>
+              เข้าสู่ระบบ
+            </Text>
+            <Label mb={2} mt={4} htmlFor="email">
               อีเมล
             </Label>
             <Input
@@ -68,7 +74,7 @@ const Login = () => {
               placeholder="ใส่ชื่ออีเมล"
             />
 
-            <Label mb={2} mt={1} htmlFor="password">
+            <Label mb={2} mt={4} htmlFor="password">
               รหัสผ่าน
             </Label>
             <Input
@@ -84,7 +90,7 @@ const Login = () => {
               }}
               placeholder="ใส่รหัสผ่าน"
             />
-            <Text mt={3} sx={{ textAlign: "right" }}>
+            <Text mt={3} sx={{ textAlign: "right", cursor: "pointer" }} onClick={forget}>
               ลืมรหัสผ่าน
             </Text>
           </Box>
@@ -96,7 +102,7 @@ const Login = () => {
             sx={{
               display: "flex",
               cursor: "pointer",
-              textAlign: "center",
+              justifyContent: "center",
             }}
             width={3 / 4}
             fontSize={2}
@@ -106,10 +112,8 @@ const Login = () => {
           >
             <Text
               sx={{
-                display: "flex",
                 color: " #fff",
                 fontSize: "20px",
-                textAlign: "center",
               }}
             >
               เข้าสู่ระบบ
@@ -117,10 +121,11 @@ const Login = () => {
           </Button>
           <Flex
             mr={60}
-            mt={2}
+            mt={3}
             sx={{ justifyContent: "right", display: "flex" }}
           >
             <Text>หากยังไม่มีบัญชี </Text>
+
             <Text
               ml={1}
               sx={{
@@ -128,7 +133,7 @@ const Login = () => {
                 textDecoration: "underline",
                 cursor: "pointer",
               }}
-              onClick={goback}
+              onClick={gotoregister}
             >
               ลงทะเบียน
             </Text>
@@ -137,38 +142,51 @@ const Login = () => {
           <Text mt="50px" sx={{ textAlign: "center" }}>
             เข้าสู่ระบบด้วย
           </Text>
-          <Button
-            variant="outline"
-            isFullWidth
-            colorScheme="red"
-            leftIcon={<FaGoogle />}
-            onClick={() =>
-              signInWithGoogle()
-                .then((user) => {
-                  return <Redirect to="/" />;
-                })
-                .catch((e) => console.log(e.message))
-            }
-          >
-            Sign in with Google
-          </Button>
 
-          <Button
-            variant="outline"
-            isFullWidth
-            colorScheme="red"
-            leftIcon={<FaGoogle />}
-            onClick={() =>
-              signInWithFacebook()
-                .then((user) => {
-                  return <Redirect to="/" />;
-                })
-                .catch((e) => console.log(e.message))
-            }
-          >
-            Sign in with Facebook
-          </Button>
+          <Flex justifyContent="center" mt={4}>
+            <Button
+              mr={4}
+              width="50px"
+              height="50px"
+              bg="#F44336"
+              sx={{
+                borderRadius: "50%",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+              onClick={() =>
+                signInWithGoogle()
+                  .then((user) => {
+                    return <Redirect to="/" />;
+                  })
+                  .catch((e) => console.log(e.message))
+              }
+            >
+              <FaGoogle size={36} />
+            </Button>
 
+            <Button
+              width="50px"
+              height="50px"
+              bg="#1877F2"
+              sx={{
+                borderRadius: "50%",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+              onClick={() =>
+                signInWithFacebook()
+                  .then((user) => {
+                    return <Redirect to="/" />;
+                  })
+                  .catch((e) => console.log(e.message))
+              }
+            >
+              <FaFacebookF size={36} />
+            </Button>
+          </Flex>
         </Card>
       </Box>
     </Box>

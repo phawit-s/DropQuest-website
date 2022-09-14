@@ -1,16 +1,14 @@
-import React, { useEffect, useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { useLocation, useHistory, Redirect } from "react-router-dom";
-import { motion, useTransform } from "framer-motion";
-import { Box, Heading, Text, Card, Flex, Link, Button, Image } from "rebass";
-import { Label, Input, Select, Textarea, Radio, Checkbox } from "@rebass/forms";
-import { updateProfile } from "firebase/auth";
-import _ from "lodash";
+import React, { useState } from "react";
+import { useHistory, Redirect } from "react-router-dom";
+import { Box, Text, Card, Flex, Button, Image } from "rebass";
+import { useToasts } from "react-toast-notifications";
+import { Label, Input } from "@rebass/forms";
 import { useAuth } from "../contexts/AuthContext";
 
 export default function Register() {
   const history = useHistory();
-  const [picture, setPicture] = useState("");
+  const [picture, setPicture] = useState(null);
+  const [photo, setPhoto] = useState(null);
   const [isselected, setIsselected] = useState(false);
   const [name, setName] = useState("");
   const [surname, setSurname] = useState("");
@@ -19,35 +17,55 @@ export default function Register() {
   const [password, setPassword] = useState("");
   const [confirmpassword, setComfirmpassword] = useState("");
   const [currentUser, setCurrentUser] = useState(null);
-  const { registeremail } = useAuth();
+  const { registeremail, uploadphoto } = useAuth();
+  const { addToast } = useToasts();
 
   const onImageChange = (event) => {
     if (event.target.files && event.target.files[0]) {
       setIsselected(true);
       let img = event.target.files[0];
       setPicture(URL.createObjectURL(img));
+      setPhoto(img);
     }
   };
-
+  const goback = () => {
+    history.push({
+      pathname: `/login`,
+    });
+  };
   const register = () => {
+    if (password !== confirmpassword) {
+      addToast("รหัสผ่านไม่ตรงกัน", {
+        appearance: "error",
+        autoDismiss: true,
+      });
+    }
     if (email === "" || password === "") {
-      alert("please input");
+      addToast("please fill all the box", {
+        appearance: "warning",
+        autoDismiss: true,
+      });
     } else {
+      const registersucess = registeremail(email, password, username, photo);
       try {
-        registeremail(email, password, username);
-        setCurrentUser(true)
+        if (registersucess) {
+          addToast("Register success!!", {
+            appearance: "success",
+            autoDismiss: true,
+          });
+          history.push({
+            pathname: `/login`,
+          });
+        }
       } catch (err) {
-        console.log(err.message);
+        alert(err);
       }
     }
   };
-  if (currentUser) {
-    return <Redirect to="/login" />;
-  }
 
   return (
     <Box>
-      <Box m={6} ml="auto" mr="auto" width={[4 / 5, 4 / 5, 2 / 5]}>
+      <Box m={5} ml="auto" mr="auto" width={[4 / 5, 4 / 5, 2 / 5]}>
         <Card
           width={1}
           py={4}
@@ -59,20 +77,44 @@ export default function Register() {
         >
           <Box m={3} mx={56}>
             {isselected ? (
-              <Image
-                ml="auto"
-                mr="auto"
-                mb={5}
-                src={picture}
-                sx={{
-                  display: "block",
-                  width: "200px",
-                  height: "200px",
-                  border: "3px solid rgba(255, 0, 0, 0.13);",
-                  objectFit: "cover",
-                  borderRadius: "50%",
-                }}
-              />
+              <Box>
+                <Label
+                  ml="auto"
+                  mr="auto"
+                  sx={{
+                    height: "200px",
+                    width: "200px",
+                    borderRadius: " 100px",
+                    position: "relative",
+                    display: "flex",
+                    // border: "3px solid rgba(255, 0, 0, 0.13);",
+                    overflow: "hidden",
+                    cursor: "pointer",
+                  }}
+                  htmlFor="upload-button"
+                >
+                  <Image
+                    src={picture}
+                    sx={{
+                      height: "200px",
+                      width: "200px",
+                      objectFit: "cover",
+                      borderRadius: "50%",
+                    }}
+                  />
+                </Label>
+                <Input
+                  id="upload-button"
+                  type="file"
+                  sx={{
+                    outline: "none",
+                    opacity: "0",
+                  }}
+                  name="myImage"
+                  accept="image/*"
+                  onChange={onImageChange}
+                />
+              </Box>
             ) : (
               <Box>
                 <Label
@@ -108,9 +150,9 @@ export default function Register() {
               </Box>
             )}
 
-            <Flex>
+            {/* <Flex>
               <Box width={1} pr={1} mb={2}>
-                <Label mb={2} mt={1} htmlFor="name">
+                <Label mb={2} mt={3} htmlFor="name">
                   ชื่อจริง
                 </Label>
                 <Input
@@ -128,7 +170,7 @@ export default function Register() {
                 />
               </Box>
               <Box width={1} pl={1} mb={2}>
-                <Label mb={2} mt={1} htmlFor="surname">
+                <Label mb={2} mt={3} htmlFor="surname">
                   นามสกุล
                 </Label>
                 <Input
@@ -145,9 +187,9 @@ export default function Register() {
                   placeholder="ใส่นามสกุล"
                 />
               </Box>
-            </Flex>
+            </Flex> */}
 
-            <Label mb={2} mt={1} htmlFor="username">
+            <Label mb={2} mt={2} htmlFor="username">
               ชื่อผู้ใช้
             </Label>
             <Input
@@ -164,7 +206,7 @@ export default function Register() {
               placeholder="ใส่ชื่อผู้ใช้"
             />
 
-            <Label mb={2} mt={1} htmlFor="email">
+            <Label mb={2} mt={3} htmlFor="email">
               อีเมล
             </Label>
             <Input
@@ -182,7 +224,7 @@ export default function Register() {
               placeholder="ใส่ชื่ออีเมล"
             />
 
-            <Label mb={2} mt={1} htmlFor="password">
+            <Label mb={2} mt={3} htmlFor="password">
               รหัสผ่าน
             </Label>
             <Input
@@ -193,13 +235,14 @@ export default function Register() {
               }}
               id="password"
               name="password"
+              type="password"
               onChange={(event) => {
                 setPassword(event.target.value);
               }}
               placeholder="ใส่รหัสผ่าน"
             />
 
-            <Label mb={2} mt={1} htmlFor="confirmpassword">
+            <Label mb={2} mt={3} htmlFor="confirmpassword">
               ยืนยันรหัสผ่าน
             </Label>
             <Input
@@ -210,6 +253,7 @@ export default function Register() {
               }}
               id="confirmpassword"
               name="confirmpassword"
+              type="password"
               onChange={(event) => {
                 setComfirmpassword(event.target.value);
               }}
@@ -223,6 +267,7 @@ export default function Register() {
             p={14}
             sx={{
               display: "flex",
+              justifyContent: "center",
             }}
             width={3 / 4}
             fontSize={2}
@@ -231,10 +276,29 @@ export default function Register() {
             onClick={register}
           >
             <Text
-              sx={{ display: "flex", color: " #fff", fontSize: "20px" }}
-            ></Text>
-            ล็อคอิน
+              sx={{
+                color: " #fff",
+                fontSize: "20px",
+              }}
+            >
+              ลงทะเบียน
+            </Text>
           </Button>
+          <Flex mt={3} mr={60} sx={{ justifyContent: "center" }}>
+            <Text>Already a User?</Text>
+            <Text
+              ml={2}
+              sx={{
+                color: "rgba(255, 0, 0, 0.24);",
+                textAlign: "center",
+                cursor: "pointer",
+                textDecoration: "underline",
+              }}
+              onClick={goback}
+            >
+              Login
+            </Text>
+          </Flex>
         </Card>
       </Box>
     </Box>

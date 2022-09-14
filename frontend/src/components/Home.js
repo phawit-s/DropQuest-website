@@ -1,17 +1,16 @@
-import React, { useEffect, useState, useContext } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { useLocation, useHistory, Redirect } from "react-router-dom";
+import React, { useEffect } from "react";
+import { Redirect } from "react-router-dom";
 import { Box, Heading, Text, Card, Flex, Link, Button, Image } from "rebass";
 import { useAuth } from "../contexts/AuthContext";
-import { auth } from "../config/firebaseconfig";
-import _ from "lodash";
+
 
 const Home = () => {
-  const { currentUser } = useAuth();
+  const { currentUser, logout } = useAuth();
   console.log(currentUser);
   if (!currentUser) {
     return <Redirect to="/login" />;
   }
+
 
   return (
     <Box
@@ -23,17 +22,20 @@ const Home = () => {
     >
       <Flex px={2} color="white" mx={4} pt={4} alignItems="center">
         <Text p={2} fontWeight="bold">
-          Rebass
+          Dropquest
         </Text>
         <Box mx="auto" />
         <Text>{currentUser.displayName}</Text>
-        <Image src={currentUser.photoURL}  />
+        <Image
+          ml={3}
+          src={currentUser.photoURL}
+          sx={{ borderRadius: "50%", width: "60px", height: "60px", objectFit: "fill" }}
+        />
 
-        <Button ml={4} onClick={() => auth.signOut()} bg="red">
+        <Button ml={4} onClick={(e) =>{e.preventDefault(); logout()}} bg="red">
           Sign Out
         </Button>
       </Flex>
-      <Text>test</Text>
     </Box>
   );
 };
