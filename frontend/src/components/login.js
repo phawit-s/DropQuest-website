@@ -158,7 +158,7 @@ const Login = () => {
               onClick={() =>
                 signInWithGoogle()
                   .then((user) => {
-                    return <Redirect to="/" />;
+                    setIsLogin(true)
                   })
                   .catch((e) => console.log(e.message))
               }
@@ -179,7 +179,7 @@ const Login = () => {
               onClick={() =>
                 signInWithFacebook()
                   .then((user) => {
-                    return <Redirect to="/" />;
+                    setIsLogin(true)
                   })
                   .catch((e) => console.log(e.message))
               }

@@ -87,9 +87,7 @@ export const AuthProvider = ({ children }) => {
     return confirmPasswordReset(auth, oobcode, password);
   }
 
-  // function loginemail(email, password) {
-  //   return signInWithEmailAndPassword(auth, email, password)
-  // }
+
   async function loginemail(email, password) {
     return await signInWithEmailAndPassword(auth, email, password).then(()=>{
       addToast("Login success!!", {
