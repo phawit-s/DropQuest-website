@@ -1,34 +1,43 @@
 import React, { useState } from "react";
-import { useHistory, Redirect } from "react-router-dom";
+import { useHistory, Redirect, useLocation } from "react-router-dom";
 import { Box, Text, Card, Flex, Button, Image } from "rebass";
 import { useToasts } from "react-toast-notifications";
 import { Label, Input } from "@rebass/forms";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "../../contexts/AuthContext";
 
-const Resetpassword = () => {
+function useQuery() {
+  const location = useLocation();
+  return new URLSearchParams(location.search);
+}
+
+const ChangePassword = () => {
   const history = useHistory();
-  const [email, setEmail] = useState("");
-  const { resetpassword } = useAuth();
+  const [password, setPassword] = useState("");
+  const { changepassword } = useAuth();
   const { addToast } = useToasts();
+  const query = useQuery();
+  console.log(query.get("mode"));
+  console.log(query.get("oobCode"));
+  console.log(query.get("continueUrl"));
 
   const resetsubmit = async () => {
-    try {
-      await resetpassword(email).then((response) => {
+
+      await changepassword(query.get("oobCode"), password).then((response) => {
         console.log(response);
-        addToast("Email sent, please check your email", {
+        addToast("Password has been change!", {
           appearance: "success",
           autoDismiss: true,
         });
-      });
-    } catch (err) {
-      alert(err);
-    }
+        history.push("/login")
+      }).catch((error)=>{
+        addToast(error.message, {
+            appearance: "error",
+            autoDismiss: true,
+          });
+      })
+
   };
-  const goback = () => {
-    history.push({
-      pathname: `/login`,
-    });
-  };
+
   return (
     <Box>
       <Box m={6} ml="auto" mr="auto" width={[4 / 5, 4 / 5, 2 / 5]}>
@@ -45,10 +54,10 @@ const Resetpassword = () => {
         >
           <Box m={3} mx={56}>
             <Text sx={{ textAlign: "center", fontSize: "50px" }}>
-              ลืมรหัสผ่าน
+              เปลี่ยนรหัสผ่าน
             </Text>
-            <Label mb={2} mt={4} htmlFor="email">
-              อีเมล
+            <Label mb={2} mt={4} htmlFor="password">
+              รหัสผ่าน
             </Label>
             <Input
               sx={{
@@ -56,12 +65,12 @@ const Resetpassword = () => {
                 borderLeft: "hidden",
                 borderRight: "hidden",
               }}
-              id="email"
-              name="email"
+              id="password"
+              name="password"
               onChange={(event) => {
-                setEmail(event.target.value);
+                setPassword(event.target.value);
               }}
-              placeholder="ใส่ชื่ออีเมล"
+              placeholder="รหัสผ่าน"
             />
           </Box>
 
@@ -89,26 +98,10 @@ const Resetpassword = () => {
               ยืนยัน
             </Text>
           </Button>
-
-          <Text mt={4} sx={{ textAlign: "center",fontSize:"16px" }}>
-            OR
-          </Text>
-          <Box
-          mx="auto"
-            sx={{
-              width: "70%",
-              height: "20px",
-              borderBottom: "1px solid rgba(255, 0, 0, 0.24)",
-              textAlign: "center",
-            }}
-          ></Box>
-          <Text mt={3} sx={{ textAlign: "center", cursor: "pointer" }} onClick={goback}>
-            Login
-          </Text>
         </Card>
       </Box>
     </Box>
   );
 };
 
-export default Resetpassword;
+export default ChangePassword;

@@ -1,25 +1,25 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useHistory, Redirect } from "react-router-dom";
 import { Box, Text, Card, Flex, Button, Image } from "rebass";
 import { Label, Input } from "@rebass/forms";
-import { FaGoogle, FaFacebookF } from "react-icons/fa";
+import { FaGoogle, FaFacebookF, FaGithub } from "react-icons/fa";
 import { useToasts } from "react-toast-notifications";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "../../contexts/AuthContext";
 
 const Login = () => {
   const history = useHistory();
+  const emailref = useRef();
+  const passwordref = useRef();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLogin, setIsLogin] = useState(false);
-  const { loginemail, signInWithGoogle, signInWithFacebook } = useAuth();
+  const { loginemail, signInWithGoogle, signInWithFacebook, signInWithGithub } = useAuth();
   const { addToast } = useToasts();
 
-
   const loginsubmit = async () => {
-    loginemail(email, password).then(()=>{
-      setIsLogin(true)
-    })
-
+    loginemail(emailref.current.value, passwordref.current.value).then(() => {
+      setIsLogin(true);
+    });
   };
 
   const gotoregister = () => {
@@ -68,9 +68,10 @@ const Login = () => {
               }}
               id="email"
               name="email"
-              onChange={(event) => {
-                setEmail(event.target.value);
-              }}
+              // onChange={(event) => {
+              //   setEmail(event.target.value);
+              // }}
+              ref={emailref}
               placeholder="ใส่ชื่ออีเมล"
             />
 
@@ -85,12 +86,17 @@ const Login = () => {
               }}
               id="password"
               name="password"
-              onChange={(event) => {
-                setPassword(event.target.value);
-              }}
+              // onChange={(event) => {
+              //   setPassword(event.target.value);
+              // }}
+              ref={passwordref}
               placeholder="ใส่รหัสผ่าน"
             />
-            <Text mt={3} sx={{ textAlign: "right", cursor: "pointer" }} onClick={forget}>
+            <Text
+              mt={3}
+              sx={{ textAlign: "right", cursor: "pointer" }}
+              onClick={forget}
+            >
               ลืมรหัสผ่าน
             </Text>
           </Box>
@@ -158,12 +164,34 @@ const Login = () => {
               onClick={() =>
                 signInWithGoogle()
                   .then((user) => {
-                    setIsLogin(true)
+                    setIsLogin(true);
                   })
                   .catch((e) => console.log(e.message))
               }
             >
               <FaGoogle size={36} />
+            </Button>
+
+            <Button
+              width="50px"
+              height="50px"
+              mr={4}
+              bg="#000"
+              sx={{
+                borderRadius: "50%",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+              onClick={() =>
+                signInWithGithub()
+                  .then((user) => {
+                    setIsLogin(true);
+                  })
+                  .catch((e) => console.log(e.message))
+              }
+            >
+              <FaGithub size={36} />
             </Button>
 
             <Button
@@ -179,7 +207,7 @@ const Login = () => {
               onClick={() =>
                 signInWithFacebook()
                   .then((user) => {
-                    setIsLogin(true)
+                    setIsLogin(true);
                   })
                   .catch((e) => console.log(e.message))
               }

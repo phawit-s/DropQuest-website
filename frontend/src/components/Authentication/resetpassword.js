@@ -1,43 +1,34 @@
 import React, { useState } from "react";
-import { useHistory, Redirect, useLocation } from "react-router-dom";
+import { useHistory, Redirect } from "react-router-dom";
 import { Box, Text, Card, Flex, Button, Image } from "rebass";
 import { useToasts } from "react-toast-notifications";
 import { Label, Input } from "@rebass/forms";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "../../contexts/AuthContext";
 
-function useQuery() {
-  const location = useLocation();
-  return new URLSearchParams(location.search);
-}
-
-const ChangePassword = () => {
+const Resetpassword = () => {
   const history = useHistory();
-  const [password, setPassword] = useState("");
-  const { changepassword } = useAuth();
+  const [email, setEmail] = useState("");
+  const { resetpassword } = useAuth();
   const { addToast } = useToasts();
-  const query = useQuery();
-  console.log(query.get("mode"));
-  console.log(query.get("oobCode"));
-  console.log(query.get("continueUrl"));
 
   const resetsubmit = async () => {
-
-      await changepassword(query.get("oobCode"), password).then((response) => {
+    try {
+      await resetpassword(email).then((response) => {
         console.log(response);
-        addToast("Password has been change!", {
+        addToast("Email sent, please check your email", {
           appearance: "success",
           autoDismiss: true,
         });
-        history.push("/login")
-      }).catch((error)=>{
-        addToast(error.message, {
-            appearance: "error",
-            autoDismiss: true,
-          });
-      })
-
+      });
+    } catch (err) {
+      alert(err);
+    }
   };
-
+  const goback = () => {
+    history.push({
+      pathname: `/login`,
+    });
+  };
   return (
     <Box>
       <Box m={6} ml="auto" mr="auto" width={[4 / 5, 4 / 5, 2 / 5]}>
@@ -54,10 +45,10 @@ const ChangePassword = () => {
         >
           <Box m={3} mx={56}>
             <Text sx={{ textAlign: "center", fontSize: "50px" }}>
-              เปลี่ยนรหัสผ่าน
+              ลืมรหัสผ่าน
             </Text>
-            <Label mb={2} mt={4} htmlFor="password">
-              รหัสผ่าน
+            <Label mb={2} mt={4} htmlFor="email">
+              อีเมล
             </Label>
             <Input
               sx={{
@@ -65,12 +56,12 @@ const ChangePassword = () => {
                 borderLeft: "hidden",
                 borderRight: "hidden",
               }}
-              id="password"
-              name="password"
+              id="email"
+              name="email"
               onChange={(event) => {
-                setPassword(event.target.value);
+                setEmail(event.target.value);
               }}
-              placeholder="รหัสผ่าน"
+              placeholder="ใส่ชื่ออีเมล"
             />
           </Box>
 
@@ -98,10 +89,26 @@ const ChangePassword = () => {
               ยืนยัน
             </Text>
           </Button>
+
+          <Text mt={4} sx={{ textAlign: "center",fontSize:"16px" }}>
+            หรือ
+          </Text>
+          <Box
+          mx="auto"
+            sx={{
+              width: "70%",
+              height: "20px",
+              borderBottom: "1px solid rgba(255, 0, 0, 0.24)",
+              textAlign: "center",
+            }}
+          ></Box>
+          <Text mt={3} sx={{ textAlign: "center", cursor: "pointer" }} onClick={goback}>
+            เข้าสู่ระบบ
+          </Text>
         </Card>
       </Box>
     </Box>
   );
 };
 
-export default ChangePassword;
+export default Resetpassword;

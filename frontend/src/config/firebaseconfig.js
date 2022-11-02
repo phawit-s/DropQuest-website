@@ -1,5 +1,6 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
+import { getDatabase } from "firebase/database";
 // import { getAnalytics } from "firebase/analytics";
 import { getAuth } from "firebase/auth";
 import { getStorage } from "firebase/storage"
@@ -9,16 +10,18 @@ import { getStorage } from "firebase/storage"
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: process.env.REACT_APP_API_KEY,
-  authDomain: process.env.REACT_APP_AUTH_DOMAIN,
-  projectId: process.env.REACT_APP_PROJECT_ID,
-  storageBucket: process.env.REACT_APP_STORAGE_BUCKET,
-  messagingSenderId: process.env.REACT_APP_MESSAGING_SENDER_ID,
-  appId: process.env.REACT_APP_APP_ID,
-  measurementId: process.env.REACT_APP_MEASUREMENT_ID
+  apiKey: "AIzaSyADzqwoY_EnWBpUfIINev5N5UcAffRO6iQ",
+  authDomain: "dropquest-website.firebaseapp.com",
+  databaseURL:"https://dropquest-website-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "dropquest-website",
+  storageBucket: "dropquest-website.appspot.com",
+  messagingSenderId: "963248115381",
+  appId: "1:963248115381:web:fbc14f91f8b83b783238fc",
+  measurementId: "G-0J66P9KM3N"
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
+export const database = getDatabase(app);
 export const auth = getAuth(app)
 export const storage  = getStorage(app)

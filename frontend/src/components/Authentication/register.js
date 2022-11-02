@@ -3,7 +3,7 @@ import { useHistory, Redirect } from "react-router-dom";
 import { Box, Text, Card, Flex, Button, Image } from "rebass";
 import { useToasts } from "react-toast-notifications";
 import { Label, Input } from "@rebass/forms";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "../../contexts/AuthContext";
 
 export default function Register() {
   const history = useHistory();
@@ -34,6 +34,12 @@ export default function Register() {
     });
   };
   const register = () => {
+    if (!picture || !photo) {
+      addToast("Please insert image", {
+        appearance: "warning",
+        autoDismiss: true,
+      });
+    }
     if (password !== confirmpassword) {
       addToast("รหัสผ่านไม่ตรงกัน", {
         appearance: "error",
@@ -41,7 +47,7 @@ export default function Register() {
       });
     }
     if (email === "" || password === "") {
-      addToast("please fill all the box", {
+      addToast("Please fill all the box", {
         appearance: "warning",
         autoDismiss: true,
       });
@@ -49,10 +55,6 @@ export default function Register() {
       const registersucess = registeremail(email, password, username, photo);
       try {
         if (registersucess) {
-          addToast("Register success!!", {
-            appearance: "success",
-            autoDismiss: true,
-          });
           history.push({
             pathname: `/login`,
           });
@@ -133,7 +135,7 @@ export default function Register() {
                   htmlFor="upload-button"
                 >
                   <Text m="auto" sx={{ color: " #000", fontSize: "20px" }}>
-                    Pick an Image
+                    เลือกรูปภาพ
                   </Text>
                 </Label>
                 <Input
@@ -285,7 +287,7 @@ export default function Register() {
             </Text>
           </Button>
           <Flex mt={3} mr={60} sx={{ justifyContent: "center" }}>
-            <Text>Already a User?</Text>
+            <Text>มีสมาชิกอยู่แล้ว?</Text>
             <Text
               ml={2}
               sx={{
@@ -296,7 +298,7 @@ export default function Register() {
               }}
               onClick={goback}
             >
-              Login
+              เข้าสู่ระบบ
             </Text>
           </Flex>
         </Card>
