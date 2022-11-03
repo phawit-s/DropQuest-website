@@ -12,7 +12,7 @@ const Header = () => {
   const [toggleQuiz, setToggleQuiz] = useState(false);
   const [toggleProfile, setToggleProfile] = useState(false);
   const [color, setColor] = useState("");
-
+  const [profilecolor, setProfileColor] = useState("");
   const toggleroom = () => {
     setToggleRoom(!toggleRoom);
   };
@@ -23,7 +23,7 @@ const Header = () => {
     setToggleProfile(!toggleProfile);
   };
 
-  console.log(currentUser);
+
   const imageUrl = currentUser.photoURL;
   if (!currentUser) {
     return <Redirect to="/login" />;
@@ -129,10 +129,9 @@ const Header = () => {
               }}
             >
               <Text
-                
                 onMouseEnter={() => setColor("#364AFF")}
                 onMouseLeave={() => setColor("")}
-                sx={{ cursor: "pointer", color : color }}
+                sx={{ cursor: "pointer", color: color }}
                 onClick={() =>
                   history.push({
                     pathname: `/createquiz`,
@@ -180,7 +179,17 @@ const Header = () => {
                 position: "absolute",
               }}
             >
-              <Text fontSize="16px" color="black">
+              <Text
+                onMouseEnter={() => setProfileColor("#364AFF")}
+                onMouseLeave={() => setProfileColor("")}
+                sx={{ cursor: "pointer", color: profilecolor }}
+                onClick={() =>
+                  history.push({
+                    pathname: `/profile`,
+                  })
+                }
+                fontSize="16px"
+              >
                 โปรไฟล์
               </Text>
               <Text

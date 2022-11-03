@@ -7,6 +7,7 @@ import Register from "./components/Authentication/register";
 import Login from "./components/Authentication/login";
 import Resetpassword from "./components/Authentication/resetpassword";
 import ChangePassword from "./components/Authentication/changepassword";
+import Profile from "./components/Authentication/profile";
 import CreateQuiz from "./components/Quiz/createquiz";
 
 
@@ -19,6 +20,7 @@ function App() {
             <Route exact path="/" component={Home} />
             <Route exact path="/login" component={Login} />
             <Route exact path="/register" component={Register} />
+            <Route exact path="/profile" component={Profile} />
             <Route exact path="/forgotpassword" component={Resetpassword} />
             <Route exact path="/changepassword" component={ChangePassword} />
             <Route exact path="/createquiz" component={CreateQuiz} />
