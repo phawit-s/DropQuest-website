@@ -24,13 +24,13 @@ const Profile = () => {
   return (
     <Box
       minHeight="1000px"
-      p={4}
+
       sx={{
         backgroundColor: "rgba(134, 248, 255, 0.13);",
       }}
     >
       <Header />
-      <Flex mt={5} sx={{ justifyContent: "center" }}>
+      <Flex mt={4} sx={{ justifyContent: "center" }}>
         <Box width={3 / 4}>
           <Card
             width={1}

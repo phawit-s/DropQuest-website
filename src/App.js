@@ -1,7 +1,7 @@
 import React from "react";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
-import { ToastProvider, useToasts } from "react-toast-notifications";
+import { ToastProvider } from "react-toast-notifications";
 import Home from "./components/Home";
 import Register from "./components/Authentication/register";
 import Login from "./components/Authentication/login";
@@ -9,6 +9,7 @@ import Resetpassword from "./components/Authentication/resetpassword";
 import ChangePassword from "./components/Authentication/changepassword";
 import Profile from "./components/Authentication/profile";
 import CreateQuiz from "./components/Quiz/createquiz";
+import CreateQuestion from "./components/Quiz/createquestion";
 
 
 function App() {
@@ -24,6 +25,7 @@ function App() {
             <Route exact path="/forgotpassword" component={Resetpassword} />
             <Route exact path="/changepassword" component={ChangePassword} />
             <Route exact path="/createquiz" component={CreateQuiz} />
+            <Route exact path="/createquestion" component={CreateQuestion} />
           </Switch>
         </Router>
       </AuthProvider>

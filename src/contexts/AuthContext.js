@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { Dimmer, Loader, Segment } from "semantic-ui-react";
+// import { Dimmer, Loader, Segment } from "semantic-ui-react";
 import { useToasts } from "react-toast-notifications";
 import { Box } from "rebass";
 import { auth, storage, database } from "../config/firebaseconfig";
@@ -17,8 +17,14 @@ import {
   linkWithCredential,
   confirmPasswordReset,
 } from "firebase/auth";
-import { ref as ref_storage, uploadBytes, getDownloadURL, listAll } from "firebase/storage";
-import { ref as ref_database, set, getDatabase,push } from "firebase/database";
+// import from "firebase/"
+import {
+  ref as ref_storage,
+  uploadBytes,
+  getDownloadURL,
+  listAll,
+} from "firebase/storage";
+import { ref as ref_database, set, getDatabase, push } from "firebase/database";
 import { v4 } from "uuid";
 
 const AuthContext = createContext({
@@ -32,6 +38,7 @@ const AuthContext = createContext({
   changepassword: () => Promise,
   uploadphoto: () => Promise,
   logout: () => Promise,
+  savequiz: () => Promise
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -49,13 +56,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
   if (loading) {
     return (
-      <Box>
-        <Segment>
-          <Dimmer active>
-            <Loader content="Loading" />
-          </Dimmer>
-        </Segment>
-      </Box>
+      <Box></Box>
     );
   }
 
@@ -74,19 +75,17 @@ export const AuthProvider = ({ children }) => {
       });
     });
     const photoURL = await getDownloadURL(pictureref);
-   
+
     await createUserWithEmailAndPassword(auth, email, password)
       .then(() => {
         updateProfile(auth.currentUser, {
           displayName: username,
           photoURL: photoURL,
-        })
-        .then(() => {
-          const userid = auth.currentUser
-          console.log(userid);
-          push(ref_database(database, 'users/'+userid.uid), {
+        }).then(() => {
+          const userid = auth.currentUser;
+          push(ref_database(database, "users/" + userid.uid), {
             username: username,
-            profile_picture : photoURL
+            profile_picture: photoURL,
           });
         });
 
@@ -160,7 +159,19 @@ export const AuthProvider = ({ children }) => {
       }
     });
   }
+  async function savequiz(quizdata, questiondata) {
+    const userid = auth.currentUser;
+    push(ref_database(database, "Quiz/" + userid.uid), {
+      name: quizdata.name,
+      createby: userid.displayName,
+      uid: userid.uid,
+      question: questiondata,
+      category: quizdata.category,
+      releasedate: quizdata.releasedate,
 
+    });
+    window.localStorage.removeItem("Question")
+  }
   const value = {
     currentUser,
     registeremail,
@@ -171,6 +182,7 @@ export const AuthProvider = ({ children }) => {
     resetpassword,
     changepassword,
     logout,
+    savequiz
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
