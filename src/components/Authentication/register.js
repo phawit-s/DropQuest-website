@@ -5,6 +5,8 @@ import { useToasts } from "react-toast-notifications";
 import { Label, Input } from "@rebass/forms";
 import { useAuth } from "../../contexts/AuthContext";
 
+import api from "../../api";
+
 export default function Register() {
   const history = useHistory();
   const [picture, setPicture] = useState(null);
@@ -20,6 +22,16 @@ export default function Register() {
   const { registeremail, uploadphoto } = useAuth();
   const { addToast } = useToasts();
 
+  async function getAuthMethods() {
+    try {
+      const response = await api.get("/users");
+      console.log(response.data,"2");
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  getAuthMethods();
+
   const onImageChange = (event) => {
     if (event.target.files && event.target.files[0]) {
       setIsselected(true);
@@ -28,6 +40,7 @@ export default function Register() {
       setPhoto(img);
     }
   };
+
   const goback = () => {
     history.push({
       pathname: `/login`,
