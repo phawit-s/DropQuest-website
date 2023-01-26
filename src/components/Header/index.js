@@ -13,6 +13,7 @@ const Header = () => {
   const [toggleProfile, setToggleProfile] = useState(false);
   const [color, setColor] = useState("");
   const [profilecolor, setProfileColor] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
   const toggleroom = () => {
     setToggleRoom(!toggleRoom);
   };
@@ -23,8 +24,10 @@ const Header = () => {
     setToggleProfile(!toggleProfile);
   };
 
-
-  const imageUrl = currentUser.photoURL;
+  const base64Image = new Buffer(currentUser.image, "binary").toString(
+    "base64"
+  );
+  const imageUrl = `data:image/jpeg;base64,${base64Image}`;
   if (!currentUser) {
     return <Redirect to="/login" />;
   }
@@ -55,7 +58,16 @@ const Header = () => {
     },
   };
   return (
-    <Flex mx={4} pt={4} justifyContent="right">
+    <Flex
+      mx={4}
+      pt={4}
+      justifyContent="right"
+      sx={{
+        "@media (max-width: 768px)": {
+          justifyContent: "center",
+        },
+      }}
+    >
       <Text
         fontSize="20px"
         mr={3}
@@ -158,7 +170,7 @@ const Header = () => {
                 whiteSpace: "nowrap",
               }}
             >
-              {currentUser.displayName}
+              {currentUser.username}
             </Text>
             <Box mt={2} ml={2}>
               {toggleProfile ? <AiOutlineCaretUp /> : <AiOutlineCaretDown />}
@@ -215,8 +227,8 @@ const Header = () => {
         referrerPolicy="no-referrer"
         sx={{
           borderRadius: "50%",
-          width: "60px",
-          height: "60px",
+          width: "90px",
+          height: "90px",
           objectFit: "cover",
         }}
       />

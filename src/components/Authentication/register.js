@@ -5,32 +5,17 @@ import { useToasts } from "react-toast-notifications";
 import { Label, Input } from "@rebass/forms";
 import { useAuth } from "../../contexts/AuthContext";
 
-import api from "../../api";
-
 export default function Register() {
   const history = useHistory();
   const [picture, setPicture] = useState(null);
   const [photo, setPhoto] = useState(null);
   const [isselected, setIsselected] = useState(false);
-  const [name, setName] = useState("");
-  const [surname, setSurname] = useState("");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmpassword, setComfirmpassword] = useState("");
-  const [currentUser, setCurrentUser] = useState(null);
   const { registeremail, uploadphoto } = useAuth();
   const { addToast } = useToasts();
-
-  async function getAuthMethods() {
-    try {
-      const response = await api.get("/users");
-      console.log(response.data,"2");
-    } catch (error) {
-      console.log(error);
-    }
-  }
-  getAuthMethods();
 
   const onImageChange = (event) => {
     if (event.target.files && event.target.files[0]) {
