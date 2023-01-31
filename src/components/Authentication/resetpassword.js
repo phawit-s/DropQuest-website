@@ -13,13 +13,19 @@ const Resetpassword = () => {
 
   const resetsubmit = async () => {
     try {
-      await resetpassword(email).then((response) => {
-        console.log(response);
-        addToast("Email sent, please check your email", {
-          appearance: "success",
-          autoDismiss: true,
+      await resetpassword(email)
+        .then(() => {
+          addToast("Email sent, please check your email", {
+            appearance: "success",
+            autoDismiss: true,
+          });
+        })
+        .catch((error) => {
+          addToast(error.message, {
+            appearance: "error",
+            autoDismiss: true,
+          });
         });
-      });
     } catch (err) {
       alert(err);
     }
@@ -90,11 +96,11 @@ const Resetpassword = () => {
             </Text>
           </Button>
 
-          <Text mt={4} sx={{ textAlign: "center",fontSize:"16px" }}>
+          <Text mt={4} sx={{ textAlign: "center", fontSize: "16px" }}>
             หรือ
           </Text>
           <Box
-          mx="auto"
+            mx="auto"
             sx={{
               width: "70%",
               height: "20px",
@@ -102,7 +108,11 @@ const Resetpassword = () => {
               textAlign: "center",
             }}
           ></Box>
-          <Text mt={3} sx={{ textAlign: "center", cursor: "pointer" }} onClick={goback}>
+          <Text
+            mt={3}
+            sx={{ textAlign: "center", cursor: "pointer" }}
+            onClick={goback}
+          >
             เข้าสู่ระบบ
           </Text>
         </Card>

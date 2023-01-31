@@ -15,7 +15,8 @@ const Profile = () => {
 
   console.log(currentUser);
 
-  const imageUrl = currentUser.photoURL;
+  const base64Image = new Buffer(currentUser.image, "binary").toString("base64");
+  const imageUrl = `data:image/jpeg;base64,${base64Image}`;
   const goback = () => {
     history.push({
       pathname: `/login`,

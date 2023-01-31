@@ -1,44 +1,20 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-// import { Dimmer, Loader, Segment } from "semantic-ui-react";
+import { useHistory, Redirect } from "react-router-dom";
 import { useToasts } from "react-toast-notifications";
 import { Box } from "rebass";
-import { auth, storage, database } from "../config/firebaseconfig";
-import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  sendPasswordResetEmail,
-  signInWithPopup,
-  GoogleAuthProvider,
-  FacebookAuthProvider,
-  GithubAuthProvider,
-  signOut,
-  updateProfile,
-  fetchSignInMethodsForEmail,
-  linkWithCredential,
-  confirmPasswordReset,
-} from "firebase/auth";
-// import from "firebase/"
-import {
-  ref as ref_storage,
-  uploadBytes,
-  getDownloadURL,
-  listAll,
-} from "firebase/storage";
-import { ref as ref_database, set, getDatabase, push } from "firebase/database";
-import { v4 } from "uuid";
+import api from "../api";
+import { auth, database } from "../config/firebaseconfig";
+import { signInWithEmailAndPassword, signOut } from "firebase/auth";
 
 const AuthContext = createContext({
   currentUser: null,
   registeremail: () => Promise,
   loginemail: () => Promise,
-  signInWithGoogle: () => Promise,
-  signInWithFacebook: () => Promise,
-  signInWithGithub: () => Promise,
   resetpassword: () => Promise,
   changepassword: () => Promise,
   uploadphoto: () => Promise,
   logout: () => Promise,
-  savequiz: () => Promise
+  savequiz: () => Promise,
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -47,81 +23,82 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [currentUser, setCurrentuser] = useState(null);
   const { addToast } = useToasts();
-
+  const history = useHistory();
   useEffect(() => {
-    auth.onAuthStateChanged((user) => {
-      setCurrentuser(user);
-      setLoading(false);
-    });
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setCurrentuser(JSON.parse(storedUser));
+    }
+    setLoading(false);
   }, []);
   if (loading) {
-    return (
-      <Box></Box>
-    );
+    return <Box></Box>;
   }
 
-  const providers = {
-    google: new GoogleAuthProvider(auth),
-    facebook: new FacebookAuthProvider(auth),
-    github: new GithubAuthProvider(auth),
-  };
+  async function registeremail(email, password, username, imageFile) {
+    const formData = new FormData();
+    formData.append("image", imageFile);
+    formData.append("email", email);
+    formData.append("username", username);
+    formData.append("password", password);
 
-  async function registeremail(email, password, username, picture) {
-    const pictureref = ref_storage(storage, `profile/${picture.name + v4()}`);
-    await uploadBytes(pictureref, picture).catch((error) => {
-      addToast(error.message, {
+    try {
+      await api.post("/create", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      addToast("Register success!!", {
+        appearance: "success",
+        autoDismiss: true,
+      });
+    } catch (error) {
+      addToast(error.response.data.message, {
+        appearance: "error",
+        autoDismiss: true,
+      });
+    }
+  }
+
+  async function resetpassword(email) {
+    api.post("/resetpassword", { email: email }).catch((error) => {
+      addToast(error.response.data.message, {
         appearance: "error",
         autoDismiss: true,
       });
     });
-    const photoURL = await getDownloadURL(pictureref);
+  }
 
-    await createUserWithEmailAndPassword(auth, email, password)
+  function changepassword(token, password) {
+    api
+      .post("/changepassword", { token: token, password: password })
       .then(() => {
-        updateProfile(auth.currentUser, {
-          displayName: username,
-          photoURL: photoURL,
-        }).then(() => {
-          const userid = auth.currentUser;
-          push(ref_database(database, "users/" + userid.uid), {
-            username: username,
-            profile_picture: photoURL,
-          });
-        });
-
-        addToast("Register success!!", {
+        addToast("Password has been change", {
           appearance: "success",
           autoDismiss: true,
         });
       })
       .catch((error) => {
-        addToast(error.message, {
+        addToast(error.response.data.message, {
           appearance: "error",
           autoDismiss: true,
         });
       });
   }
 
-  async function resetpassword(email) {
-    return await sendPasswordResetEmail(auth, email, {
-      url: "http://localhost:3000/login",
-    });
-  }
-
-  function changepassword(oobcode, password) {
-    return confirmPasswordReset(auth, oobcode, password);
-  }
-
   async function loginemail(email, password) {
-    return await signInWithEmailAndPassword(auth, email, password)
-      .then(() => {
+    api
+      .post("/login", { email: email, password: password })
+      .then((response) => {
+        localStorage.setItem("user", JSON.stringify(response.data));
+        setCurrentuser(response.data);
         addToast("Login success!!", {
           appearance: "success",
           autoDismiss: true,
         });
       })
       .catch((error) => {
-        addToast(error.message, {
+        addToast(error.response.data.message, {
           appearance: "error",
           autoDismiss: true,
         });
@@ -129,60 +106,37 @@ export const AuthProvider = ({ children }) => {
   }
 
   async function logout() {
-    return await signOut(auth).then(() => {
-      addToast("Logout!!", {
-        appearance: "warning",
-        autoDismiss: true,
-      });
+    localStorage.removeItem("user");
+    setCurrentuser(null);
+    history.push({
+      pathname: `/login`,
+    });
+    addToast("Logout!!", {
+      appearance: "warning",
+      autoDismiss: true,
     });
   }
 
-  async function signInWithGoogle() {
-    const provider = new GoogleAuthProvider();
-    await signInWithPopup(auth, provider);
-  }
-  async function signInWithFacebook() {
-    const provider = new FacebookAuthProvider();
-    await signInWithPopup(auth, provider);
-  }
-  async function signInWithGithub() {
-    const provider = new GithubAuthProvider();
-    await signInWithPopup(auth, provider).catch((error) => {
-      if (
-        error.message ===
-        "Firebase: Error (auth/account-exists-with-different-credential)."
-      ) {
-        addToast("Your email has been register!!", {
-          appearance: "error",
-          autoDismiss: true,
-        });
-      }
-    });
-  }
   async function savequiz(quizdata, questiondata) {
-    const userid = auth.currentUser;
-    push(ref_database(database, "Quiz/" + userid.uid), {
-      name: quizdata.name,
-      createby: userid.displayName,
-      uid: userid.uid,
-      question: questiondata,
-      category: quizdata.category,
-      releasedate: quizdata.releasedate,
-
-    });
-    window.localStorage.removeItem("Question")
+    //   const userid = auth.currentUser;
+    //   push(ref_database(database, "Quiz/" + userid.uid), {
+    //     name: quizdata.name,
+    //     createby: userid.displayName,
+    //     uid: userid.uid,
+    //     question: questiondata,
+    //     category: quizdata.category,
+    //     releasedate: quizdata.releasedate,
+    //   });
+    //   window.localStorage.removeItem("Question");
   }
   const value = {
     currentUser,
     registeremail,
     loginemail,
-    signInWithGoogle,
-    signInWithFacebook,
-    signInWithGithub,
     resetpassword,
     changepassword,
     logout,
-    savequiz
+    savequiz,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -10,13 +10,10 @@ export default function Register() {
   const [picture, setPicture] = useState(null);
   const [photo, setPhoto] = useState(null);
   const [isselected, setIsselected] = useState(false);
-  const [name, setName] = useState("");
-  const [surname, setSurname] = useState("");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmpassword, setComfirmpassword] = useState("");
-  const [currentUser, setCurrentUser] = useState(null);
   const { registeremail, uploadphoto } = useAuth();
   const { addToast } = useToasts();
 
@@ -28,6 +25,7 @@ export default function Register() {
       setPhoto(img);
     }
   };
+
   const goback = () => {
     history.push({
       pathname: `/login`,

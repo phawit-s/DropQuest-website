@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useHistory, Redirect, useLocation } from "react-router-dom";
+import { useHistory, useParams, Redirect, useLocation } from "react-router-dom";
 import { Box, Text, Card, Flex, Button, Image } from "rebass";
 import { useToasts } from "react-toast-notifications";
 import { Label, Input } from "@rebass/forms";
@@ -15,27 +15,19 @@ const ChangePassword = () => {
   const [password, setPassword] = useState("");
   const { changepassword } = useAuth();
   const { addToast } = useToasts();
-  const query = useQuery();
-  console.log(query.get("mode"));
-  console.log(query.get("oobCode"));
-  console.log(query.get("continueUrl"));
+  const { token } = useParams();
 
   const resetsubmit = async () => {
-
-      await changepassword(query.get("oobCode"), password).then((response) => {
-        console.log(response);
-        addToast("Password has been change!", {
-          appearance: "success",
-          autoDismiss: true,
+    const change = changepassword(token, password)
+    try {
+      if (change) {
+        history.push({
+          pathname: `/login`,
         });
-        history.push("/login")
-      }).catch((error)=>{
-        addToast(error.message, {
-            appearance: "error",
-            autoDismiss: true,
-          });
-      })
-
+      }
+    } catch (err) {
+      alert(err);
+    }
   };
 
   return (

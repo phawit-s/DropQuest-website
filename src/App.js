@@ -22,8 +22,8 @@ function App() {
             <Route exact path="/login" component={Login} />
             <Route exact path="/register" component={Register} />
             <Route exact path="/profile" component={Profile} />
-            <Route exact path="/forgotpassword" component={Resetpassword} />
-            <Route exact path="/changepassword" component={ChangePassword} />
+            <Route exact path="/resetpassword" component={Resetpassword} />
+            <Route path='/resetpassword/:token' component={ChangePassword} />
             <Route exact path="/createquiz" component={CreateQuiz} />
             <Route exact path="/createquestion" component={CreateQuestion} />
           </Switch>
