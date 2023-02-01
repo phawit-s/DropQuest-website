@@ -142,7 +142,7 @@ conn
                   res.status(500).send({ message: "Error saving reset token" });
                 } else {
                   // Send an email with a password reset link
-                  const resetLink = `http://localhost:3000/resetpassword/${resetToken}`;
+                  const resetLink = `http://dropquest.it.kmitl.ac.th/resetpassword/${resetToken}`;
                   const message = `Click the link to reset your password: ${resetLink}`;
                   const mailer = nodemailer.createTransport({
                     service: "Gmail",
@@ -209,7 +209,7 @@ conn
         });
 
         // start the server
-        const port = 8002;
+        const port = 4001;
         app.listen(port, 'dropquest.it.kmitl.ac.th', function () {
           console.log(`Server listening on port ${port}`);
         });
