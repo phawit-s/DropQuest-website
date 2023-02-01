@@ -202,14 +202,13 @@ conn
         });
       });
 
-      
-
-      // start the server
-      const port = 3001;
-      app.listen(port, function() {
-        console.log(`Server listening on port ${port}`);
-      });
-    });
+        // start the server
+        const port = 3001;
+        app.listen(port, 'dropquest.it.kmitl.ac.th', function () {
+          console.log(`Server listening on port ${port}`);
+        });
+      }
+    );
   })
   .connect({
     host: "161.246.49.33",
