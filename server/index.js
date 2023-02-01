@@ -209,7 +209,7 @@ conn
         });
 
         // start the server
-        const port = 3001;
+        const port = 8002;
         app.listen(port, 'dropquest.it.kmitl.ac.th', function () {
           console.log(`Server listening on port ${port}`);
         });
