@@ -14,6 +14,9 @@ const Profile = () => {
   const [password, setPassword] = useState("");
 
   console.log(currentUser);
+  if (!currentUser) {
+    return <Redirect to="/login" />;
+  }
 
   const base64Image = new Buffer(currentUser.image, "binary").toString("base64");
   const imageUrl = `data:image/jpeg;base64,${base64Image}`;
