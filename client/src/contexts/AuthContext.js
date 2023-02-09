@@ -5,6 +5,7 @@ import { Box } from "rebass";
 import api from "../api";
 import { auth, database } from "../config/firebaseconfig";
 import { signInWithEmailAndPassword, signOut } from "firebase/auth";
+import _ from "lodash";
 
 const AuthContext = createContext({
   currentUser: null,
@@ -117,17 +118,26 @@ export const AuthProvider = ({ children }) => {
     });
   }
 
-  async function savequiz(quizdata, questiondata) {
-    //   const userid = auth.currentUser;
-    //   push(ref_database(database, "Quiz/" + userid.uid), {
-    //     name: quizdata.name,
-    //     createby: userid.displayName,
-    //     uid: userid.uid,
-    //     question: questiondata,
-    //     category: quizdata.category,
-    //     releasedate: quizdata.releasedate,
-    //   });
-    //   window.localStorage.removeItem("Question");
+  async function savequiz(quizdata, questiondata, imageFile) {
+    const userid = currentUser.user_id;
+    const payload = {
+      userid: userid,
+      quizdata: quizdata,
+      questiondata: questiondata,
+    };
+    const formData = new FormData();
+    formData.append("userid", userid);
+    formData.append("quizdata", JSON.stringify(quizdata));
+    formData.append("questiondata", JSON.stringify(questiondata));
+    formData.append("image", imageFile);
+    api.post("/createquiz", formData).then(() => {
+      addToast("Create success!!", {
+        appearance: "success",
+        autoDismiss: true,
+      });
+    });
+
+    // window.localStorage.removeItem("Question");
   }
   const value = {
     currentUser,

@@ -4,6 +4,7 @@ import { Box, Text, Card, Flex, Button, Image } from "rebass";
 import { useToasts } from "react-toast-notifications";
 import { Label, Input } from "@rebass/forms";
 import { useAuth } from "../../contexts/AuthContext";
+import validator from "validator";
 
 export default function Register() {
   const history = useHistory();
@@ -16,6 +17,7 @@ export default function Register() {
   const [confirmpassword, setComfirmpassword] = useState("");
   const { registeremail, uploadphoto } = useAuth();
   const { addToast } = useToasts();
+  const [checkerror, setCheckerror] = useState("");
 
   const onImageChange = (event) => {
     if (event.target.files && event.target.files[0]) {
@@ -32,12 +34,22 @@ export default function Register() {
     });
   };
   const register = () => {
+    setCheckerror("")
+    // console.log();
     if (!picture || !photo) {
+      setCheckerror("1");
       addToast("Please insert image", {
         appearance: "warning",
         autoDismiss: true,
       });
     }
+    // if (validator.isStrongPassword(password, [{ minLength: 8 }]) != true) {
+    //   setCheckerror("2");
+    //   addToast("กรุณากรอกมากกว่า 8 ตัวอักษร", {
+    //     appearance: "error",
+    //     autoDismiss: true,
+    //   });
+    // }
     if (password !== confirmpassword) {
       addToast("รหัสผ่านไม่ตรงกัน", {
         appearance: "error",
@@ -49,7 +61,8 @@ export default function Register() {
         appearance: "warning",
         autoDismiss: true,
       });
-    } else {
+    }
+    else {
       const registersucess = registeremail(email, password, username, photo);
       try {
         if (registersucess) {
@@ -71,7 +84,7 @@ export default function Register() {
           py={4}
           sx={{
             borderRadius: "16px",
-            boxShadow: "0px 2px 20px 2px rgba(255, 0, 0, 0.25);",
+            boxShadow: "0px 2px 20px 2px #23aaff;",
           }}
           bg="#fff"
         >
@@ -126,7 +139,10 @@ export default function Register() {
                     borderRadius: " 100px",
                     position: "relative",
                     display: "flex",
-                    border: "3px solid rgba(255, 0, 0, 0.13);",
+                    border:
+                      checkerror === "1"
+                        ? "3px solid #9e1922"
+                        : "3px solid #23aaff;",
                     overflow: "hidden",
                     cursor: "pointer",
                   }}
@@ -145,6 +161,9 @@ export default function Register() {
                   }}
                   name="myImage"
                   accept="image/*"
+                  onClick={()=>{
+                    setCheckerror("")
+                  }}
                   onChange={onImageChange}
                 />
               </Box>
@@ -194,9 +213,15 @@ export default function Register() {
             </Label>
             <Input
               sx={{
-                borderTop: "hidden",
-                borderLeft: "hidden",
-                borderRight: "hidden",
+                border: "none",
+                borderBottom: "2px solid #333",
+                padding: "5px",
+                fontSize: "18px",
+                color: "#333",
+                ":focus": {
+                  outline: "none",
+                  borderBottom: "2px solid #23aaff",
+                },
               }}
               id="username"
               name="username"
@@ -211,9 +236,15 @@ export default function Register() {
             </Label>
             <Input
               sx={{
-                borderTop: "hidden",
-                borderLeft: "hidden",
-                borderRight: "hidden",
+                border: "none",
+                borderBottom: "2px solid #333",
+                padding: "5px",
+                fontSize: "18px",
+                color: "#333",
+                ":focus": {
+                  outline: "none",
+                  borderBottom: "2px solid #23aaff",
+                },
               }}
               id="email"
               name="email"
@@ -229,17 +260,27 @@ export default function Register() {
             </Label>
             <Input
               sx={{
-                borderTop: "hidden",
-                borderLeft: "hidden",
-                borderRight: "hidden",
+                border: "none",
+                borderBottom:
+                  checkerror == "2" ? "2px solid red" : "2px solid #333",
+                padding: "5px",
+                fontSize: "18px",
+                color: "#333",
+                ":focus": {
+                  outline: "none",
+                  borderBottom: "2px solid #23aaff",
+                },
               }}
               id="password"
               name="password"
               type="password"
+              onClick={()=>{
+                setCheckerror("")
+              }}
               onChange={(event) => {
                 setPassword(event.target.value);
               }}
-              placeholder="ใส่รหัสผ่าน"
+              placeholder="กรอกรหัสผ่านอย่างน้อย 8 หลัก"
             />
 
             <Label mb={2} mt={3} htmlFor="confirmpassword">
@@ -247,9 +288,15 @@ export default function Register() {
             </Label>
             <Input
               sx={{
-                borderTop: "hidden",
-                borderLeft: "hidden",
-                borderRight: "hidden",
+                border: "none",
+                borderBottom: "2px solid #333",
+                padding: "5px",
+                fontSize: "18px",
+                color: "#333",
+                ":focus": {
+                  outline: "none",
+                  borderBottom: "2px solid #23aaff",
+                },
               }}
               id="confirmpassword"
               name="confirmpassword"
@@ -279,6 +326,7 @@ export default function Register() {
               sx={{
                 color: " #fff",
                 fontSize: "20px",
+                cursor: "pointer",
               }}
             >
               ลงทะเบียน

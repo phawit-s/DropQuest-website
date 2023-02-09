@@ -18,11 +18,16 @@ const ChangePassword = () => {
   const { token } = useParams();
 
   const resetsubmit = async () => {
-    const change = changepassword(token, password)
+    const change = changepassword(token, password);
     try {
       if (change) {
-        history.push({
-          pathname: `/login`,
+        addToast("Register success!!", {
+          appearance: "success",
+          autoDismiss: true,
+        }).then(() => {
+          history.push({
+            pathname: `/login`,
+          });
         });
       }
     } catch (err) {
