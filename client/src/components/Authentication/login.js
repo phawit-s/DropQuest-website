@@ -93,6 +93,7 @@ const Login = () => {
             }}
             id="password"
             name="password"
+            type="password"
             ref={passwordref}
             placeholder="ใส่รหัสผ่าน"
           />

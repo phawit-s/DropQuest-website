@@ -7,7 +7,6 @@ import { Modal, Typography } from "@mui/material";
 import { useAuth } from "../../contexts/AuthContext";
 import { useToasts } from "react-toast-notifications";
 import Header from "../Header";
-import { setSelectionRange } from "@testing-library/user-event/dist/utils";
 
 const CreateQuiz = () => {
   const { currentUser, logout, savequiz } = useAuth();
@@ -18,6 +17,7 @@ const CreateQuiz = () => {
   const timer = useRef();
   const score = useRef();
   const description = useRef();
+  const [photo, setPhoto] = useState(null);
   const [questiondata, setQuestiondata] = useState([]);
   const [open, setOpen] = useState(false);
   const [openmodal, setOpenmodal] = useState(false);
@@ -45,12 +45,19 @@ const CreateQuiz = () => {
   if (!currentUser) {
     return <Redirect to="/login" />;
   }
-
+  const onImageChange = (event) => {
+    if (event.target.files && event.target.files[0]) {
+      let img = event.target.files[0];
+      setPhoto(img);
+    }
+  };
   const createandsave = () => {
     const quizdata = {
-      name: quizname.current.value,
+      groupname: quizname.current.value,
       category: category.current.value,
       releasedate: todayDate,
+      score: score.current.value,
+      timer: timer.current.value,
     };
     if (quizname.current.value === "") {
       addToast("กรุณากรอกชื่อแบบทดสอบ", {
@@ -88,7 +95,7 @@ const CreateQuiz = () => {
       setErrorScore(true);
       setErrorTime(true);
       setErrorDescription(true);
-      savequiz(quizdata, questiondata).then(() => {
+      savequiz(quizdata, question, photo).then(() => {
         history.push({
           pathname: `/`,
         });
@@ -309,15 +316,15 @@ const CreateQuiz = () => {
                 height="40px"
                 ref={category}
               >
-                <option value="ภาษาไทย">ภาษาไทย</option>
-                <option value="ภาษาอังกฤษ">ภาษาอังกฤษ</option>
-                <option value="วิทยาศาสตร์">วิทยาศาสตร์</option>
-                <option value="สังคมศึกษา">สังคมศึกษา</option>
-                <option value="ประวัติศาสตร์">ประวัติศาสตร์</option>
-                <option value="สุขศึกษา">สุขศึกษา</option>
-                <option value="ศิลปะ">ศิลปะ</option>
-                <option value="การงานอาชีพ">การงานอาชีพ</option>
-                <option value="ภาษาอังกฤษ">ภาษาอังกฤษ</option>
+                <option value="1">ภาษาไทย</option>
+                <option value="2">คณิตศาสตร์</option>
+                <option value="3">วิทยาศาสตร์</option>
+                <option value="4">สังคมศึกษา</option>
+                <option value="5">ประวัติศาสตร์</option>
+                <option value="6">สุขศึกษา</option>
+                <option value="7">ศิลปะ</option>
+                <option value="8">การงานอาชีพ</option>
+                <option value="9">ภาษาอังกฤษ</option>
               </Select>
             </Box>
           </Flex>
@@ -377,6 +384,7 @@ const CreateQuiz = () => {
                 id="thumbnail"
                 name="thumbnail"
                 accept="image/png, image/jpeg"
+                onChange={onImageChange}
               />
             </Box>
           </Flex>
@@ -504,8 +512,8 @@ const CreateQuiz = () => {
               {questiondata.map((data, index) => {
                 return (
                   <Box
-                    p={4}
-                    my={4}
+                    p={3}
+                    my={3}
                     mx={3}
                     key={index}
                     sx={{ border: "1px solid black", borderRadius: "10px" }}
@@ -513,8 +521,7 @@ const CreateQuiz = () => {
                     <Box
                       backgroundColor="white"
                       sx={{ borderRadius: "10px" }}
-                      pt={4}
-                      pb={2}
+                      py={2}
                       px={4}
                       mb={2}
                     >
@@ -539,7 +546,7 @@ const CreateQuiz = () => {
                             textAlign: "left",
                           }}
                         >
-                          <Text>{data.choice.choice1}</Text>
+                          <Text>{data.choice1}</Text>
                         </Box>
 
                         <Box
@@ -559,7 +566,7 @@ const CreateQuiz = () => {
                             textAlign: "left",
                           }}
                         >
-                          <Text>{data.choice.choice2}</Text>
+                          <Text>{data.choice2}</Text>
                         </Box>
                       </Flex>
 
@@ -582,7 +589,7 @@ const CreateQuiz = () => {
                             textAlign: "left",
                           }}
                         >
-                          <Text>{data.choice.choice3}</Text>
+                          <Text>{data.choice3}</Text>
                         </Box>
 
                         <Box
@@ -603,7 +610,7 @@ const CreateQuiz = () => {
                             textAlign: "left",
                           }}
                         >
-                          <Text>{data.choice.choice4}</Text>
+                          <Text>{data.choice4}</Text>
                         </Box>
                       </Flex>
                     </Box>

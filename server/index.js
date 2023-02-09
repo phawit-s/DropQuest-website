@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const multer = require("multer");
 const sharp = require("sharp");
-const path = require('path');
+const path = require("path");
 const nodemailer = require("nodemailer");
 const bcrypt = require("bcrypt");
 const bodyParser = require("body-parser");
@@ -56,7 +56,7 @@ conn
           const salt = bcrypt.genSaltSync(10);
           const passwordHash = bcrypt.hashSync(password, salt);
           sharp(imageBuffer)
-            .resize(100, 100) // resize image to 200x200 pixels
+            .resize(100, 100)
             .toBuffer()
             .then((data) => {
               const imageBuffer = data;
@@ -108,6 +108,7 @@ conn
                     message: "Logged in",
                     username: result[0].username,
                     image: result[0].image,
+                    user_id: result[0].user_id,
                   });
                 } else {
                   res
@@ -206,6 +207,118 @@ conn
               });
             }
           });
+        });
+
+        app.post("/createquiz", upload.single("image"), (req, res) => {
+          // Extract user id and quiz data from request body
+          const userId = req.body.userid;
+          const { groupname, category, releasedate, score, timer } = JSON.parse(
+            req.body.quizdata
+          );
+          
+
+          const image = req.file;
+          const imageBuffer = image.buffer;
+
+          sharp(imageBuffer)
+            .resize(100, 100)
+            .toBuffer()
+            .then((data) => {
+              const imageBuffer = data;
+
+              // Insert data into question_group table
+              db.query(
+                "INSERT INTO question_group (g_name, createddate,question_time, question_score,privacy, user_user_id, category_category_id, question_image) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                [
+                  groupname,
+                  releasedate,
+                  timer,
+                  score,
+                  "public",
+                  userId,
+                  category,
+                  imageBuffer,
+                ],
+                (err, result) => {
+                  if (err) {
+                    return res.status(500).send(err);
+                  }
+
+                  // Get the inserted group id
+                  const groupId = result.insertId;
+                  const data = JSON.parse(req.body.questiondata);
+                  console.log(data);
+                  console.log(groupId, "group_id");
+
+                  // Insert data into question_list table and question_list_has_question_group table
+                  const questionListPromises = data.map((question) => {
+                    return new Promise((resolve, reject) => {
+                      db.query(
+                        "SELECT * FROM question_list WHERE question_name = ?",
+                        [question.question],
+                        (err, result) => {
+                          if (err) {
+                            reject(err);
+                          }
+
+                          if (result.length === 0) {
+                            db.query(
+                              "INSERT INTO question_list (question_name,choice1,choice2,choice3,choice4,correct_choice) VALUES (?,?,?,?,?,?)",
+                              [
+                                question.question,
+                                question.choice1,
+                                question.choice2,
+                                question.choice3,
+                                question.choice4,
+                                question.correct,
+                              ],
+                              (err, result) => {
+                                if (err) {
+                                  reject(err);
+                                }
+                                const questionId = result.insertId;
+                                db.query(
+                                  "INSERT INTO question_list_has_question_group (question_list_question_id, question_group_group_id) VALUES (?, ?)",
+                                  [questionId, groupId],
+                                  (err, result) => {
+                                    if (err) {
+                                      reject(err);
+                                    }
+                                    resolve();
+                                  }
+                                );
+                              }
+                            );
+                          } else {
+                            const questionId = result[0].question_id;
+                            db.query(
+                              "INSERT INTO question_list_has_question_group (question_list_question_id, question_group_group_id) VALUES (?, ?)",
+                              [questionId, groupId],
+                              (err, result) => {
+                                if (err) {
+                                  reject(err);
+                                }
+                                resolve();
+                              }
+                            );
+                          }
+                        }
+                      );
+                    });
+                  });
+
+                  Promise.all(questionListPromises)
+                    .then(() => {
+                      return res
+                        .status(200)
+                        .send({ message: "Quiz created successfully" });
+                    })
+                    .catch((err) => {
+                      return res.status(500).send(err);
+                    });
+                }
+              );
+            });
         });
 
         // start the server

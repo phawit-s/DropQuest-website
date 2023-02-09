@@ -18,6 +18,7 @@
     "emotion-theming": "^11.0.0",
     "firebase": "^9.9.4",
     "framer-motion": "^4.1.17",
+    "lodash": "^4.17.21",
     "mongoose": "^6.5.2",
     "react": "^18.2.0",
     "react-custom-scrollbars": "^4.2.1",
@@ -31,6 +32,7 @@
     "rebass": "^4.0.7",
     "reflexbox": "^4.0.6",
     "uuid": "^9.0.0",
+    "validator": "^13.9.0",
     "web-vitals": "^2.1.4"
   },
   "scripts": {

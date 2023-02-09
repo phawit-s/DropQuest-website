@@ -51,16 +51,12 @@ const CreateQuestion = () => {
   const createnewquestion = () => {
     const sent = {
       question: questiontopic.current.value,
-      choice: {
-        choice1: questionchoice1.current.value,
-        choice2: questionchoice2.current.value,
-        choice3: questionchoice3.current.value,
-        choice4: questionchoice4.current.value,
-      },
+      choice1: questionchoice1.current.value,
+      choice2: questionchoice2.current.value,
+      choice3: questionchoice3.current.value,
+      choice4: questionchoice4.current.value,
       correct: correctchoice.current.value,
     };
-
-    const unique = Array.from(new Set(dataquestion));
 
     const arry = [
       questionchoice1.current.value,
@@ -130,21 +126,21 @@ const CreateQuestion = () => {
     window.localStorage.setItem("Question", JSON.stringify(deleteeddata));
   };
   const sentsub = async () => {
-    var question = {};
+    // var question = {};
     const allquestion = [];
+    console.log(refs, "test");
     refs.map((refquestion, index) => {
-      question = {
+      const question = {
         question: refquestion.current.innerText,
-        choice: {
-          choice1: refchoice1[index].current.innerText,
-          choice2: refchoice2[index].current.innerText,
-          choice3: refchoice3[index].current.innerText,
-          choice4: refchoice4[index].current.innerText,
-        },
+        choice1: refchoice1[index].current.innerText,
+        choice2: refchoice2[index].current.innerText,
+        choice3: refchoice3[index].current.innerText,
+        choice4: refchoice4[index].current.innerText,
         correct: dataquestion[index].correct,
       };
       allquestion.push(question);
     });
+    console.log(allquestion, "test2");
     window.localStorage.setItem("Question", JSON.stringify(allquestion));
     addToast("บันทึกเรียบร้อย", {
       appearance: "success",
@@ -394,13 +390,12 @@ const CreateQuestion = () => {
                 >
                   <Box
                     backgroundColor="white"
-                    sx={{ borderRadius: "10px", border: "1px solid #0A2239" }}
-                    pt={4}
-                    pb={2}
+                    sx={{ borderRadius: "10px" }}
+                    py={2}
                     px={4}
                     mb={2}
                   >
-                    <Text mb={4} ref={refs[index]}>
+                    <Text mb={3} ref={refs[index]} fontSize="20px">
                       {data.question}
                     </Text>
                   </Box>
@@ -413,10 +408,10 @@ const CreateQuestion = () => {
                         mx={4}
                         my={2}
                         sx={{
-                          border:
-                            data.correct === "1"
-                              ? "1px solid #59A96A"
-                              : "1px solid #0A2239",
+                          // border:
+                          //   data.correct === "1"
+                          //     ? "1px solid #59A96A"
+                          //     : "1px solid #0A2239",
                           borderRadius: "10px",
                           backgroundColor:
                             data.correct === "1" ? "#59A96A" : "#fff",
@@ -424,9 +419,7 @@ const CreateQuestion = () => {
                           textAlign: "left",
                         }}
                       >
-                        <Text ref={refchoice1[index]}>
-                          {data.choice.choice1}
-                        </Text>
+                        <Text ref={refchoice1[index]}>{data.choice1}</Text>
                       </Box>
 
                       <Box
@@ -435,10 +428,10 @@ const CreateQuestion = () => {
                         mx={4}
                         my={2}
                         sx={{
-                          border:
-                            data.correct === "2"
-                              ? "1px solid #59A96A"
-                              : "1px solid #0A2239",
+                          // border:
+                          //   data.correct === "2"
+                          //     ? "1px solid #59A96A"
+                          //     : "1px solid #0A2239",
                           borderRadius: "10px",
                           backgroundColor:
                             data.correct === "2" ? "#59A96A" : "#fff",
@@ -446,9 +439,7 @@ const CreateQuestion = () => {
                           textAlign: "left",
                         }}
                       >
-                        <Text ref={refchoice2[index]}>
-                          {data.choice.choice2}
-                        </Text>
+                        <Text ref={refchoice2[index]}>{data.choice2}</Text>
                       </Box>
                     </Flex>
 
@@ -459,10 +450,10 @@ const CreateQuestion = () => {
                         mx={4}
                         my={2}
                         sx={{
-                          border:
-                            data.correct === "3"
-                              ? "1px solid #59A96A"
-                              : "1px solid #0A2239",
+                          // border:
+                          //   data.correct === "3"
+                          //     ? "1px solid #59A96A"
+                          //     : "1px solid #0A2239",
                           borderRadius: "10px",
                           backgroundColor:
                             data.correct === "3" ? "#59A96A" : "#fff",
@@ -470,9 +461,7 @@ const CreateQuestion = () => {
                           textAlign: "left",
                         }}
                       >
-                        <Text ref={refchoice3[index]}>
-                          {data.choice.choice3}
-                        </Text>
+                        <Text ref={refchoice3[index]}>{data.choice3}</Text>
                       </Box>
 
                       <Box
@@ -481,10 +470,10 @@ const CreateQuestion = () => {
                         mx={4}
                         my={2}
                         sx={{
-                          border:
-                            data.correct === "4"
-                              ? "1px solid #59A96A"
-                              : "1px solid #0A2239",
+                          // border:
+                          //   data.correct === "4"
+                          //     ? "1px solid #59A96A"
+                          //     : "1px solid #0A2239",
                           borderRadius: "10px",
                           backgroundColor:
                             data.correct === "4" ? "#59A96A" : "#fff",
@@ -492,9 +481,7 @@ const CreateQuestion = () => {
                           textAlign: "left",
                         }}
                       >
-                        <Text ref={refchoice4[index]}>
-                          {data.choice.choice4}
-                        </Text>
+                        <Text ref={refchoice4[index]}>{data.choice4}</Text>
                       </Box>
                     </Flex>
                     {/* <BiEdit
