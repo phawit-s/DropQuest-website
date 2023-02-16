@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useHistory, Redirect } from "react-router-dom";
 import { Box, Text, Card, Flex, Button, Image } from "rebass";
 import { useToasts } from "react-toast-notifications";
 import { Label, Input } from "@rebass/forms";
 import { useAuth } from "../../contexts/AuthContext";
+import api from "../../api";
 import validator from "validator";
 
 export default function Register() {
@@ -12,13 +13,28 @@ export default function Register() {
   const [photo, setPhoto] = useState(null);
   const [isselected, setIsselected] = useState(false);
   const [username, setUsername] = useState("");
+  const [alluser, setAlluser] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmpassword, setComfirmpassword] = useState("");
-  const { registeremail, uploadphoto } = useAuth();
   const { addToast } = useToasts();
-  const [checkerror, setCheckerror] = useState("");
+  const { registeremail } = useAuth();
+  const [checkImageerror, setCheckimageerror] = useState(false);
+  const [checkUsernameerror, setCheckusernameerror] = useState(false);
+  const [checkEmailerror, setCheckemailerror] = useState(false);
+  const [checkPassworderror, setCheckpassworderror] = useState("");
+  const [checkConfirmerror, setCheckconfirmerror] = useState("");
 
+  useEffect(() => {
+    api
+      .get("/users")
+      .then((response) => {
+        setAlluser(response.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, []);
   const onImageChange = (event) => {
     if (event.target.files && event.target.files[0]) {
       setIsselected(true);
@@ -34,35 +50,74 @@ export default function Register() {
     });
   };
   const register = () => {
-    setCheckerror("")
-    // console.log();
+    setCheckpassworderror("");
+    let checkelse = false;
+    if (username) {
+      alluser.map((user) => {
+        if (user.username === username) {
+          checkelse = true;
+          setCheckusernameerror(true);
+          addToast("ชื่อผู้ใช้ซ้ำ", {
+            appearance: "error",
+            autoDismiss: true,
+          });
+        }
+        if (user.email === email) {
+          setCheckemailerror(true);
+          addToast("อีเมลซ้ำ", {
+            appearance: "error",
+            autoDismiss: true,
+          });
+        }
+      });
+    }
     if (!picture || !photo) {
-      setCheckerror("1");
-      addToast("Please insert image", {
-        appearance: "warning",
+      setCheckimageerror(true);
+      checkelse = true;
+      addToast("กรุณาเพิ่มรูปภาพ", {
+        appearance: "error",
         autoDismiss: true,
       });
     }
-    // if (validator.isStrongPassword(password, [{ minLength: 8 }]) != true) {
-    //   setCheckerror("2");
-    //   addToast("กรุณากรอกมากกว่า 8 ตัวอักษร", {
-    //     appearance: "error",
-    //     autoDismiss: true,
-    //   });
-    // }
+    if (username === "") {
+      setCheckusernameerror(true);
+      checkelse = true;
+      addToast("กรุณากรอกชื่อผู้ใช้", {
+        appearance: "error",
+        autoDismiss: true,
+      });
+    }
+    if (email === "" || validator.isEmail(email, []) !== true) {
+      setCheckemailerror(true);
+      checkelse = true;
+      addToast("กรุณากรอกอีเมลให้ถูกต้อง", {
+        appearance: "error",
+        autoDismiss: true,
+      });
+    }
+    if (password === "") {
+      checkelse = true;
+      addToast("กรุณากรอกรหัสผ่าน", {
+        appearance: "error",
+        autoDismiss: true,
+      });
+    }
     if (password !== confirmpassword) {
+      checkelse = true;
+      setCheckconfirmerror(true);
+      setCheckpassworderror(true);
       addToast("รหัสผ่านไม่ตรงกัน", {
         appearance: "error",
         autoDismiss: true,
       });
     }
-    if (email === "" || password === "") {
-      addToast("Please fill all the box", {
-        appearance: "warning",
+    if (password.length < 8) {
+      setCheckpassworderror(true);
+      addToast("กรุณากรอกมากกว่า 8 ตัวอักษร", {
+        appearance: "error",
         autoDismiss: true,
       });
-    }
-    else {
+    } else if (!checkelse) {
       const registersucess = registeremail(email, password, username, photo);
       try {
         if (registersucess) {
@@ -100,7 +155,6 @@ export default function Register() {
                     borderRadius: " 100px",
                     position: "relative",
                     display: "flex",
-                    // border: "3px solid rgba(255, 0, 0, 0.13);",
                     overflow: "hidden",
                     cursor: "pointer",
                   }}
@@ -139,10 +193,9 @@ export default function Register() {
                     borderRadius: " 100px",
                     position: "relative",
                     display: "flex",
-                    border:
-                      checkerror === "1"
-                        ? "3px solid #9e1922"
-                        : "3px solid #23aaff;",
+                    border: checkImageerror
+                      ? "3px solid #9e1922"
+                      : "3px solid #23aaff;",
                     overflow: "hidden",
                     cursor: "pointer",
                   }}
@@ -161,52 +214,13 @@ export default function Register() {
                   }}
                   name="myImage"
                   accept="image/*"
-                  onClick={()=>{
-                    setCheckerror("")
+                  onClick={() => {
+                    setCheckimageerror(false);
                   }}
                   onChange={onImageChange}
                 />
               </Box>
             )}
-
-            {/* <Flex>
-              <Box width={1} pr={1} mb={2}>
-                <Label mb={2} mt={3} htmlFor="name">
-                  ชื่อจริง
-                </Label>
-                <Input
-                  sx={{
-                    borderTop: "hidden",
-                    borderLeft: "hidden",
-                    borderRight: "hidden",
-                  }}
-                  id="name"
-                  name="name"
-                  onChange={(event) => {
-                    setName(event.target.value);
-                  }}
-                  placeholder="ใส่ชื่อจริง"
-                />
-              </Box>
-              <Box width={1} pl={1} mb={2}>
-                <Label mb={2} mt={3} htmlFor="surname">
-                  นามสกุล
-                </Label>
-                <Input
-                  sx={{
-                    borderTop: "hidden",
-                    borderLeft: "hidden",
-                    borderRight: "hidden",
-                  }}
-                  id="surname"
-                  name="surname"
-                  onChange={(event) => {
-                    setSurname(event.target.value);
-                  }}
-                  placeholder="ใส่นามสกุล"
-                />
-              </Box>
-            </Flex> */}
 
             <Label mb={2} mt={2} htmlFor="username">
               ชื่อผู้ใช้
@@ -214,7 +228,9 @@ export default function Register() {
             <Input
               sx={{
                 border: "none",
-                borderBottom: "2px solid #333",
+                borderBottom: checkUsernameerror
+                  ? "2px solid #9e1922"
+                  : "2px solid #333",
                 padding: "5px",
                 fontSize: "18px",
                 color: "#333",
@@ -225,6 +241,9 @@ export default function Register() {
               }}
               id="username"
               name="username"
+              onClick={() => {
+                setCheckusernameerror(false);
+              }}
               onChange={(event) => {
                 setUsername(event.target.value);
               }}
@@ -237,7 +256,9 @@ export default function Register() {
             <Input
               sx={{
                 border: "none",
-                borderBottom: "2px solid #333",
+                borderBottom: checkEmailerror
+                  ? "2px solid #9e1922"
+                  : "2px solid #333",
                 padding: "5px",
                 fontSize: "18px",
                 color: "#333",
@@ -248,7 +269,9 @@ export default function Register() {
               }}
               id="email"
               name="email"
-              required
+              onClick={() => {
+                setCheckemailerror(false);
+              }}
               onChange={(event) => {
                 setEmail(event.target.value);
               }}
@@ -261,8 +284,9 @@ export default function Register() {
             <Input
               sx={{
                 border: "none",
-                borderBottom:
-                  checkerror == "2" ? "2px solid red" : "2px solid #333",
+                borderBottom: checkPassworderror
+                  ? "2px solid #9e1922"
+                  : "2px solid #333",
                 padding: "5px",
                 fontSize: "18px",
                 color: "#333",
@@ -274,8 +298,8 @@ export default function Register() {
               id="password"
               name="password"
               type="password"
-              onClick={()=>{
-                setCheckerror("")
+              onClick={() => {
+                setCheckpassworderror(false);
               }}
               onChange={(event) => {
                 setPassword(event.target.value);
@@ -289,7 +313,9 @@ export default function Register() {
             <Input
               sx={{
                 border: "none",
-                borderBottom: "2px solid #333",
+                borderBottom: checkConfirmerror
+                  ? "2px solid #9e1922"
+                  : "2px solid #333",
                 padding: "5px",
                 fontSize: "18px",
                 color: "#333",
@@ -301,6 +327,9 @@ export default function Register() {
               id="confirmpassword"
               name="confirmpassword"
               type="password"
+              onClick={() => {
+                setCheckconfirmerror(false);
+              }}
               onChange={(event) => {
                 setComfirmpassword(event.target.value);
               }}

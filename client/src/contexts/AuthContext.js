@@ -36,6 +36,7 @@ export const AuthProvider = ({ children }) => {
     return <Box></Box>;
   }
 
+
   async function registeremail(email, password, username, imageFile) {
     const formData = new FormData();
     formData.append("image", imageFile);
@@ -130,14 +131,20 @@ export const AuthProvider = ({ children }) => {
     formData.append("quizdata", JSON.stringify(quizdata));
     formData.append("questiondata", JSON.stringify(questiondata));
     formData.append("image", imageFile);
-    api.post("/createquiz", formData).then(() => {
-      addToast("Create success!!", {
-        appearance: "success",
-        autoDismiss: true,
+    api
+      .post("/createquiz", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
+      .then(() => {
+        addToast("Create success!!", {
+          appearance: "success",
+          autoDismiss: true,
+        });
       });
-    });
 
-    // window.localStorage.removeItem("Question");
+    window.localStorage.removeItem("Question");
   }
   const value = {
     currentUser,

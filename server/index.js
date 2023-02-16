@@ -33,18 +33,33 @@ conn
           database: "dropquest",
           stream: stream,
         });
-        app.get("/*", function (req, res) {
-          res.sendFile(path.join(__dirname, "build", "index.html"));
-        });
+        // app.get("/*", function (req, res) {
+        //   res.sendFile(path.join(__dirname, "build", "index.html"));
+        // });
         // set up your routes and middlewares here
         app.get("/users", function (req, res) {
-          db.query("SELECT * FROM users;", (err, result) => {
+          db.query("SELECT username, email FROM users;", (err, result) => {
+            console.log(result);
             if (err) {
               console.log(err);
             } else {
               res.send(result);
             }
           });
+        });
+
+        app.get("/question", function (req, res) {
+          db.query(
+            "SELECT question_name, choice1, choice2, choice3, choice4, correct_choice FROM question_list;",
+            (err, result) => {
+              console.log(result);
+              if (err) {
+                console.log(err);
+              } else {
+                res.send(result);
+              }
+            }
+          );
         });
 
         app.post("/create", upload.single("image"), (req, res) => {
@@ -215,7 +230,6 @@ conn
           const { groupname, category, releasedate, score, timer } = JSON.parse(
             req.body.quizdata
           );
-          
 
           const image = req.file;
           const imageBuffer = image.buffer;
@@ -254,8 +268,14 @@ conn
                   const questionListPromises = data.map((question) => {
                     return new Promise((resolve, reject) => {
                       db.query(
-                        "SELECT * FROM question_list WHERE question_name = ?",
-                        [question.question],
+                        "SELECT * FROM question_list WHERE question_name = ? AND choice1 = ? AND choice2 = ? AND choice3 = ? AND choice4 = ?",
+                        [
+                          question.question,
+                          question.choice1,
+                          question.choice2,
+                          question.choice3,
+                          question.choice4,
+                        ],
                         (err, result) => {
                           if (err) {
                             reject(err);
@@ -323,7 +343,7 @@ conn
 
         // start the server
         const port = 4001;
-        app.listen(port, 'dropquest.it.kmitl.ac.th', function () {
+        app.listen(port, 'dropquest.it.kmitl.ac.th' ,function () {
           console.log(`Server listening on port ${port}`);
         });
       }

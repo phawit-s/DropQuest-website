@@ -6,6 +6,7 @@ import { Scrollbars } from "react-custom-scrollbars";
 import { Modal, Typography } from "@mui/material";
 import { useAuth } from "../../contexts/AuthContext";
 import { useToasts } from "react-toast-notifications";
+import api from "../../api";
 import Header from "../Header";
 
 const CreateQuiz = () => {
@@ -18,6 +19,7 @@ const CreateQuiz = () => {
   const score = useRef();
   const description = useRef();
   const [photo, setPhoto] = useState(null);
+  const [checkquestion, setCheckquestion] = useState([]);
   const [questiondata, setQuestiondata] = useState([]);
   const [open, setOpen] = useState(false);
   const [openmodal, setOpenmodal] = useState(false);
@@ -42,9 +44,11 @@ const CreateQuiz = () => {
       setQuestiondata([...question]);
     }
   }, []);
+
   if (!currentUser) {
     return <Redirect to="/login" />;
   }
+
   const onImageChange = (event) => {
     if (event.target.files && event.target.files[0]) {
       let img = event.target.files[0];
@@ -120,7 +124,7 @@ const CreateQuiz = () => {
       <Modal open={open} onClose={handleClose}>
         <Box
           sx={{
-            backgroundColor: "#fff",
+            backgroundColor: "#daddd8",
             position: "absolute",
             top: "50%",
             left: "50%",
@@ -221,13 +225,13 @@ const CreateQuiz = () => {
               sx={{
                 display: "flex",
                 justifyContent: "center",
-                border: "1px solid #C1D7AE",
+                border: "1px solid #daddd8",
                 borderRadius: "20px",
                 cursor: "pointer",
               }}
               width={3 / 4}
               fontSize={2}
-              backgroundColor="#fff"
+              backgroundColor="#daddd8"
               type="button"
               onClick={modalsaveClose}
             >
@@ -277,7 +281,7 @@ const CreateQuiz = () => {
           px={4}
           ml={4}
           sx={{
-            backgroundColor: "white",
+            backgroundColor: "#FCFAFA",
             height: "800px",
             borderRadius: "10px",
           }}
@@ -285,7 +289,7 @@ const CreateQuiz = () => {
           <Flex pt={4}>
             <Box width={1 / 4} mr={4}>
               <Label htmlFor="name" fontSize="16px">
-                ชื่อแบบทดสอบ
+                ชื่อแบบทดสอบ<span style={{color: "red", fontSize:"18px"}}>*</span>
               </Label>
             </Box>
             <Box width={3 / 4}>
@@ -305,7 +309,7 @@ const CreateQuiz = () => {
           <Flex pt={4}>
             <Box width={1 / 4} mr={4}>
               <Label htmlFor="category" fontSize="16px">
-                หมวดหมู่
+                หมวดหมู่<span style={{color: "red", fontSize:"18px"}}>*</span>
               </Label>
             </Box>
             <Box width={3 / 4}>
@@ -332,7 +336,7 @@ const CreateQuiz = () => {
           <Flex pt={4}>
             <Box width={1 / 4} mr={4}>
               <Label htmlFor="timer" fontSize="16px">
-                {"ระยะเวลา(วินาที)"}
+                {"ระยะเวลา(วินาที)"}<span style={{color: "red", fontSize:"18px"}}>*</span>
               </Label>
             </Box>
             <Box width={3 / 4}>
@@ -353,7 +357,7 @@ const CreateQuiz = () => {
           <Flex pt={4}>
             <Box width={1 / 4} mr={4}>
               <Label htmlFor="score" fontSize="16px">
-                คะแนนต่อข้อ
+                คะแนนต่อข้อ<span style={{color: "red", fontSize:"18px"}}>*</span>
               </Label>
             </Box>
             <Box width={3 / 4}>
@@ -374,7 +378,7 @@ const CreateQuiz = () => {
           <Flex pt={4}>
             <Box width={1 / 4} mr={4}>
               <Label htmlFor="thumbnail" fontSize="16px">
-                Thumbnail
+                Thumbnail<span style={{color: "red", fontSize:"18px"}}>*</span>
               </Label>
             </Box>
             <Box width={3 / 4}>
@@ -392,7 +396,7 @@ const CreateQuiz = () => {
           <Flex pt={4}>
             <Box width={1 / 4} mr={4}>
               <Label htmlFor="description" fontSize="16px">
-                คำอธิบาย
+                คำอธิบาย<span style={{color: "red", fontSize:"18px"}}>*</span>
               </Label>
             </Box>
             <Box width={3 / 4}>
@@ -425,7 +429,7 @@ const CreateQuiz = () => {
               }}
               width={3 / 4}
               fontSize={2}
-              backgroundColor="#fff"
+              backgroundColor="#D10000"
               type="button"
               onClick={handleOpen}
             >
@@ -451,7 +455,7 @@ const CreateQuiz = () => {
               }}
               width={3 / 4}
               fontSize={2}
-              backgroundColor="#C1D7AE"
+              backgroundColor="green"
               type="button"
               onClick={modalsaveOpen}
             >
@@ -471,7 +475,7 @@ const CreateQuiz = () => {
           width={[1, 4 / 5]}
           mx={4}
           sx={{
-            backgroundColor: "white",
+            backgroundColor: "#FCFAFA",
             height: "800px",
             borderRadius: "10px",
           }}
