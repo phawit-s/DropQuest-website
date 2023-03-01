@@ -9,13 +9,16 @@ import Header from "../Header";
 import { useToasts } from "react-toast-notifications";
 import { BsTrash } from "react-icons/bs";
 import { BiEdit } from "react-icons/bi";
+import { AiOutlineCaretDown, AiOutlineCaretUp } from "react-icons/ai";
 import api from "../../api";
+
 const CreateQuestion = () => {
   const { currentUser, logout } = useAuth();
   const { addToast } = useToasts();
   const history = useHistory();
   const [dataquestion, setDataQuestion] = useState([]);
   const [samequestion, setSamequestion] = useState([]);
+  const [checksamequestion, setChecksamequestion] = useState([]);
   const [datacheckquestion, setDataCheckquestion] = useState([]);
   const [savequestion, setSavequestion] = useState(false);
   const [savenumber, setSavenumber] = useState([]);
@@ -26,6 +29,11 @@ const CreateQuestion = () => {
   const [errorchoice3, setErrorChoice3] = useState(false);
   const [errorchoice4, setErrorChoice4] = useState(false);
   const [validatequestion, setValidateQuestion] = useState(false);
+  const [opendescription, setOpendescription] = useState(false);
+  const [selectedText, setSelectedText] = useState("left");
+  const [openIndex, setOpenIndex] = useState(null);
+  const [checkmodal, setCheckmodal] = useState(false);
+  const [nextquestion, setNextquestion] = useState(0);
   const questiontopic = useRef();
   const questionchoice1 = useRef();
   const questionchoice2 = useRef();
@@ -69,48 +77,122 @@ const CreateQuestion = () => {
   }
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
+  const handleTextClick = (text) => {
+    setSelectedText(text);
+  };
+
+  const previouspage = () => {
+    if (nextquestion > 0) {
+      setNextquestion(nextquestion - 1);
+    }
+  };
   const modalsaveOpen = () => {
     setSamequestion([]);
-    refs.map((refquestion) => {
-      const allquestion = [];
-      const hasQuestion = datacheckquestion.find((q) =>
-        q.question_name.includes(refquestion.current.innerText)
+
+    dataquestion.map((refquestion) => {
+      const uniqueQuestions = datacheckquestion.reduce((acc, curr) => {
+        // Check if `acc` already contains an element with the same `question` property as `curr`
+        if (!acc.some(q => q.question_name === curr.question_name)) {
+          // If it doesn't, add `curr` to the `acc` array using `push()`
+          acc.push(curr);
+        }
+        // Return the updated `acc` array for the next iteration of `reduce()`
+        return acc;
+      }, []);
+      
+      const hasQuestion = uniqueQuestions.find(
+        (q) =>
+          q.question_name.includes(refquestion.question) &&
+          !q.choice1.includes(refquestion.choice1) &&
+          !q.choice2.includes(refquestion.choice2) &&
+          !q.choice3.includes(refquestion.choice3) &&
+          !q.choice4.includes(refquestion.choice4)
       );
       if (hasQuestion) {
-        allquestion.push(hasQuestion.question_name);
         setSamequestion((prevState) => [
           ...prevState,
           hasQuestion.question_name,
         ]);
+        setChecksamequestion((prevState) => [...prevState, hasQuestion]);
       }
     });
 
     setOpensave(true);
   };
   const modalsaveClose = () => setOpensave(false);
+  const cancelquestion = () => {
+    setOpensave(false);
+    window.location.reload();
+  };
 
-  const usequestion = (index, savetype) => {
-    if (savetype === "old") {
-      datacheckquestion.map((sqlquestion) => {
-        refs.map((question, refindex) => {
-          if (question.current.innerText === sqlquestion.question_name && refindex === index) {
-            question.current.innerText = sqlquestion.question_name;
-            refchoice1[refindex].current.innerText = sqlquestion.choice1;
-            refchoice2[refindex].current.innerText = sqlquestion.choice2;
-            refchoice3[refindex].current.innerText = sqlquestion.choice3;
-            refchoice4[refindex].current.innerText = sqlquestion.choice4;
-            dataquestion[refindex].correct = sqlquestion.correct_choice;
+  const usequestion = (index, savetype, page) => {
+    if (page === "nextpage") {
+      if (nextquestion < samequestion.length) {
+        setNextquestion(nextquestion + 1);
+      }
+    }
+    if (page === "previouspage") {
+      if (nextquestion > 0) {
+        setNextquestion(nextquestion - 1);
+      }
+    }
+
+    if (savetype === "left") {
+      const checkquestionnames = checksamequestion.map((question) => question);
+      const checkindex = dataquestion.findIndex(
+        (dq) => dq.question === samequestion[nextquestion]
+      );
+      checkquestionnames.forEach((question) => {
+        refs.forEach((ref, refIndex) => {
+          if (
+            ref.current.innerText === question.question_name &&
+            refIndex === checkindex
+          ) {
+            ref.current.innerText = question.question_name;
+            refchoice1[refIndex].current.innerText = question.choice1;
+            refchoice2[refIndex].current.innerText = question.choice2;
+            refchoice3[refIndex].current.innerText = question.choice3;
+            refchoice4[refIndex].current.innerText = question.choice4;
+            dataquestion[refIndex].correct = question.correct_choice;
           }
         });
       });
-      setSavequestion(true);
+
       if (savenumber.includes(index) != true) {
         setSavenumber((prevState) => [...prevState, index]);
       }
+      if (page === "finish") {
+        setOpensave(false);
+        setNextquestion(0);
+        setCheckmodal(true);
+      }
     } else {
-      setSavequestion(true);
+      const checkindex = dataquestion.findIndex(
+        (dq) => dq.question === samequestion[nextquestion]
+      );
+      dataquestion.map((question) => {
+        refs.forEach((ref, refIndex) => {
+          if (
+            ref.current.innerText === question.question &&
+            refIndex === checkindex
+          ) {
+            ref.current.innerText = question.question;
+            refchoice1[refIndex].current.innerText = question.choice1;
+            refchoice2[refIndex].current.innerText = question.choice2;
+            refchoice3[refIndex].current.innerText = question.choice3;
+            refchoice4[refIndex].current.innerText = question.choice4;
+            dataquestion[refIndex].correct = question.correct;
+          }
+        });
+      });
+
       if (savenumber.includes(index) != true) {
         setSavenumber((prevState) => [...prevState, index]);
+      }
+      if (page === "finish") {
+        setOpensave(false);
+        setNextquestion(0);
+        setCheckmodal(true);
       }
     }
   };
@@ -213,7 +295,71 @@ const CreateQuestion = () => {
       pathname: `/createquiz`,
     });
   };
+  let foundCat = false;
+  const firstQuestion = datacheckquestion
+    .map((question, index) => {
+      if (question.question_name === samequestion[nextquestion] && !foundCat) {
+        foundCat = true;
+        return (
+          <Box key={index}>
+            <Text
+              fontSize="18px"
+              ml={3}
+              mb={4}
+              mr={3}
+              mt={3}
+              color={question.correct_choice === 1 ? "green" : "black"}
+              textAlign="left"
+            >
+              ข้อที่ 1 : {question.choice1}
+            </Text>
+            <Text
+              fontSize="18px"
+              ml={3}
+              mb={4}
+              mr={3}
+              mt={3}
+              color={question.correct_choice === 2 ? "green" : "black"}
+              textAlign="left"
+            >
+              ข้อที่ 2 : {question.choice2}
+            </Text>
+            <Text
+              fontSize="18px"
+              ml={3}
+              mb={4}
+              mr={3}
+              mt={3}
+              color={question.correct_choice === 3 ? "green" : "black"}
+              textAlign="left"
+            >
+              ข้อที่ 3 : {question.choice3}
+            </Text>
+            <Text
+              fontSize="18px"
+              ml={3}
+              mb={4}
+              mr={3}
+              mt={3}
+              color={question.correct_choice === 4 ? "green" : "black"}
+              textAlign="left"
+            >
+              ข้อที่ 4 : {question.choice4}
+            </Text>
+          </Box>
+        );
+      } else {
+        return null;
+      }
+    })
+    .filter((question) => question !== null)[0];
 
+  const dq = dataquestion.find(
+    (dq) => dq.question === samequestion[nextquestion]
+  );
+  const index = dataquestion.findIndex(
+    (dq) => dq.question === samequestion[nextquestion]
+  );
   return (
     <Box
       minHeight="969px"
@@ -222,142 +368,187 @@ const CreateQuestion = () => {
       }}
     >
       <Modal open={opensave} onClose={modalsaveClose}>
-        <Box
-          sx={{
-            backgroundColor: "#fff",
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            textAlign: "center",
-            borderRadius: "20px",
-            display: "inline-block",
-            height: "400px",
-            // overflow: "auto",
-          }}
-          width={2 / 4}
-          px={4}
-          pt={4}
-          pb={5}
-        >
-          {samequestion.length > 0 ? (
-            <>
-              <Text sx={{ fontSize: "26px", textAlign: "center" }}>
-                มีคำถามที่ซ้ำกัน
-              </Text>
-              <Scrollbars
-                style={{
-                  width: "100%",
-                  height: "70%",
-                  overflow: "hidden",
-                }}
-              >
-                {samequestion.map((question, index) => (
-                  <Flex key={index}>
-                    <Text
-                      mb={3}
-                      mr={3}
-                      fontSize="20px"
-                      sx={{
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
-                        width: "500px",
-                      }}
-                      textAlign="start"
-                      color={
-                        savequestion === true &&
-                        savenumber.includes(index) === true
-                          ? "green"
-                          : "#cccc00"
-                      }
-                      mt={4}
-                    >
-                      {question}
-                    </Text>
-                    {savequestion === true &&
-                    savenumber.includes(index) === true ? (
-                      ""
-                    ) : (
-                      <>
-                        <Button
-                          mx="auto"
-                          mr={2}
-                          mt={4}
-                          p={2}
-                          sx={{
-                            display: "flex",
-                            justifyContent: "center",
-                            border: "1px solid #e6e600",
-                            borderRadius: "20px",
-                            cursor: "pointer",
-                          }}
-                          width={1 / 4}
-                          fontSize={2}
-                          backgroundColor="#e6e600"
-                          type="button"
-                          onClick={() => usequestion(index, "old")}
-                        >
-                          <Text
-                            sx={{
-                              color: " #000",
-                              fontSize: "18px",
-                            }}
-                          >
-                            ใช้คำถามที่มีอยู่แล้ว
-                          </Text>
-                        </Button>
+        {samequestion.length > 0 && checkmodal === false ? (
+          <Box
+            sx={{
+              backgroundColor: "#fff",
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              textAlign: "center",
+              borderRadius: "20px",
+              display: "inline-block",
+              height: "65%",
+            }}
+            width={{ xs: "100%", sm: "75%", md: "50%" }}
+            px={4}
+            pt={4}
+            pb={5}
+          >
+            <Text sx={{ fontSize: "26px", textAlign: "center" }}>
+              มีคำถามที่ซ้ำกัน
+            </Text>
 
-                        <Button
-                          mx="auto"
-                          mr={2}
-                          mt={4}
-                          p={2}
-                          sx={{
-                            display: "flex",
-                            justifyContent: "center",
-                            border: "1px solid #5E8C61",
-                            borderRadius: "20px",
-                            cursor: "pointer",
-                          }}
-                          width={1 / 4}
-                          fontSize={2}
-                          backgroundColor="green"
-                          type="button"
-                          onClick={() => usequestion(index, "new")}
-                        >
-                          <Text
-                            sx={{
-                              color: " #000",
-                              fontSize: "18px",
-                            }}
-                          >
-                            ใช้คำถามของตน
-                          </Text>
-                        </Button>
-                      </>
-                    )}
-                  </Flex>
-                ))}
-              </Scrollbars>
-              <Flex justifyContent="center" alignItems="center">
+            <Text mr={3} fontSize="22px" textAlign="start" mt={4}>
+              {samequestion[nextquestion]}
+            </Text>
+            <Text
+              mb={2}
+              mr={3}
+              fontSize="22px"
+              textAlign="center"
+              sx={{ textDecoration: "underline" }}
+              mt={4}
+            >
+              เลือกคำถาม
+            </Text>
+            <Flex
+              flexDirection="row"
+              justifyContent="space-between"
+              height="100%"
+            >
+              <Box flex={1}>
+                <Box
+                  p={2}
+                  m={1}
+                  sx={{
+                    cursor: "pointer",
+                    border:
+                      selectedText === "left"
+                        ? "2px solid green"
+                        : "1px solid white",
+                    backgroundColor:
+                      selectedText === "left" ? "#90EE90" : "transparent",
+                    borderRadius: "10px",
+                    color: selectedText === "left" ? "white" : "inherit",
+                  }}
+                  onClick={() => handleTextClick("left")}
+                >
+                  <Text
+                    fontSize="20px"
+                    mb={4}
+                    mr={3}
+                    color="black"
+                    textAlign="center"
+                  >
+                    คำถามที่มีในฐานข้อมูล
+                  </Text>
+                  {firstQuestion}
+                </Box>
+              </Box>
+              <Box flex={1}>
+                <Box
+                  p={2}
+                  m={1}
+                  sx={{
+                    cursor: "pointer",
+                    border:
+                      selectedText === "right"
+                        ? "2px solid green"
+                        : "1px solid white",
+                    backgroundColor:
+                      selectedText === "right" ? "#90EE90" : "transparent",
+                    borderRadius: "10px",
+                    color: selectedText === "right" ? "white" : "inherit",
+                  }}
+                  onClick={() => handleTextClick("right")}
+                >
+                  <Text
+                    fontSize="20px"
+                    ml={3}
+                    mb={4}
+                    mr={3}
+                    textAlign="center"
+                    color="black"
+                  >
+                    คำถามที่ผู้ใช้สร้างขึ้น
+                  </Text>
+
+                  {dq ? (
+                    <>
+                      <Text
+                        fontSize="18px"
+                        ml={3}
+                        mb={4}
+                        mr={3}
+                        mt={3}
+                        color={dq.correct === 1 || dq.correct === "1" ? "green" : "black"}
+                        textAlign="left"
+                      >
+                        ข้อที่ 1 : {dq.choice1}
+                      </Text>
+                      <Text
+                        fontSize="18px"
+                        ml={3}
+                        mb={4}
+                        mr={3}
+                        mt={3}
+                        color={dq.correct === 2 || dq.correct === "2" ? "green" : "black"}
+                        textAlign="left"
+                      >
+                        ข้อที่ 2 : {dq.choice2}
+                      </Text>
+                      <Text
+                        fontSize="18px"
+                        ml={3}
+                        mb={4}
+                        mr={3}
+                        mt={3}
+                        color={dq.correct === 3 || dq.correct === "3" ? "green" : "black"}
+                        textAlign="left"
+                      >
+                        ข้อที่ 3 : {dq.choice3}
+                      </Text>
+                      <Text
+                        fontSize="18px"
+                        ml={3}
+                        mb={4}
+                        mr={3}
+                        mt={3}
+                        color={dq.correct === 4 || dq.correct === "4" ? "green" : "black"}
+                        textAlign="left"
+                      >
+                        ข้อที่ 4 : {dq.choice4}
+                      </Text>
+                    </>
+                  ) : (
+                    ""
+                  )}
+                </Box>
+              </Box>
+            </Flex>
+
+            <Flex
+              sx={{
+                position: "absolute",
+                bottom: -10,
+                right: 10,
+                justifyContent: "center",
+              }}
+              alignItems="flex-end"
+            >
+              {nextquestion === 0 ? (
                 <Button
                   mx="auto"
                   mr={4}
-                  mt={4}
+                  mb={4}
                   p={14}
                   sx={{
                     display: "flex",
                     justifyContent: "center",
-                    border: "1px solid #5E8C61",
+                    border: "1px solid ",
                     borderRadius: "20px",
                     cursor: "pointer",
                   }}
                   width={3 / 4}
                   fontSize={2}
-                  backgroundColor="#fff"
+                  backgroundColor="#A30000"
                   type="button"
-                  onClick={modalsaveClose}
+                  onClick={cancelquestion}
+                  // disabled={
+                  //   samequestion.length <= savenumber.length ? "disabled" : ""
+                  // }
                 >
                   <Text
                     sx={{
@@ -365,78 +556,49 @@ const CreateQuestion = () => {
                       fontSize: "20px",
                     }}
                   >
-                    ทำต่อ
+                    ยกเลิก
                   </Text>
                 </Button>
+              ) : (
                 <Button
                   mx="auto"
                   mr={4}
-                  mt={4}
+                  mb={4}
                   p={14}
                   sx={{
                     display: "flex",
                     justifyContent: "center",
-                    border: "1px solid #C1D7AE",
+                    border: "1px solid ",
                     borderRadius: "20px",
                     cursor: "pointer",
                   }}
-                  disabled={
-                    samequestion.length === savenumber.length ? "" : "disabled"
-                  }
                   width={3 / 4}
-                  fontSize={2}
-                  backgroundColor={
-                    samequestion.length === savenumber.length ? "green" : "gray"
-                  }
+                  fontSize="14px"
+                  backgroundColor="yellow"
                   type="button"
-                  onClick={sentsub}
+                  onClick={previouspage}
+                  // disabled={
+                  //   samequestion.length <= savenumber.length ? "disabled" : ""
+                  // }
                 >
                   <Text
                     sx={{
                       color: " #000",
                       fontSize: "20px",
+                      whiteSpace: "nowrap",
                     }}
+                    mr={3}
                   >
-                    บันทึก
+                    ย้อนกลับ
                   </Text>
                 </Button>
-              </Flex>
-            </>
-          ) : (
-            <Box>
-              <Text sx={{ fontSize: "20px" }}>ยืนยันการบันทึก?</Text>
-              <Flex justifyContent="center" alignItems="center">
+              )}
+
+              {nextquestion + 1 === samequestion.length ? (
                 <Button
                   mx="auto"
                   mr={4}
-                  mt={4}
-                  p={14}
-                  sx={{
-                    display: "flex",
-                    justifyContent: "center",
-                    border: "1px solid #5E8C61",
-                    borderRadius: "20px",
-                    cursor: "pointer",
-                  }}
-                  width={3 / 4}
-                  fontSize={2}
-                  backgroundColor="#fff"
-                  type="button"
-                  onClick={modalsaveClose}
-                >
-                  <Text
-                    sx={{
-                      color: " #000",
-                      fontSize: "20px",
-                    }}
-                  >
-                    ทำต่อ
-                  </Text>
-                </Button>
-                <Button
-                  mx="auto"
-                  mr={4}
-                  mt={4}
+                  mb={4}
                   p={14}
                   sx={{
                     display: "flex",
@@ -449,7 +611,9 @@ const CreateQuestion = () => {
                   fontSize={2}
                   backgroundColor="green"
                   type="button"
-                  onClick={sentsub}
+                  onClick={() =>
+                    usequestion(nextquestion, selectedText, "finish")
+                  }
                 >
                   <Text
                     sx={{
@@ -457,13 +621,119 @@ const CreateQuestion = () => {
                       fontSize: "20px",
                     }}
                   >
-                    บันทึก
+                    ยืนยัน
                   </Text>
                 </Button>
-              </Flex>
-            </Box>
-          )}
-        </Box>
+              ) : (
+                <Button
+                  mx="auto"
+                  mr={4}
+                  mb={4}
+                  p={14}
+                  sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    border: "1px solid #C1D7AE",
+                    borderRadius: "20px",
+                    cursor: "pointer",
+                  }}
+                  width={3 / 4}
+                  fontSize={2}
+                  backgroundColor="green"
+                  type="button"
+                  onClick={() =>
+                    usequestion(nextquestion, selectedText, "nextpage")
+                  }
+                >
+                  <Text
+                    sx={{
+                      color: " #000",
+                      fontSize: "20px",
+                    }}
+                  >
+                    ต่อไป
+                  </Text>
+                </Button>
+              )}
+            </Flex>
+          </Box>
+        ) : (
+          <Box
+            sx={{
+              backgroundColor: "#fff",
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              textAlign: "center",
+              borderRadius: "20px",
+              display: "inline-block",
+              height: "20%",
+            }}
+            width={{ xs: "100%", sm: "75%", md: "50%" }}
+            px={4}
+            pt={4}
+            pb={5}
+          >
+            <Text sx={{ fontSize: "20px" }}>ยืนยันการบันทึก?</Text>
+            <Flex justifyContent="center" alignItems="center">
+              <Button
+                mx="auto"
+                mr={4}
+                mt={4}
+                p={14}
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  border: "1px solid #5E8C61",
+                  borderRadius: "20px",
+                  cursor: "pointer",
+                }}
+                width={3 / 4}
+                fontSize={2}
+                backgroundColor="#fff"
+                type="button"
+                onClick={modalsaveClose}
+              >
+                <Text
+                  sx={{
+                    color: " #000",
+                    fontSize: "20px",
+                  }}
+                >
+                  ทำต่อ
+                </Text>
+              </Button>
+              <Button
+                mx="auto"
+                mr={4}
+                mt={4}
+                p={14}
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  border: "1px solid #C1D7AE",
+                  borderRadius: "20px",
+                  cursor: "pointer",
+                }}
+                width={3 / 4}
+                fontSize={2}
+                backgroundColor="green"
+                type="button"
+                onClick={sentsub}
+              >
+                <Text
+                  sx={{
+                    color: " #000",
+                    fontSize: "20px",
+                  }}
+                >
+                  บันทึก
+                </Text>
+              </Button>
+            </Flex>
+          </Box>
+        )}
       </Modal>
 
       <Modal open={open} onClose={handleClose}>
@@ -723,7 +993,9 @@ const CreateQuestion = () => {
                           //     : "1px solid #0A2239",
                           borderRadius: "10px",
                           backgroundColor:
-                            data.correct === "1" ? "#59A96A" : "#fff",
+                            data.correct === "1" || data.correct === 1
+                              ? "#59A96A"
+                              : "#fff",
                           color: "black",
                           textAlign: "left",
                         }}
@@ -743,7 +1015,9 @@ const CreateQuestion = () => {
                           //     : "1px solid #0A2239",
                           borderRadius: "10px",
                           backgroundColor:
-                            data.correct === "2" ? "#59A96A" : "#fff",
+                            data.correct === "2" || data.correct === 2
+                              ? "#59A96A"
+                              : "#fff",
                           color: "black",
                           textAlign: "left",
                         }}
@@ -765,7 +1039,9 @@ const CreateQuestion = () => {
                           //     : "1px solid #0A2239",
                           borderRadius: "10px",
                           backgroundColor:
-                            data.correct === "3" ? "#59A96A" : "#fff",
+                            data.correct === "3" || data.correct === 3
+                              ? "#59A96A"
+                              : "#fff",
                           color: "black",
                           textAlign: "left",
                         }}
@@ -785,7 +1061,9 @@ const CreateQuestion = () => {
                           //     : "1px solid #0A2239",
                           borderRadius: "10px",
                           backgroundColor:
-                            data.correct === "4" ? "#59A96A" : "#fff",
+                            data.correct === "4" || data.correct === 4
+                              ? "#59A96A"
+                              : "#fff",
                           color: "black",
                           textAlign: "left",
                         }}
@@ -806,8 +1084,7 @@ const CreateQuestion = () => {
                     <BsTrash
                       style={{
                         position: "absolute",
-                        marginTop: "5px",
-                        right: 10,
+                        right: 20,
                         width: "25px",
                         height: "25px",
                         cursor: "pointer",

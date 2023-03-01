@@ -33,10 +33,7 @@ conn
           database: "dropquest",
           stream: stream,
         });
-        // app.get("/*", function (req, res) {
-        //   res.sendFile(path.join(__dirname, "build", "index.html"));
-        // });
-        // set up your routes and middlewares here
+
         app.get("/users", function (req, res) {
           db.query("SELECT username, email FROM users;", (err, result) => {
             console.log(result);
@@ -51,6 +48,34 @@ conn
         app.get("/question", function (req, res) {
           db.query(
             "SELECT question_name, choice1, choice2, choice3, choice4, correct_choice FROM question_list;",
+            (err, result) => {
+              console.log(result);
+              if (err) {
+                console.log(err);
+              } else {
+                res.send(result);
+              }
+            }
+          );
+        });
+
+        app.get("/allquiz", function (req, res) {
+          db.query(
+            "SELECT question_group.g_name, users.username, category.category_name, question_group.question_image FROM question_group INNER JOIN category ON question_group.category_category_id=category.category_id JOIN users ON question_group.user_user_id=users.user_id;",
+            (err, result) => {
+              console.log(result);
+              if (err) {
+                console.log(err);
+              } else {
+                res.send(result);
+              }
+            }
+          );
+        });
+
+        app.get("/category", function (req, res) {
+          db.query(
+            "SELECT category_name FROM category;",
             (err, result) => {
               console.log(result);
               if (err) {
@@ -343,7 +368,7 @@ conn
 
         // start the server
         const port = 4001;
-        app.listen(port, 'dropquest.it.kmitl.ac.th' ,function () {
+        app.listen(port, 'dropquest.it.kmitl.ac.th' , function () {
           console.log(`Server listening on port ${port}`);
         });
       }

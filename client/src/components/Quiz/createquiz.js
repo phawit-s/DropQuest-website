@@ -154,7 +154,7 @@ const CreateQuiz = () => {
               }}
               width={3 / 4}
               fontSize={2}
-              backgroundColor="#C1D7AE"
+              backgroundColor="red"
               type="button"
               onClick={handleClose}
             >
@@ -181,7 +181,7 @@ const CreateQuiz = () => {
               }}
               width={3 / 4}
               fontSize={2}
-              backgroundColor="red"
+              backgroundColor="#C1D7AE"
               type="button"
               onClick={() => cancelcreate()}
             >
@@ -289,7 +289,8 @@ const CreateQuiz = () => {
           <Flex pt={4}>
             <Box width={1 / 4} mr={4}>
               <Label htmlFor="name" fontSize="16px">
-                ชื่อแบบทดสอบ<span style={{color: "red", fontSize:"18px"}}>*</span>
+                ชื่อแบบทดสอบ
+                <span style={{ color: "red", fontSize: "18px" }}>*</span>
               </Label>
             </Box>
             <Box width={3 / 4}>
@@ -309,7 +310,8 @@ const CreateQuiz = () => {
           <Flex pt={4}>
             <Box width={1 / 4} mr={4}>
               <Label htmlFor="category" fontSize="16px">
-                หมวดหมู่<span style={{color: "red", fontSize:"18px"}}>*</span>
+                หมวดหมู่
+                <span style={{ color: "red", fontSize: "18px" }}>*</span>
               </Label>
             </Box>
             <Box width={3 / 4}>
@@ -336,7 +338,8 @@ const CreateQuiz = () => {
           <Flex pt={4}>
             <Box width={1 / 4} mr={4}>
               <Label htmlFor="timer" fontSize="16px">
-                {"ระยะเวลา(วินาที)"}<span style={{color: "red", fontSize:"18px"}}>*</span>
+                {"ระยะเวลา(วินาที)"}
+                <span style={{ color: "red", fontSize: "18px" }}>*</span>
               </Label>
             </Box>
             <Box width={3 / 4}>
@@ -357,7 +360,8 @@ const CreateQuiz = () => {
           <Flex pt={4}>
             <Box width={1 / 4} mr={4}>
               <Label htmlFor="score" fontSize="16px">
-                คะแนนต่อข้อ<span style={{color: "red", fontSize:"18px"}}>*</span>
+                คะแนนต่อข้อ
+                <span style={{ color: "red", fontSize: "18px" }}>*</span>
               </Label>
             </Box>
             <Box width={3 / 4}>
@@ -378,7 +382,8 @@ const CreateQuiz = () => {
           <Flex pt={4}>
             <Box width={1 / 4} mr={4}>
               <Label htmlFor="thumbnail" fontSize="16px">
-                Thumbnail<span style={{color: "red", fontSize:"18px"}}>*</span>
+                Thumbnail
+                <span style={{ color: "red", fontSize: "18px" }}>*</span>
               </Label>
             </Box>
             <Box width={3 / 4}>
@@ -396,7 +401,8 @@ const CreateQuiz = () => {
           <Flex pt={4}>
             <Box width={1 / 4} mr={4}>
               <Label htmlFor="description" fontSize="16px">
-                คำอธิบาย<span style={{color: "red", fontSize:"18px"}}>*</span>
+                คำอธิบาย
+                <span style={{ color: "red", fontSize: "18px" }}>*</span>
               </Label>
             </Box>
             <Box width={3 / 4}>
@@ -540,12 +546,12 @@ const CreateQuiz = () => {
                           my={2}
                           sx={{
                             border:
-                              data.correct === "1"
+                              data.correct === "1" || data.correct === 1
                                 ? "1px solid #59A96A"
                                 : "1px solid #0A2239",
                             borderRadius: "10px",
                             backgroundColor:
-                              data.correct === "1" ? "#59A96A" : "#fff",
+                              data.correct === "1" || data.correct === 1 ? "#59A96A" : "#fff",
                             color: "black",
                             textAlign: "left",
                           }}
@@ -560,12 +566,12 @@ const CreateQuiz = () => {
                           my={2}
                           sx={{
                             border:
-                              data.correct === "2"
+                              data.correct === "2" || data.correct === 2
                                 ? "1px solid #59A96A"
                                 : "1px solid #0A2239",
                             borderRadius: "10px",
                             backgroundColor:
-                              data.correct === "2" ? "#59A96A" : "#fff",
+                              data.correct === "2" || data.correct === 2 ? "#59A96A" : "#fff",
                             color: "black",
                             textAlign: "left",
                           }}
@@ -583,12 +589,12 @@ const CreateQuiz = () => {
                           sx={{
                             cursor: "pointer",
                             border:
-                              data.correct === "3"
+                              data.correct === "3" || data.correct === 3
                                 ? "1px solid #59A96A"
                                 : "1px solid #0A2239",
                             borderRadius: "10px",
                             backgroundColor:
-                              data.correct === "3" ? "#59A96A" : "#fff",
+                              data.correct === "3" || data.correct === 3 ? "#59A96A" : "#fff",
                             color: "black",
                             textAlign: "left",
                           }}
@@ -604,12 +610,14 @@ const CreateQuiz = () => {
                           sx={{
                             cursor: "pointer",
                             border:
-                              data.correct === "4"
+                              data.correct === "4" || data.correct === 4
                                 ? "1px solid #59A96A"
                                 : "1px solid #0A2239",
                             borderRadius: "10px",
                             backgroundColor:
-                              data.correct === "4" ? "#59A96A" : "#fff",
+                              data.correct === "4" || data.correct === 4
+                                ? "#59A96A"
+                                : "#fff",
                             color: "black",
                             textAlign: "left",
                           }}
