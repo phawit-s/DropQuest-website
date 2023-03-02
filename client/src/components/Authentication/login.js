@@ -36,18 +36,31 @@ const Login = () => {
   }
 
   return (
-    <Box m={6} ml="auto" mr="auto" width={["90%", 2 / 5, 2 / 5]}>
+    <Box
+    sx={{backgroundColor: "red"}}
+      
+    >
       <Card
-        width={["100%", 4 / 5, 4 / 5]}
+        width={["100%", 2 / 4, 1 / 4]}
         py={4}
         sx={{
+          position: "absolute" /* or absolute */,
+        top: "50%",
+        left: "50%",
+        /* bring your own prefixes */
+        transform: "translate(-50%, -50%)",
           borderRadius: "10px",
           fontWeight: "500",
           fontSize: "20px",
-          boxShadow: "0px 2px 10px 2px #23aaff;",
+          backgroundColor: "rgba(255,255,255,0.50)",
+          // backdropFilter: "blur(15px)",
           border: "1px solid #ced4da",
+          borderBottom: "1px solid rgba(255,255,255,0.50)",
+          borderRight: "1px solid rgba(255,255,255,0.50)",
+          // boxShadow: "0 25px 50px rgba(0,0,0,0.1)",
+          // gap: "30px",
+          boxShadow: "0px 1px 10px 2px #23aaff;",
         }}
-        bg="#fff"
       >
         <Box m={3} mx={56}>
           <Text sx={{ textAlign: "center", fontSize: "50px" }}>

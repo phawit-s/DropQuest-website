@@ -92,14 +92,14 @@ const CreateQuestion = () => {
     dataquestion.map((refquestion) => {
       const uniqueQuestions = datacheckquestion.reduce((acc, curr) => {
         // Check if `acc` already contains an element with the same `question` property as `curr`
-        if (!acc.some(q => q.question_name === curr.question_name)) {
+        if (!acc.some((q) => q.question_name === curr.question_name)) {
           // If it doesn't, add `curr` to the `acc` array using `push()`
           acc.push(curr);
         }
         // Return the updated `acc` array for the next iteration of `reduce()`
         return acc;
       }, []);
-      
+
       const hasQuestion = uniqueQuestions.find(
         (q) =>
           q.question_name.includes(refquestion.question) &&
@@ -417,11 +417,12 @@ const CreateQuestion = () => {
                     border:
                       selectedText === "left"
                         ? "2px solid green"
-                        : "1px solid white",
+                        : "1px solid rgba(0,0,0,0.5)",
                     backgroundColor:
-                      selectedText === "left" ? "#90EE90" : "transparent",
+                      selectedText === "left" ? "#90EE90" : "rgba(255,255,255,0.50)",
                     borderRadius: "10px",
                     color: selectedText === "left" ? "white" : "inherit",
+                    boxShadow: "0 25px 50px rgba(0,0,0,0.1)",
                   }}
                   onClick={() => handleTextClick("left")}
                 >
@@ -446,14 +447,17 @@ const CreateQuestion = () => {
                     border:
                       selectedText === "right"
                         ? "2px solid green"
-                        : "1px solid white",
+                        : "1px solid rgba(0,0,0,0.5)",
                     backgroundColor:
-                      selectedText === "right" ? "#90EE90" : "transparent",
+                      selectedText === "right" ? "#90EE90" : "rgba(255,255,255,0.50)",
                     borderRadius: "10px",
                     color: selectedText === "right" ? "white" : "inherit",
+                    boxShadow: "0 25px 50px rgba(0,0,0,0.1)",
                   }}
                   onClick={() => handleTextClick("right")}
                 >
+
+
                   <Text
                     fontSize="20px"
                     ml={3}
@@ -473,7 +477,11 @@ const CreateQuestion = () => {
                         mb={4}
                         mr={3}
                         mt={3}
-                        color={dq.correct === 1 || dq.correct === "1" ? "green" : "black"}
+                        color={
+                          dq.correct === 1 || dq.correct === "1"
+                            ? "green"
+                            : "black"
+                        }
                         textAlign="left"
                       >
                         ข้อที่ 1 : {dq.choice1}
@@ -484,7 +492,11 @@ const CreateQuestion = () => {
                         mb={4}
                         mr={3}
                         mt={3}
-                        color={dq.correct === 2 || dq.correct === "2" ? "green" : "black"}
+                        color={
+                          dq.correct === 2 || dq.correct === "2"
+                            ? "green"
+                            : "black"
+                        }
                         textAlign="left"
                       >
                         ข้อที่ 2 : {dq.choice2}
@@ -495,7 +507,11 @@ const CreateQuestion = () => {
                         mb={4}
                         mr={3}
                         mt={3}
-                        color={dq.correct === 3 || dq.correct === "3" ? "green" : "black"}
+                        color={
+                          dq.correct === 3 || dq.correct === "3"
+                            ? "green"
+                            : "black"
+                        }
                         textAlign="left"
                       >
                         ข้อที่ 3 : {dq.choice3}
@@ -506,7 +522,11 @@ const CreateQuestion = () => {
                         mb={4}
                         mr={3}
                         mt={3}
-                        color={dq.correct === 4 || dq.correct === "4" ? "green" : "black"}
+                        color={
+                          dq.correct === 4 || dq.correct === "4"
+                            ? "green"
+                            : "black"
+                        }
                         textAlign="left"
                       >
                         ข้อที่ 4 : {dq.choice4}
@@ -869,7 +889,13 @@ const CreateQuestion = () => {
           px={4}
           ml={4}
           sx={{
-            backgroundColor: "white",
+            backgroundColor: "rgba(255,255,255,0.50)",
+            backdropFilter: "blur(15px)",
+            border: "1px solid #fff",
+            borderBottom: "1px solid rgba(255,255,255,0.50)",
+            borderRight: "1px solid rgba(255,255,255,0.50)",
+            boxShadow: "0 25px 50px rgba(0,0,0,0.1)",
+            gap: "30px",
             overflow: "hidden",
             height: "800px",
             borderRadius: "10px",
@@ -960,8 +986,12 @@ const CreateQuestion = () => {
                 <Box
                   p={4}
                   key={index}
-                  backgroundColor="white"
                   sx={{
+                    backgroundColor: "rgba(255,255,255,0.50)",
+                    // backdropFilter: "blur(15px)",
+                    border: "1px solid #fff",
+                    borderBottom: "1px solid rgba(255,255,255,0.50)",
+                    borderRight: "1px solid rgba(255,255,255,0.50)",
                     borderRadius: "10px",
                     marginBottom: "20px",
                     postition: "relative",
@@ -970,7 +1000,8 @@ const CreateQuestion = () => {
                   <Box
                     backgroundColor="white"
                     sx={{ borderRadius: "10px" }}
-                    py={2}
+                    pt={4}
+                    pb={3}
                     px={4}
                     mb={2}
                   >

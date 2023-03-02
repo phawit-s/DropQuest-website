@@ -281,7 +281,12 @@ const CreateQuiz = () => {
           px={4}
           ml={4}
           sx={{
-            backgroundColor: "#FCFAFA",
+            backgroundColor: "rgba(255,255,255,0.75)",
+            backdropFilter: "blur(15px)",
+            border: "1px solid #fff",
+            borderBottom: "1px solid rgba(255,255,255,0.50)",
+            borderRight: "1px solid rgba(255,255,255,0.50)",
+            boxShadow: "0 25px 50px rgba(0,0,0,0.1)",
             height: "800px",
             borderRadius: "10px",
           }}
@@ -481,7 +486,8 @@ const CreateQuiz = () => {
           width={[1, 4 / 5]}
           mx={4}
           sx={{
-            backgroundColor: "#FCFAFA",
+            backgroundColor: "rgba(255,255,255,0.50)",
+            borderBottom: "1px solid rgba(255,255,255,0.50)",
             height: "800px",
             borderRadius: "10px",
           }}
@@ -526,15 +532,18 @@ const CreateQuiz = () => {
                     my={3}
                     mx={3}
                     key={index}
-                    sx={{ border: "1px solid black", borderRadius: "10px" }}
+                    sx={{
+                      backgroundColor: "rgba(255,255,255,0.50)",
+                      backdropFilter: "blur(15px)",
+                      border: "1px solid #fff",
+                      borderBottom: "1px solid rgba(255,255,255,0.50)",
+                      borderRight: "1px solid rgba(255,255,255,0.50)",
+                      boxShadow: "0 25px 50px rgba(0,0,0,0.1)",
+                      gap: "30px",
+                      borderRadius: "20px",
+                    }}
                   >
-                    <Box
-                      backgroundColor="white"
-                      sx={{ borderRadius: "10px" }}
-                      py={2}
-                      px={4}
-                      mb={2}
-                    >
+                    <Box sx={{ borderRadius: "10px" }} py={2} px={4} mb={2}>
                       <Text mb={4}>{data.question}</Text>
                     </Box>
                     <Box>
@@ -551,7 +560,9 @@ const CreateQuiz = () => {
                                 : "1px solid #0A2239",
                             borderRadius: "10px",
                             backgroundColor:
-                              data.correct === "1" || data.correct === 1 ? "#59A96A" : "#fff",
+                              data.correct === "1" || data.correct === 1
+                                ? "#59A96A"
+                                : "#fff",
                             color: "black",
                             textAlign: "left",
                           }}
@@ -571,7 +582,9 @@ const CreateQuiz = () => {
                                 : "1px solid #0A2239",
                             borderRadius: "10px",
                             backgroundColor:
-                              data.correct === "2" || data.correct === 2 ? "#59A96A" : "#fff",
+                              data.correct === "2" || data.correct === 2
+                                ? "#59A96A"
+                                : "#fff",
                             color: "black",
                             textAlign: "left",
                           }}
@@ -594,7 +607,9 @@ const CreateQuiz = () => {
                                 : "1px solid #0A2239",
                             borderRadius: "10px",
                             backgroundColor:
-                              data.correct === "3" || data.correct === 3 ? "#59A96A" : "#fff",
+                              data.correct === "3" || data.correct === 3
+                                ? "#59A96A"
+                                : "#fff",
                             color: "black",
                             textAlign: "left",
                           }}
