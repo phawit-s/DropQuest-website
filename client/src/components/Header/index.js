@@ -12,6 +12,7 @@ const Header = () => {
   const [toggleQuiz, setToggleQuiz] = useState(false);
   const [toggleProfile, setToggleProfile] = useState(false);
   const [color, setColor] = useState("");
+  const [colortwo, setColortwo] = useState("")
   const [profilecolor, setProfileColor] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const toggleroom = () => {
@@ -64,7 +65,8 @@ const Header = () => {
       justifyContent="right"
       sx={{
         "@media (max-width: 768px)": {
-          justifyContent: "center",
+          flexDirection: "column",
+          alignItems: "center",
         },
       }}
     >
@@ -152,7 +154,18 @@ const Header = () => {
               >
                 สร้างแบบทดสอบ
               </Text>
-              <Text color="black">แบบทดสอบของฉัน</Text>
+              <Text
+                onMouseEnter={() => setColortwo("#364AFF")}
+                onMouseLeave={() => setColortwo("")}
+                sx={{ cursor: "pointer", color: colortwo }}
+                onClick={() =>
+                  history.push({
+                    pathname: `/myquiz`,
+                  })
+                }
+              >
+                แบบทดสอบของฉัน
+              </Text>
             </Box>
           </motion.div>
         </motion.div>

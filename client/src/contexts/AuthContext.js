@@ -121,11 +121,6 @@ export const AuthProvider = ({ children }) => {
 
   async function savequiz(quizdata, questiondata, imageFile) {
     const userid = currentUser.user_id;
-    const payload = {
-      userid: userid,
-      quizdata: quizdata,
-      questiondata: questiondata,
-    };
     const formData = new FormData();
     formData.append("userid", userid);
     formData.append("quizdata", JSON.stringify(quizdata));

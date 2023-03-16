@@ -9,7 +9,11 @@ import Header from "../Header";
 import { useToasts } from "react-toast-notifications";
 import { BsTrash } from "react-icons/bs";
 import { BiEdit } from "react-icons/bi";
-import { AiOutlineCaretDown, AiOutlineCaretUp } from "react-icons/ai";
+import {
+  AiOutlineCaretDown,
+  AiOutlineCaretUp,
+  AiOutlineClose,
+} from "react-icons/ai";
 import api from "../../api";
 
 const CreateQuestion = () => {
@@ -17,10 +21,11 @@ const CreateQuestion = () => {
   const { addToast } = useToasts();
   const history = useHistory();
   const [dataquestion, setDataQuestion] = useState([]);
+  const [favouritedataquestion, setFavouriteDataQuestion] = useState([]);
   const [samequestion, setSamequestion] = useState([]);
   const [checksamequestion, setChecksamequestion] = useState([]);
   const [datacheckquestion, setDataCheckquestion] = useState([]);
-  const [savequestion, setSavequestion] = useState(false);
+  const [favindex, setfavindex] = useState(0);
   const [savenumber, setSavenumber] = useState([]);
   const [open, setOpen] = useState(false);
   const [opensave, setOpensave] = useState(false);
@@ -29,9 +34,8 @@ const CreateQuestion = () => {
   const [errorchoice3, setErrorChoice3] = useState(false);
   const [errorchoice4, setErrorChoice4] = useState(false);
   const [validatequestion, setValidateQuestion] = useState(false);
-  const [opendescription, setOpendescription] = useState(false);
+  const [openFavquestion, setOpenfavquestion] = useState(false);
   const [selectedText, setSelectedText] = useState("left");
-  const [openIndex, setOpenIndex] = useState(null);
   const [checkmodal, setCheckmodal] = useState(false);
   const [nextquestion, setNextquestion] = useState(0);
   const questiontopic = useRef();
@@ -46,18 +50,30 @@ const CreateQuestion = () => {
   const refchoice3 = [];
   const refchoice4 = [];
   const getproductstorage = window.localStorage.getItem("Question");
+  const getfavourite = window.localStorage.getItem("Favourite Question");
   const question = getproductstorage ? JSON.parse(getproductstorage) : [];
+  const favouritequestion = getfavourite ? JSON.parse(getfavourite) : [];
 
   useEffect(() => {
     console.log("Adding Question", dataquestion);
+    console.log("Favourite Question", favouritequestion);
     console.log("Checking Question", datacheckquestion);
     console.log("Checking same Question", samequestion);
     console.log("Using Question", savenumber);
-  }, [dataquestion, datacheckquestion, samequestion, savenumber]);
+  }, [
+    dataquestion,
+    favouritedataquestion,
+    datacheckquestion,
+    samequestion,
+    savenumber,
+  ]);
 
   useEffect(() => {
     if (question) {
       setDataQuestion([...question]);
+    }
+    if (favouritequestion) {
+      setFavouriteDataQuestion([...favouritequestion]);
     }
   }, []);
 
@@ -120,9 +136,21 @@ const CreateQuestion = () => {
     setOpensave(true);
   };
   const modalsaveClose = () => setOpensave(false);
+  const modalfavClose = () => setOpenfavquestion(false);
   const cancelquestion = () => {
     setOpensave(false);
-    window.location.reload();
+    dataquestion.map((question) => {
+      refs.forEach((ref, refIndex) => {
+        if (ref.current.innerText === question.question) {
+          ref.current.innerText = question.question;
+          refchoice1[refIndex].current.innerText = question.choice1;
+          refchoice2[refIndex].current.innerText = question.choice2;
+          refchoice3[refIndex].current.innerText = question.choice3;
+          refchoice4[refIndex].current.innerText = question.choice4;
+          dataquestion[refIndex].correct = question.correct;
+        }
+      });
+    });
   };
 
   const usequestion = (index, savetype, page) => {
@@ -196,6 +224,29 @@ const CreateQuestion = () => {
       }
     }
   };
+  const usefavquestion = (favindex) => {
+    const sent = {
+      question: favouritedataquestion[favindex].question,
+      choice1: favouritedataquestion[favindex].choice1,
+      choice2: favouritedataquestion[favindex].choice2,
+      choice3: favouritedataquestion[favindex].choice3,
+      choice4: favouritedataquestion[favindex].choice4,
+      correct: favouritedataquestion[favindex].correct_choice,
+    };
+    const isQuestionSent = dataquestion.some(
+      (item) => item.question === sent.question
+    );
+
+    if (!isQuestionSent) {
+      setDataQuestion((dataquestion) => [...dataquestion, sent]);
+    } else {
+      addToast("คำถามถูกใช้เรียบร้อย", {
+        appearance: "warning",
+        autoDismiss: true,
+      });
+    }
+    setOpenfavquestion(false);
+  };
   const createnewquestion = () => {
     const sent = {
       question: questiontopic.current.value,
@@ -266,12 +317,18 @@ const CreateQuestion = () => {
       setErrorChoice4(false);
     }
   };
+
   const deletequestion = async (index) => {
     const deleteeddata = dataquestion.filter(
       (value) => value.question != dataquestion[index].question
     );
     setDataQuestion(deleteeddata);
     window.localStorage.setItem("Question", JSON.stringify(deleteeddata));
+  };
+
+  const openfavquestion = (index) => {
+    setOpenfavquestion(true);
+    setfavindex(index);
   };
   const sentsub = async () => {
     const allquestion = [];
@@ -357,14 +414,12 @@ const CreateQuestion = () => {
   const dq = dataquestion.find(
     (dq) => dq.question === samequestion[nextquestion]
   );
-  const index = dataquestion.findIndex(
-    (dq) => dq.question === samequestion[nextquestion]
-  );
+
   return (
     <Box
       minHeight="969px"
       sx={{
-        backgroundColor: "#F1E4F3;",
+        backgroundColor: "rgba(134, 248, 255, 0.13) ;",
       }}
     >
       <Modal open={opensave} onClose={modalsaveClose}>
@@ -387,7 +442,8 @@ const CreateQuestion = () => {
             pb={5}
           >
             <Text sx={{ fontSize: "26px", textAlign: "center" }}>
-              มีคำถามที่ซ้ำกัน
+              มีคำถามที่ซ้ำกัน{" "}
+              {"(" + (nextquestion + 1) + "/" + samequestion.length + ")"}
             </Text>
 
             <Text mr={3} fontSize="22px" textAlign="start" mt={4}>
@@ -419,7 +475,9 @@ const CreateQuestion = () => {
                         ? "2px solid green"
                         : "1px solid rgba(0,0,0,0.5)",
                     backgroundColor:
-                      selectedText === "left" ? "#90EE90" : "rgba(255,255,255,0.50)",
+                      selectedText === "left"
+                        ? "#90EE90"
+                        : "rgba(255,255,255,0.50)",
                     borderRadius: "10px",
                     color: selectedText === "left" ? "white" : "inherit",
                     boxShadow: "0 25px 50px rgba(0,0,0,0.1)",
@@ -449,15 +507,15 @@ const CreateQuestion = () => {
                         ? "2px solid green"
                         : "1px solid rgba(0,0,0,0.5)",
                     backgroundColor:
-                      selectedText === "right" ? "#90EE90" : "rgba(255,255,255,0.50)",
+                      selectedText === "right"
+                        ? "#90EE90"
+                        : "rgba(255,255,255,0.50)",
                     borderRadius: "10px",
                     color: selectedText === "right" ? "white" : "inherit",
                     boxShadow: "0 25px 50px rgba(0,0,0,0.1)",
                   }}
                   onClick={() => handleTextClick("right")}
                 >
-
-
                   <Text
                     fontSize="20px"
                     ml={3}
@@ -566,9 +624,6 @@ const CreateQuestion = () => {
                   backgroundColor="#A30000"
                   type="button"
                   onClick={cancelquestion}
-                  // disabled={
-                  //   samequestion.length <= savenumber.length ? "disabled" : ""
-                  // }
                 >
                   <Text
                     sx={{
@@ -597,9 +652,6 @@ const CreateQuestion = () => {
                   backgroundColor="yellow"
                   type="button"
                   onClick={previouspage}
-                  // disabled={
-                  //   samequestion.length <= savenumber.length ? "disabled" : ""
-                  // }
                 >
                   <Text
                     sx={{
@@ -881,6 +933,108 @@ const CreateQuestion = () => {
         </Box>
       </Modal>
 
+      <Modal open={openFavquestion} onClose={modalfavClose}>
+        <Box
+          sx={{
+            backgroundColor: "#fff",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            textAlign: "start",
+            borderRadius: "10px",
+            position: "relative",
+          }}
+          height="500px"
+          width={2 / 3}
+          px={4}
+          pt={4}
+        >
+          <Box
+            sx={{ position: "absolute", top: 20, right: 20, cursor: "pointer" }}
+            
+            onClick={modalfavClose}
+          >
+            <AiOutlineClose  />
+          </Box>
+          {favouritedataquestion.map((question, index) => {
+            if (favindex === index) {
+              return (
+                <Box key={index}>
+                  <Text
+                    fontSize="22px"
+                    ml={4}
+                    mb={4}
+                    mr={3}
+                    mt={4}
+                    textAlign="left"
+                  >
+                    คำถาม : {question.question}
+                  </Text>
+                  <Text
+                    fontSize="20px"
+                    ml={4}
+                    mb={4}
+                    mr={3}
+                    mt={3}
+                    color={question.correct_choice === 1 ? "green" : "black"}
+                    textAlign="left"
+                  >
+                    ข้อที่ 1 : {question.choice1}
+                  </Text>
+                  <Text
+                    fontSize="20px"
+                    ml={4}
+                    mb={4}
+                    mr={3}
+                    mt={3}
+                    color={question.correct_choice === 2 ? "green" : "black"}
+                    textAlign="left"
+                  >
+                    ข้อที่ 2 : {question.choice2}
+                  </Text>
+                  <Text
+                    fontSize="20px"
+                    ml={4}
+                    mb={4}
+                    mr={3}
+                    mt={3}
+                    color={question.correct_choice === 3 ? "green" : "black"}
+                    textAlign="left"
+                  >
+                    ข้อที่ 3 : {question.choice3}
+                  </Text>
+                  <Text
+                    fontSize="20px"
+                    ml={4}
+                    mb={4}
+                    mr={3}
+                    mt={3}
+                    color={question.correct_choice === 4 ? "green" : "black"}
+                    textAlign="left"
+                  >
+                    ข้อที่ 4 : {question.choice4}
+                  </Text>
+                  <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                    <Button
+                      mt={3}
+                      sx={{
+                        border: "3px solid #fff",
+                        borderRadius: "10px",
+                        backgroundColor: "green",
+                        cursor: "pointer",
+                      }}
+                      onClick={() => usefavquestion(index)}
+                    >
+                      <Text sx={{ color: "black" }}> ใช้คำถาม</Text>
+                    </Button>
+                  </Box>
+                </Box>
+              );
+            }
+          })}
+        </Box>
+      </Modal>
+
       <Header />
 
       <Flex mt={3}>
@@ -889,8 +1043,7 @@ const CreateQuestion = () => {
           px={4}
           ml={4}
           sx={{
-            backgroundColor: "rgba(255,255,255,0.50)",
-            backdropFilter: "blur(15px)",
+            backgroundColor: "rgba(255,255,255,0.75)",
             border: "1px solid #fff",
             borderBottom: "1px solid rgba(255,255,255,0.50)",
             borderRight: "1px solid rgba(255,255,255,0.50)",
@@ -903,12 +1056,55 @@ const CreateQuestion = () => {
             flexDirection: "column",
           }}
         >
-          <Text
-            sx={{ display: "flex", justifyContent: "center", fontSize: "20px" }}
-            mt={4}
-          >
-            ยังไม่มีคำถามที่ชื่นชอบ
-          </Text>
+          {favouritedataquestion.length !== 0 ? (
+            <Scrollbars
+              style={{ width: "100%", height: "100%", overflow: "hidden" }}
+            >
+              {favouritedataquestion.map((question, index) => {
+                return (
+                  <Box
+                    mt={3}
+                    p={4}
+                    key={index}
+                    sx={{
+                      backgroundColor: "rgba(255,255,255,1)",
+                      border: "1px solid rgba(0,0,0,0.3)",
+                      borderRadius: "10px",
+                      marginBottom: "20px",
+                      postition: "relative",
+                      cursor: "pointer",
+                    }}
+                    onClick={() => openfavquestion(index)}
+                  >
+                    <Text
+                      sx={{
+                        textAlign: "left",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        fontSize: "18px",
+                      }}
+                    >
+                      {question.question}
+                    </Text>
+                  </Box>
+                );
+              })}
+            </Scrollbars>
+          ) : (
+            <Box>
+              <Text
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  fontSize: "20px",
+                }}
+                mt={4}
+              >
+                ยังไม่มีคำถามที่ชื่นชอบ
+              </Text>
+            </Box>
+          )}
           <Flex sx={{ marginTop: "auto", marginBottom: "40px" }}>
             <Button
               mr={4}
@@ -988,7 +1184,7 @@ const CreateQuestion = () => {
                   key={index}
                   sx={{
                     backgroundColor: "rgba(255,255,255,0.50)",
-                    // backdropFilter: "blur(15px)",
+
                     border: "1px solid #fff",
                     borderBottom: "1px solid rgba(255,255,255,0.50)",
                     borderRight: "1px solid rgba(255,255,255,0.50)",
@@ -1018,10 +1214,6 @@ const CreateQuestion = () => {
                         mx={4}
                         my={2}
                         sx={{
-                          // border:
-                          //   data.correct === "1"
-                          //     ? "1px solid #59A96A"
-                          //     : "1px solid #0A2239",
                           borderRadius: "10px",
                           backgroundColor:
                             data.correct === "1" || data.correct === 1
@@ -1040,10 +1232,6 @@ const CreateQuestion = () => {
                         mx={4}
                         my={2}
                         sx={{
-                          // border:
-                          //   data.correct === "2"
-                          //     ? "1px solid #59A96A"
-                          //     : "1px solid #0A2239",
                           borderRadius: "10px",
                           backgroundColor:
                             data.correct === "2" || data.correct === 2
@@ -1102,16 +1290,6 @@ const CreateQuestion = () => {
                         <Text ref={refchoice4[index]}>{data.choice4}</Text>
                       </Box>
                     </Flex>
-                    {/* <BiEdit
-                      style={{
-                        position: "absolute",
-                        marginTop: "5px",
-                        right: 50,
-                        width: "25px",
-                        height: "25px",
-                        cursor: "pointer",
-                      }}
-                    /> */}
                     <BsTrash
                       style={{
                         position: "absolute",

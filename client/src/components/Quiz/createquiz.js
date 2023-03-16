@@ -62,6 +62,7 @@ const CreateQuiz = () => {
       releasedate: todayDate,
       score: score.current.value,
       timer: timer.current.value,
+      description: description.current.value,
     };
     if (quizname.current.value === "") {
       addToast("กรุณากรอกชื่อแบบทดสอบ", {
@@ -117,7 +118,7 @@ const CreateQuiz = () => {
     <Box
       minHeight="969px"
       sx={{
-        backgroundColor: "#F1E4F3",
+        backgroundColor: "rgba(134, 248, 255, 0.13);",
       }}
     >
       <Header />
@@ -486,8 +487,8 @@ const CreateQuiz = () => {
           width={[1, 4 / 5]}
           mx={4}
           sx={{
-            backgroundColor: "rgba(255,255,255,0.50)",
-            borderBottom: "1px solid rgba(255,255,255,0.50)",
+            backgroundColor: "rgba(255,255,255,0.75)",
+            borderBottom: "1px solid rgba(255,255,255,0.75)",
             height: "800px",
             borderRadius: "10px",
           }}

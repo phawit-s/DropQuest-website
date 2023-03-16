@@ -1,0 +1,304 @@
+import React, { useEffect, useState } from "react";
+import { useHistory,useLocation, Redirect } from "react-router-dom";
+import { Box, Heading, Text, Card, Flex, Link, Button, Image } from "rebass";
+import { Scrollbars } from "react-custom-scrollbars";
+import { useAuth } from "../../contexts/AuthContext";
+import Header from "../Header";
+import api from "../../api";
+import { AiOutlineStar, AiFillStar } from "react-icons/ai";
+
+const Myquiz = () => {
+  const { currentUser } = useAuth();
+  const history = useHistory();
+  const [selectedcategory, setSelectedcategory] = useState(0);
+  const [allcategory, setAllcategory] = useState([]);
+  const [category, setCategory] = useState("all");
+  const [allquiz, setAllquiz] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    console.log("Showing my Quiz", allquiz);
+    console.log("All category", allcategory);
+  }, [allquiz, allcategory]);
+  useEffect(() => {
+    api
+      .get("/allcategory")
+      .then((response) => {
+        setAllcategory(response.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, []);
+
+  useEffect(() => {
+    api
+      .post("/allmyquiz", { userid: currentUser.user_id })
+      .then((response) => {
+        setAllquiz(response.data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.log(err);
+        setLoading(false);
+      });
+  }, []);
+
+  if (!currentUser) {
+    return <Redirect to="/login" />;
+  }
+  const selectcategory = (index, categoryname) => {
+    setSelectedcategory(index);
+    setCategory(categoryname);
+  };
+  const gotodetail = (quizid) => {
+    history.push({
+      pathname: `/detail`,
+      state: { quizid: quizid },
+    });
+  };
+  let filteredQuizzes;
+  if (category === "all") {
+    filteredQuizzes = allquiz;
+  } else {
+    filteredQuizzes = allquiz.filter((quiz) => quiz.category_name === category);
+  }
+
+  return (
+    <Box
+      minHeight="100vh"
+      sx={{
+        backgroundColor: "rgba(134, 248, 255, 0.13);",
+      }}
+    >
+      <Header />
+      <Flex mt={4}>
+        <Box
+          width={[1, 1, 1 / 5]}
+          //   px={2}
+          ml={2}
+          //   mb={3}
+          sx={{
+            // backgroundColor: "rgba(255,255,255,0.75)",
+            // backdropFilter: "blur(15px)",
+            // border: "1px solid #fff",
+            // borderBottom: "1px solid rgba(255,255,255,0.50)",
+            // borderRight: "1px solid rgba(255,255,255,0.50)",
+            // boxShadow: "0 25px 50px rgba(0,0,0,0.1)",
+            height: "800px",
+            borderRadius: "10px",
+            overflowY: "scroll",
+            overflowX: "hidden",
+            overscrollBehaviorY: "contain",
+            "&::-webkit-scrollbar": {
+              width: "0px",
+              background: "transparent",
+            },
+            "-ms-overflow-style": "none",
+            "scrollbar-width": "none",
+            "-webkit-overflow-scrolling": "touch",
+          }}
+        >
+          <Button
+            mx="auto"
+            mr={4}
+            mt={4}
+            mb={2}
+            p={14}
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              // border: "1px solid #C1D7AE",
+              borderRadius: "10px",
+              cursor: "pointer",
+            }}
+            width={1}
+            fontSize={2}
+            backgroundColor={
+              selectedcategory === 0 ? "#C1D7AE" : "rgba(255,255,255,0)"
+            }
+            type="button"
+            onClick={() => selectcategory(0, "all")}
+          >
+            <Text
+              sx={{
+                color: " #000",
+                fontSize: "20px",
+              }}
+            >
+              ทั้งหมด
+            </Text>
+          </Button>
+          {allcategory.map((category, index) => {
+            return (
+              <Box key={index}>
+                <Button
+                  key={index}
+                  mx="auto"
+                  mr={4}
+                  mt={4}
+                  mb={2}
+                  p={14}
+                  sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    // border: "1px solid #C1D7AE",
+                    borderRadius: "20px",
+                    cursor: "pointer",
+                  }}
+                  width={1}
+                  fontSize={2}
+                  backgroundColor={
+                    selectedcategory === index + 1
+                      ? "#C1D7AE"
+                      : "rgba(255,255,255,0)"
+                  }
+                  type="button"
+                  onClick={() =>
+                    selectcategory(index + 1, category.category_name)
+                  }
+                >
+                  <Text
+                    sx={{
+                      color: " #000",
+                      fontSize: "20px",
+                    }}
+                  >
+                    {category.category_name}
+                  </Text>
+                </Button>
+              </Box>
+            );
+          })}
+        </Box>
+        <Box
+          width={[1, 4 / 5]}
+          mx={4}
+          sx={{
+            // backgroundColor: "rgba(255,255,255,1)",
+            borderBottom: "1px solid rgba(255,255,255,0.50)",
+            height: "800px",
+            borderRadius: "10px",
+            display: "flex",
+            flexWrap: "wrap",
+            overflowY: "scroll",
+            overflowX: "hidden",
+            overscrollBehaviorY: "contain",
+            "&::-webkit-scrollbar": {
+              width: "8px",
+            },
+            "&::-webkit-scrollbar-track": {
+              background: "#F6F6F6",
+              borderRadius: "10px",
+            },
+            "&::-webkit-scrollbar-thumb": {
+              background: "rgba(134, 248, 255, 0.13)",
+              borderRadius: "20px",
+              border: "2px solid #F6F6F6",
+            },
+            "&::-webkit-scrollbar-thumb:hover": {
+              background: "#A6C17F",
+            },
+          }}
+        >
+          {filteredQuizzes.length === 0 ? (
+            <Text
+              sx={{
+                display: "inline",
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                fontSize: "20px",
+                fontWeight: "bold",
+                color: "black",
+                textAlign: "left",
+              }}
+              ml={4}
+              mt={4}
+            >
+              ไม่มีคำถามในหมวดนี้
+            </Text>
+          ) : (
+            filteredQuizzes.map((quiz, index) => {
+              const base64ImageData = Buffer.from(quiz.question_image).toString(
+                "base64"
+              );
+              const imageUrl = `data:image/png;base64,${base64ImageData}`;
+              return (
+                <Box
+                  key={index}
+                  sx={{
+                    position: "relative",
+                    height: "150px",
+                    width: "300px",
+                    backgroundImage: `url(${imageUrl})`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                    borderRadius: "10px",
+                    overflow: "hidden",
+                    cursor: "pointer",
+                    flexShrink: 0,
+                    mb: 4,
+                  }}
+                  mx={4}
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => gotodetail(quiz.group_id)}
+                >
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      bottom: 0,
+                      left: 0,
+                      width: "100%",
+                      height: "45%",
+                      backgroundColor: "white",
+                      opacity: 0.7,
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "flex-start",
+                      justifyContent: "center",
+                      p: 2,
+                    }}
+                  >
+                    <Text
+                      sx={{
+                        display: "inline",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        fontSize: "16px",
+                        fontWeight: "bold",
+                        color: "black",
+                        textAlign: "left",
+                      }}
+                      ml={2}
+                    >
+                      {quiz.g_name}
+                    </Text>
+                    <Text
+                      sx={{
+                        display: "inline",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        fontSize: "14px",
+                        fontWeight: "bold",
+                        color: "black",
+                        textAlign: "left",
+                      }}
+                      ml={2}
+                    >
+                      created by {quiz.username}
+                    </Text>
+                  </Box>
+                </Box>
+              );
+            })
+          )}
+        </Box>
+      </Flex>
+    </Box>
+  );
+};
+
+export default Myquiz;

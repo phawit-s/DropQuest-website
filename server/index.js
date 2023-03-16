@@ -61,7 +61,57 @@ conn
 
         app.get("/allquiz", function (req, res) {
           db.query(
-            "SELECT question_group.g_name, users.username, category.category_name, question_group.question_image FROM question_group INNER JOIN category ON question_group.category_category_id=category.category_id JOIN users ON question_group.user_user_id=users.user_id;",
+            "SELECT question_group.group_id, question_group.g_name, users.username, category.category_name, question_group.question_image FROM question_group INNER JOIN category ON question_group.category_category_id=category.category_id JOIN users ON question_group.user_user_id=users.user_id;",
+            (err, result) => {
+              console.log(result);
+              if (err) {
+                console.log(err);
+              } else {
+                res.send(result);
+              }
+            }
+          );
+        });
+
+        app.post("/allmyquiz", function (req, res) {
+          const userid = req.body.userid;
+          db.query(
+            "SELECT question_group.group_id, question_group.g_name,category.category_name, users.username, question_group.question_image FROM question_group INNER JOIN category ON question_group.category_category_id=category.category_id  INNER JOIN users ON question_group.user_user_id=users.user_id where question_group.user_user_id = ?;",
+            [userid],
+            (err, result) => {
+              console.log(result);
+              if (err) {
+                console.log(err);
+              } else {
+                res.send(result);
+              }
+            }
+          );
+        });
+
+        app.post("/quizdetail", function (req, res) {
+          const quizid = req.body.quizid;
+          console.log(quizid);
+          db.query(
+            "SELECT question_name,choice1,choice2,choice3,choice4,correct_choice FROM question_list JOIN question_list_has_question_group ON question_list_has_question_group.question_list_question_id = question_list.question_id JOIN question_group  ON question_group.group_id = question_list_has_question_group.question_group_group_id WHERE question_group.group_id = ?;",
+            [quizid],
+            (err, result) => {
+              console.log(result);
+              if (err) {
+                console.log(err);
+              } else {
+                res.send(result);
+              }
+            }
+          );
+        });
+
+        app.post("/quiztopic", function (req, res) {
+          const quizid = req.body.quizid;
+          console.log(quizid);
+          db.query(
+            "SELECT distinct g_name,question_time,question_score,question_description,users.username FROM question_list JOIN question_list_has_question_group ON question_list_has_question_group.question_list_question_id = question_list.question_id JOIN question_group  ON question_group.group_id = question_list_has_question_group.question_group_group_id INNER JOIN users ON question_group.user_user_id=users.user_id WHERE question_group.group_id = ?;",
+            [quizid],
             (err, result) => {
               console.log(result);
               if (err) {
@@ -74,6 +124,20 @@ conn
         });
 
         app.get("/category", function (req, res) {
+          db.query(
+            "SELECT DISTINCT category_name FROM category INNER JOIN question_group ON question_group.category_category_id=category.category_id;",
+            (err, result) => {
+              console.log(result);
+              if (err) {
+                console.log(err);
+              } else {
+                res.send(result);
+              }
+            }
+          );
+        });
+
+        app.get("/allcategory", function (req, res) {
           db.query(
             "SELECT category_name FROM category;",
             (err, result) => {
@@ -252,22 +316,27 @@ conn
         app.post("/createquiz", upload.single("image"), (req, res) => {
           // Extract user id and quiz data from request body
           const userId = req.body.userid;
-          const { groupname, category, releasedate, score, timer } = JSON.parse(
-            req.body.quizdata
-          );
+          const {
+            groupname,
+            category,
+            releasedate,
+            score,
+            timer,
+            description,
+          } = JSON.parse(req.body.quizdata);
 
           const image = req.file;
           const imageBuffer = image.buffer;
 
           sharp(imageBuffer)
-            .resize(100, 100)
+            .resize({ width: 300 })
             .toBuffer()
             .then((data) => {
               const imageBuffer = data;
 
               // Insert data into question_group table
               db.query(
-                "INSERT INTO question_group (g_name, createddate,question_time, question_score,privacy, user_user_id, category_category_id, question_image) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                "INSERT INTO question_group (g_name, createddate,question_time, question_score,privacy, user_user_id, category_category_id, question_image,question_description) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 [
                   groupname,
                   releasedate,
@@ -277,6 +346,7 @@ conn
                   userId,
                   category,
                   imageBuffer,
+                  description,
                 ],
                 (err, result) => {
                   if (err) {
