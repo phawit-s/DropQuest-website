@@ -1,18 +1,23 @@
 import React, { useEffect, useState } from "react";
-import { useLocation, Redirect } from "react-router-dom";
+import { useLocation, Redirect, useHistory } from "react-router-dom";
 import { Box, Heading, Text, Card, Flex, Link, Button, Image } from "rebass";
 import { Scrollbars } from "react-custom-scrollbars";
+import { Modal, Typography } from "@mui/material";
 import { useAuth } from "../contexts/AuthContext";
+import { useToasts } from "react-toast-notifications";
 import Header from "./Header";
 import api from "../api";
 import { AiOutlineStar, AiFillStar } from "react-icons/ai";
 
 const Detail = () => {
   const { currentUser } = useAuth();
+  const { addToast } = useToasts();
+  const history = useHistory()
   const [quizdetail, setQuizdetail] = useState([]);
   const [quiztopic, setQuiztopic] = useState([]);
   const [loading, setLoading] = useState(true);
   const [favorite, setFavorite] = useState(false);
+  const [opensave, setOpensave] = useState(false);
   const [loadquestion, setLoadquestion] = useState(0);
   const location = useLocation();
   const quizid = location.state.quizid;
@@ -51,16 +56,34 @@ const Detail = () => {
       });
   }, []);
 
-  
   if (!currentUser) {
     return <Redirect to="/login" />;
   }
-
+  const checkid = quiztopic.filter(
+    (quiz) => quiz.username === currentUser.username
+  );
   const selectquestion = (index) => {
     console.log("Select question ", index);
     setLoadquestion(index);
   };
 
+  const deletequiz = () =>{
+    api.delete('/deletequiz/' + quizid)
+      .then(response => {
+        addToast("Delete!!", {
+          appearance: "success",
+          autoDismiss: true,
+        });
+        history.push({
+          pathname: `/`,
+        });
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  }
+  const modalsaveClose = () => setOpensave(false);
+  const modalsaveOpen = () => setOpensave(true)
   const favoritequestion = (index, action) => {
     const question = {
       question: quizdetail[index].question_name,
@@ -94,12 +117,92 @@ const Detail = () => {
   };
   return (
     <Box
-    minHeight="100vh"
+      minHeight="100vh"
+      overflow="hidden"
       sx={{
         backgroundColor: "rgba(134, 248, 255, 0.13);",
       }}
     >
       <Header />
+      <Modal open={opensave} onClose={modalsaveClose}>
+      <Box
+            sx={{
+              backgroundColor: "#fff",
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              textAlign: "center",
+              borderRadius: "20px",
+              display: "inline-block",
+              height: "20%",
+            }}
+            width={{ xs: "100%", sm: "75%", md: "50%" }}
+            px={4}
+            pt={4}
+            pb={5}
+          >
+            <Text sx={{ fontSize: "20px" }}>ต้องการลบแบบทดสอบนี้?</Text>
+            <Flex justifyContent="center" alignItems="center">
+              <Button
+                mx="auto"
+                mr={4}
+                mt={4}
+                p={14}
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  border: "1px solid #D10000",
+                  borderRadius: "20px",
+                  cursor: "pointer",
+                }}
+                width={3 / 4}
+                fontSize={2}
+                backgroundColor="#fff"
+                type="button"
+                onClick={modalsaveClose}
+              >
+                <Text
+                  sx={{
+                    color: " #000",
+                    fontSize: "20px",
+                  }}
+                >
+                  ยกเลิก
+                </Text>
+              </Button>
+              <Button
+                mx="auto"
+                mr={4}
+                mt={4}
+                p={14}
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  border: "1px solid #D10000",
+                  borderRadius: "20px",
+                  cursor: "pointer",
+                }}
+                width={3 / 4}
+                fontSize={2}
+                backgroundColor="#D10000"
+                type="button"
+                onClick={deletequiz}
+              >
+                <Text
+                  sx={{
+                    color: " #000",
+                    fontSize: "20px",
+                  }}
+                >
+                  ลบแบบทดสอบ
+                </Text>
+              </Button>
+            </Flex>
+          </Box>
+      
+      </Modal>
+
       {quiztopic.map((topic, index) => {
         return (
           <Box px={4} key={index}>
@@ -121,11 +224,11 @@ const Detail = () => {
           </Box>
         );
       })}
-      <Flex mt={3}>
+      <Flex mt={3} ml={[0, 4]} flexDirection={["column", "row"]}>
         <Box
           width={[1, 1, 1 / 5]}
           px={4}
-          ml={4}
+          ml={[0, 1]}
           mb={3}
           sx={{
             backgroundColor: "rgba(255,255,255,0.75)",
@@ -195,92 +298,151 @@ const Detail = () => {
             );
           })}
         </Box>
-        <Box
-          width={[1, 4 / 5]}
-          mx={4}
-          sx={{
-            backgroundColor: "rgba(255,255,255,1)",
-            borderBottom: "1px solid rgba(255,255,255,0.50)",
-            height: "700px",
-            borderRadius: "10px",
-          }}
-        >
+        <Flex flexDirection="column" width="100%">
+          <Box
+            width={[1, 1]}
+            ml={[0, 4]}
+            mr={4}
+            sx={{
+              backgroundColor: "rgba(255,255,255,1)",
+              borderBottom: "1px solid rgba(255,255,255,0.50)",
+              height: checkid.length > 0 ? "600px" : "700px",
+              borderRadius: "10px",
+            }}
+          >
+            {quizdetail.map((question, index) => {
+              const isFavorite =
+                favoriteQuestions.findIndex(
+                  (q) => q.question === question.question_name
+                ) !== -1;
 
-          {quizdetail.map((question, index) => {
-            const isFavorite = favoriteQuestions.findIndex(
-              (q) => q.question === question.question_name
-            ) !== -1;
-            console.log(isFavorite);
-            if (index === loadquestion) {
-              return (
-                <Box sx={{ ml: 4, mt: 3 }} key={index}>
-                  <Text ml={4} my={4} fontSize="26px">
-                    {question.question_name}
-                  </Text>
-                  <Text
-                    ml={4}
-                    mb={4}
-                    fontSize="22px"
-                    color={question.correct_choice === 1 ? "green" : "black"}
-                  >
-                    1. {question.choice1}
-                  </Text>
-                  <Text
-                    ml={4}
-                    mb={4}
-                    fontSize="22px"
-                    color={question.correct_choice === 2 ? "green" : "black"}
-                  >
-                    2. {question.choice2}
-                  </Text>
-                  <Text
-                    ml={4}
-                    mb={4}
-                    fontSize="22px"
-                    color={question.correct_choice === 3 ? "green" : "black"}
-                  >
-                    3. {question.choice3}
-                  </Text>
-                  <Text
-                    ml={4}
-                    mb={4}
-                    fontSize="22px"
-                    color={question.correct_choice === 4 ? "green" : "black"}
-                  >
-                    4. {question.choice4}
-                  </Text>
-                  {isFavorite ? (
-                    <AiFillStar
-                      mt={4}
-                      style={{
-                        position: "absolute",
-                        right: 60,
-                        width: "50px",
-                        height: "50px",
-                        cursor: "pointer",
-                        color: "#ffcd3c"
-                      }}
-                      onClick={() => favoritequestion(index, "remove")}
-                    />
-                  ) : (
-                    <AiOutlineStar
-                      mt={4}
-                      style={{
-                        position: "absolute",
-                        right: 60,
-                        width: "50px",
-                        height: "50px",
-                        cursor: "pointer",
-                        color: "#ffcd3c"
-                      }}
-                      onClick={() => favoritequestion(index, "save")}
-                    />
-                  )}
-                </Box>
-              );
-            }
-          })}
-        </Box>
+              if (index === loadquestion) {
+                return (
+                  <Box sx={{ ml: 4, mt: 3 }} key={index}>
+                    <Text ml={4} my={4} fontSize="26px">
+                      {question.question_name}
+                    </Text>
+                    <Text
+                      ml={[0, 4]}
+                      mb={4}
+                      fontSize="22px"
+                      color={question.correct_choice === 1 ? "green" : "black"}
+                    >
+                      1. {question.choice1}
+                    </Text>
+                    <Text
+                      ml={[0, 4]}
+                      mb={4}
+                      fontSize="22px"
+                      color={question.correct_choice === 2 ? "green" : "black"}
+                    >
+                      2. {question.choice2}
+                    </Text>
+                    <Text
+                      ml={[0, 4]}
+                      mb={4}
+                      fontSize="22px"
+                      color={question.correct_choice === 3 ? "green" : "black"}
+                    >
+                      3. {question.choice3}
+                    </Text>
+                    <Text
+                      ml={[0, 4]}
+                      mb={4}
+                      fontSize="22px"
+                      color={question.correct_choice === 4 ? "green" : "black"}
+                    >
+                      4. {question.choice4}
+                    </Text>
+                    {isFavorite ? (
+                      <AiFillStar
+                        mt={4}
+                        style={{
+                          position: "absolute",
+                          right: 60,
+                          width: "50px",
+                          height: "50px",
+                          cursor: "pointer",
+                          color: "#ffcd3c",
+                        }}
+                        onClick={() => favoritequestion(index, "remove")}
+                      />
+                    ) : (
+                      <AiOutlineStar
+                        mt={4}
+                        style={{
+                          position: "absolute",
+                          right: 60,
+                          width: "50px",
+                          height: "50px",
+                          cursor: "pointer",
+                          color: "#ffcd3c",
+                        }}
+                        onClick={() => favoritequestion(index, "save")}
+                      />
+                    )}
+                  </Box>
+                );
+              }
+            })}
+          </Box>
+          {checkid.length > 0 ?<Flex>
+            <Button
+              ml={[4,"auto"]}
+              my={4}
+              p={12}
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                border: "1px solid #C1D7AE",
+                borderRadius: "20px",
+                cursor: "pointer",
+              }}
+              width={[2 / 4, 1 / 4]}
+              fontSize={2}
+              backgroundColor="#D10000"
+              type="button"
+              onClick={modalsaveOpen}
+            >
+              <Text
+                sx={{
+                  color: " #000",
+                  fontSize: "20px",
+                }}
+              >
+                ลบแบบทดสอบ
+              </Text>
+            </Button>
+
+            <Button
+              ml={[4, 3]}
+              mr={[4, 1]}
+              my={4}
+              p={12}
+              sx={{
+                display: "flex",
+                whiteSpace: "nowrap",
+                borderRadius: "20px",
+                justifyContent: "center",
+                cursor: "pointer",
+              }}
+              width={[2 / 4, 1 / 4]}
+              fontSize={2}
+              backgroundColor="#ffcd3c"
+              type="button"
+              // onClick={modalsaveOpen}
+            >
+              <Text
+                sx={{
+                  color: " #000",
+                  fontSize: "20px",
+                }}
+              >
+                แก้ไขแบบทดสอบ
+              </Text>
+            </Button>
+          </Flex>: ""}
+        </Flex>
       </Flex>
     </Box>
   );

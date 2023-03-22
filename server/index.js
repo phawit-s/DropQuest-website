@@ -313,6 +313,28 @@ conn
           });
         });
 
+        app.post("/createroom", (req, res) => {
+          const roomname = req.body.name;
+          const startdate = req.body.startdate;
+          const enddate = req.body.password;
+
+
+          const sql =
+            "INSERT INTO users (email, username, password, image) VALUES (?,?,?,?)";
+          const values = [roomname, startdate, enddate, imageBuffer];
+
+          db.query(sql, values, (err, result) => {
+            if (err) {
+              console.log(err);
+              res.status(500).send({ message: "Error uploading image" });
+            } else {
+              console.log(result);
+              res.status(201).send({ message: "Image uploaded" });
+            }
+          });
+            
+        });
+
         app.post("/createquiz", upload.single("image"), (req, res) => {
           // Extract user id and quiz data from request body
           const userId = req.body.userid;
@@ -434,6 +456,42 @@ conn
                 }
               );
             });
+        });
+
+        app.delete("/deletequiz/:id", (req, res) => {
+          const quizId = req.params.id;
+        
+          db.query(
+            "DELETE FROM question_list_has_question_group WHERE question_group_group_id = ?",
+            [quizId],
+            (err, result) => {
+              if (err) {
+                return res.status(500).send(err);
+              }
+              console.log(result, "questionhasgroup");
+              db.query(
+                "DELETE FROM question_list WHERE question_id IN (SELECT question_list_question_id FROM question_list_has_question_group WHERE question_group_group_id = ?)",
+                [quizId],
+                (err, result) => {
+                  if (err) {
+                    return res.status(500).send(err);
+                  }
+                  console.log(result, "question_list");
+                  db.query(
+                    "DELETE FROM question_group WHERE group_id = ?",
+                    [quizId],
+                    (err, result) => {
+                      if (err) {
+                        return res.status(500).send(err);
+                      }
+                      console.log(result, "question_group");
+                      return res.status(200).send("Quiz deleted successfully");
+                    }
+                  );
+                }
+              );
+            }
+          );
         });
 
         // start the server

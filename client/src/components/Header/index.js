@@ -12,9 +12,9 @@ const Header = () => {
   const [toggleQuiz, setToggleQuiz] = useState(false);
   const [toggleProfile, setToggleProfile] = useState(false);
   const [color, setColor] = useState("");
-  const [colortwo, setColortwo] = useState("")
+  const [colortwo, setColortwo] = useState("");
   const [profilecolor, setProfileColor] = useState("");
-  const [isOpen, setIsOpen] = useState(false);
+  const [createroomcolor  , setCreateroomcolor] = useState("");
   const toggleroom = () => {
     setToggleRoom(!toggleRoom);
   };
@@ -103,13 +103,24 @@ const Header = () => {
             <Box
               width="100px"
               sx={{
-                backgroundColor: "white",
+                backgroundColor: "white", 
                 p: 2,
                 borderRadius: "10px",
                 position: "absolute",
               }}
             >
-              <Text color="black">สร้างห้อง</Text>
+              <Text
+                onMouseEnter={() => setCreateroomcolor("#364AFF")}
+                onMouseLeave={() => setCreateroomcolor("")}
+                sx={{ cursor: "pointer", color: createroomcolor}}
+                onClick={() =>
+                  history.push({
+                    pathname: `/createroom`,
+                  })
+                }
+              >
+                สร้างห้อง
+              </Text>
               <Text color="black">ห้องของฉัน</Text>
               <Text color="black">สรุปผล</Text>
             </Box>

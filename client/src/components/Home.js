@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useHistory, Redirect, useLocation } from "react-router-dom";
-import { Box, Heading, Text, Card, Flex, Link, Button, Image } from "rebass";
+import { Box, Heading, Text} from "rebass";
+import { Label, Input } from '@rebass/forms'
 import { Scrollbars } from "react-custom-scrollbars";
 import { useAuth } from "../contexts/AuthContext";
 import { useTheme } from "styled-components";
@@ -17,7 +18,7 @@ const Home = () => {
   const theme = useTheme();
   const [allquiz, setAllquiz] = useState([]);
   const [allcategory, setAllcategory] = useState([]);
-  const [currentSlide, setCurrentSlide] = useState(0);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     console.log("Showing all Quiz", allquiz);
@@ -75,15 +76,48 @@ const Home = () => {
     >
       <Header />
       <Box sx={{ width: "100%", alignItems: "flex-start" }}>
+        <Label htmlFor='search' ml="4" mb="3" fontSize="18px" fontWeight="700">ค้นหา</Label>
+        <Input
+          id="search"
+          name="search"
+          type="text"
+          placeholder="ค้นหาแบบทดสอบ"
+          value={searchQuery}
+          onChange={(event) => setSearchQuery(event.target.value)}
+          sx={{
+            width: "50%",
+            border: "2px solid gray",
+            backgroundColor: "white",
+            borderRadius: "4px",
+            py: 2,
+            px: 3,
+            mb: 3,
+            ml: 3,
+            fontSize: 16,
+            fontWeight: "bold",
+            color: "black",
+            "&:focus": {
+              outline: "none",
+              borderColor: "primary",
+              boxShadow: "0px 0px 5px rgba(0, 0, 0, 0.2)",
+            },
+          }}
+        />  
         {allcategory.map((category, index) => {
           const filteredQuizzes = allquiz.filter(
-            (quiz) => quiz.category_name === category.category_name
+            (quiz) =>
+              quiz.category_name === category.category_name &&
+              quiz.g_name.toLowerCase().includes(searchQuery.toLowerCase())
           );
+          if (filteredQuizzes.length === 0) {
+            return null; // skip rendering this category if there are no quizzes
+          }
           return (
             <Box key={index}>
-              <Text fontWeight="bold" ml={4} mt={4} mb={2}>
+              <Text fontWeight="bold" ml={4} mt={4} mb={4}>
                 {category.category_name}
               </Text>
+
               <Box
                 sx={{
                   width: "100%",
@@ -122,17 +156,18 @@ const Home = () => {
                       key={index}
                       sx={{
                         position: "relative",
-                        height: "200px",
+                        height: "180px",
                         width: "300px",
                         backgroundImage: `url(${imageUrl})`,
                         backgroundSize: "cover",
                         backgroundPosition: "center",
-                        borderRadius: "2px",
+                        borderRadius: "12px",
                         overflow: "hidden",
                         cursor: "pointer",
                         flexShrink: 0,
                       }}
-                      mr={4}
+                      mx={4}
+                      mb={3}
                       onMouseDown={(e) => e.preventDefault()}
                       onClick={() => gotodetail(quiz.group_id)}
                     >

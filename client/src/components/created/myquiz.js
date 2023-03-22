@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { useHistory,useLocation, Redirect } from "react-router-dom";
+import { useHistory, useLocation, Redirect } from "react-router-dom";
 import { Box, Heading, Text, Card, Flex, Link, Button, Image } from "rebass";
+import { Label, Input } from "@rebass/forms";
 import { Scrollbars } from "react-custom-scrollbars";
 import { useAuth } from "../../contexts/AuthContext";
 import Header from "../Header";
@@ -15,11 +16,14 @@ const Myquiz = () => {
   const [category, setCategory] = useState("all");
   const [allquiz, setAllquiz] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  let filteredQuizzes = allquiz;
 
   useEffect(() => {
     console.log("Showing my Quiz", allquiz);
     console.log("All category", allcategory);
   }, [allquiz, allcategory]);
+
   useEffect(() => {
     api
       .get("/allcategory")
@@ -44,6 +48,15 @@ const Myquiz = () => {
       });
   }, []);
 
+  if (category !== "all") {
+    filteredQuizzes = allquiz.filter((quiz) => quiz.category_name === category);
+  }
+  if (searchQuery) {
+    filteredQuizzes = filteredQuizzes.filter((quiz) =>
+      quiz.g_name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }
+
   if (!currentUser) {
     return <Redirect to="/login" />;
   }
@@ -57,12 +70,6 @@ const Myquiz = () => {
       state: { quizid: quizid },
     });
   };
-  let filteredQuizzes;
-  if (category === "all") {
-    filteredQuizzes = allquiz;
-  } else {
-    filteredQuizzes = allquiz.filter((quiz) => quiz.category_name === category);
-  }
 
   return (
     <Box
@@ -72,19 +79,38 @@ const Myquiz = () => {
       }}
     >
       <Header />
+      <Input
+        id="search"
+        name="search"
+        type="text"
+        placeholder="ค้นหาแบบทดสอบ"
+        value={searchQuery}
+        onChange={(event) => setSearchQuery(event.target.value)}
+        sx={{
+          width: "55%",
+          border: "2px solid gray",
+          backgroundColor: "white",
+          borderRadius: "4px",
+          py: 2,
+          px: 3,
+          mb: 3,
+          // ml: 3,
+          mx: "auto",
+          fontSize: 16,
+          fontWeight: "bold",
+          color: "black",
+          "&:focus": {
+            outline: "none",
+            borderColor: "primary",
+            boxShadow: "0px 0px 5px rgba(0, 0, 0, 0.2)",
+          },
+        }}
+      />
       <Flex mt={4}>
         <Box
           width={[1, 1, 1 / 5]}
-          //   px={2}
           ml={2}
-          //   mb={3}
           sx={{
-            // backgroundColor: "rgba(255,255,255,0.75)",
-            // backdropFilter: "blur(15px)",
-            // border: "1px solid #fff",
-            // borderBottom: "1px solid rgba(255,255,255,0.50)",
-            // borderRight: "1px solid rgba(255,255,255,0.50)",
-            // boxShadow: "0 25px 50px rgba(0,0,0,0.1)",
             height: "800px",
             borderRadius: "10px",
             overflowY: "scroll",

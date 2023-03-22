@@ -8,6 +8,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import Header from "../Header";
 import { useToasts } from "react-toast-notifications";
 import { BsTrash } from "react-icons/bs";
+import { FaTrash } from "react-icons/fa";
 import { BiEdit } from "react-icons/bi";
 import {
   AiOutlineCaretDown,
@@ -38,6 +39,7 @@ const CreateQuestion = () => {
   const [selectedText, setSelectedText] = useState("left");
   const [checkmodal, setCheckmodal] = useState(false);
   const [nextquestion, setNextquestion] = useState(0);
+  const [changequestion, setChangequestion] = useState("");
   const questiontopic = useRef();
   const questionchoice1 = useRef();
   const questionchoice2 = useRef();
@@ -75,6 +77,34 @@ const CreateQuestion = () => {
     if (favouritequestion) {
       setFavouriteDataQuestion([...favouritequestion]);
     }
+  }, []);
+
+  useEffect(() => {
+    const handleBeforeUnload = (event) => {
+      event.preventDefault();
+      event.returnValue = '';
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    const handleKeyDown = (event) => {
+      if ((event.metaKey || event.ctrlKey) && event.key === 'r') {
+        event.preventDefault();
+        const confirmed = window.confirm('Are you sure you want to reload the page? Any unsaved changes will be lost.');
+
+        if (confirmed) {
+          window.removeEventListener('beforeunload', handleBeforeUnload);
+          window.location.reload();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
   }, []);
 
   useEffect(() => {
@@ -152,7 +182,10 @@ const CreateQuestion = () => {
       });
     });
   };
-
+  const editquestion = (index) => {
+    setChangequestion(index);
+    setOpen(true);
+  };
   const usequestion = (index, savetype, page) => {
     if (page === "nextpage") {
       if (nextquestion < samequestion.length) {
@@ -224,6 +257,20 @@ const CreateQuestion = () => {
       }
     }
   };
+  const deletefavquestion = (favindex) => {
+    let updatedQuestions = [...favouritequestion];
+    const existingIndex = updatedQuestions.findIndex(
+      (q) => q.question === favouritedataquestion[favindex].question
+    );
+    if (existingIndex !== -1) {
+      updatedQuestions.splice(existingIndex, 1);
+    }
+    setFavouriteDataQuestion(updatedQuestions);
+    window.localStorage.setItem(
+      "Favourite Question",
+      JSON.stringify(updatedQuestions)
+    );
+  };
   const usefavquestion = (favindex) => {
     const sent = {
       question: favouritedataquestion[favindex].question,
@@ -240,14 +287,14 @@ const CreateQuestion = () => {
     if (!isQuestionSent) {
       setDataQuestion((dataquestion) => [...dataquestion, sent]);
     } else {
-      addToast("คำถามถูกใช้เรียบร้อย", {
-        appearance: "warning",
+      addToast("คำถามถูกใช้แล้ว", {
+        appearance: "error",
         autoDismiss: true,
       });
     }
     setOpenfavquestion(false);
   };
-  const createnewquestion = () => {
+  const createnewquestion = (editindex, status) => {
     const sent = {
       question: questiontopic.current.value,
       choice1: questionchoice1.current.value,
@@ -267,10 +314,11 @@ const CreateQuestion = () => {
     const toFindDuplicates = (arry) =>
       arry.filter((item, index) => arry.indexOf(item) !== index);
     const duplicateElements = toFindDuplicates(arry);
-
+    // const questionToExclude = questiontopic.current.value;
     if (
-      dataquestion.filter((e) => e.question === questiontopic.current.value)
-        .length > 0
+      dataquestion.filter(
+        (e, i) => e.question === questiontopic.current.value && i !== editindex
+      ).length > 0
     ) {
       addToast("คำถามถูกใช้แล้ว", {
         appearance: "error",
@@ -308,7 +356,26 @@ const CreateQuestion = () => {
         }
       });
     } else {
-      setDataQuestion((dataquestion) => [...dataquestion, sent]);
+      if (status) {
+        setDataQuestion((dataquestion) => {
+          const updatedQuestion = {
+            question: questiontopic.current.value,
+            choice1: questionchoice1.current.value,
+            choice2: questionchoice2.current.value,
+            choice3: questionchoice3.current.value,
+            choice4: questionchoice4.current.value,
+            correct: correctchoice.current.value,
+          };
+
+          const newDataquestion = [...dataquestion];
+          newDataquestion[editindex] = updatedQuestion;
+
+          return newDataquestion;
+        });
+      } else {
+        setDataQuestion((dataquestion) => [...dataquestion, sent]);
+      }
+
       setOpen(false);
       setValidateQuestion(false);
       setErrorChoice1(false);
@@ -817,7 +884,7 @@ const CreateQuestion = () => {
             left: "50%",
             transform: "translate(-50%, -50%)",
             textAlign: "start",
-            borderRadius: "20px",
+            borderRadius: "10px",
           }}
           height="620px"
           width={2 / 3}
@@ -825,16 +892,29 @@ const CreateQuestion = () => {
           pt={4}
         >
           <Box>
-            <Text fontSize={20} mb={3}>
-              สร้างคำถาม
-            </Text>
+            {changequestion !== "" ? (
+              <Text fontSize={20} mb={3}>
+                แก้ไขคำถาม
+              </Text>
+            ) : (
+              <Text fontSize={20} mb={3}>
+                สร้างคำถาม
+              </Text>
+            )}
             <Flex mb={2}>
               <Text fontSize={20} width={2 / 3} mb={1}>
                 รายละเอียดคำถาม
               </Text>
               <Box width={1 / 3}>
                 <Label>เลือกข้อที่ถูก</Label>
-                <Select ref={correctchoice} defaultValue="1">
+                <Select
+                  ref={correctchoice}
+                  defaultValue={
+                    changequestion !== ""
+                      ? dataquestion[changequestion].correct
+                      : "1"
+                  }
+                >
                   <option value="1">ข้อที่ 1</option>
                   <option value="2">ข้อที่ 2</option>
                   <option value="3">ข้อที่ 3</option>
@@ -846,6 +926,11 @@ const CreateQuestion = () => {
             <Textarea
               height="200px"
               ref={questiontopic}
+              defaultValue={
+                changequestion !== ""
+                  ? dataquestion[changequestion].question
+                  : ""
+              }
               fontSize={20}
               sx={{
                 resize: "none",
@@ -862,6 +947,11 @@ const CreateQuestion = () => {
               </Text>
               <Input
                 ref={questionchoice1}
+                defaultValue={
+                  changequestion !== ""
+                    ? dataquestion[changequestion].choice1
+                    : ""
+                }
                 sx={{
                   borderRadius: "5px",
                   border: errorchoice1 ? "1px solid red" : "1px solid #0A2239",
@@ -877,6 +967,11 @@ const CreateQuestion = () => {
               </Text>
               <Input
                 ref={questionchoice2}
+                defaultValue={
+                  changequestion !== ""
+                    ? dataquestion[changequestion].choice2
+                    : ""
+                }
                 sx={{
                   borderRadius: "5px",
                   border: errorchoice2 ? "1px solid red" : "1px solid #0A2239",
@@ -892,6 +987,11 @@ const CreateQuestion = () => {
               </Text>
               <Input
                 ref={questionchoice3}
+                defaultValue={
+                  changequestion !== ""
+                    ? dataquestion[changequestion].choice3
+                    : ""
+                }
                 sx={{
                   borderRadius: "5px",
                   border: errorchoice3 ? "1px solid red" : "1px solid #0A2239",
@@ -907,6 +1007,11 @@ const CreateQuestion = () => {
               </Text>
               <Input
                 ref={questionchoice4}
+                defaultValue={
+                  changequestion !== ""
+                    ? dataquestion[changequestion].choice4
+                    : ""
+                }
                 sx={{
                   borderRadius: "5px",
                   border: errorchoice4 ? "1px solid red" : "1px solid #0A2239",
@@ -924,9 +1029,16 @@ const CreateQuestion = () => {
                   backgroundColor: "green",
                   cursor: "pointer",
                 }}
-                onClick={() => createnewquestion()}
+                onClick={
+                  changequestion !== ""
+                    ? () => createnewquestion(changequestion, "change")
+                    : createnewquestion
+                }
               >
-                <Text sx={{ color: "black" }}> สร้างคำถาม</Text>
+                <Text sx={{ color: "black" }}>
+                  {" "}
+                  {changequestion !== "" ? "แก้ไขคำถาม" : "สร้างคำถาม"}
+                </Text>
               </Button>
             </Box>
           </Box>
@@ -951,10 +1063,9 @@ const CreateQuestion = () => {
         >
           <Box
             sx={{ position: "absolute", top: 20, right: 20, cursor: "pointer" }}
-            
             onClick={modalfavClose}
           >
-            <AiOutlineClose  />
+            <AiOutlineClose />
           </Box>
           {favouritedataquestion.map((question, index) => {
             if (favindex === index) {
@@ -1037,11 +1148,12 @@ const CreateQuestion = () => {
 
       <Header />
 
-      <Flex mt={3}>
+      <Flex mt={3} flexDirection={['column', 'row']}>
         <Box
           width={[1, 2 / 5]}
+          ml={[1, 4]}
+          mb={[4, 0]}
           px={4}
-          ml={4}
           sx={{
             backgroundColor: "rgba(255,255,255,0.75)",
             border: "1px solid #fff",
@@ -1069,7 +1181,7 @@ const CreateQuestion = () => {
                     sx={{
                       backgroundColor: "rgba(255,255,255,1)",
                       border: "1px solid rgba(0,0,0,0.3)",
-                      borderRadius: "10px",
+                      borderRadius: "5px",
                       marginBottom: "20px",
                       postition: "relative",
                       cursor: "pointer",
@@ -1087,6 +1199,20 @@ const CreateQuestion = () => {
                     >
                       {question.question}
                     </Text>
+                    {/* <Box
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        deletefavquestion(index);
+                      }}
+                      sx={{
+                        position: "relative",
+                        bottom: "10px",
+                        right: "0px",
+                        cursor: "pointer",
+                      }}
+                    >
+                      <FaTrash />
+                    </Box> */}
                   </Box>
                 );
               })}
@@ -1161,7 +1287,9 @@ const CreateQuestion = () => {
 
         <Box
           width={[1, 4 / 5]}
-          mx={4}
+          ml={[1, 4]}
+          mb={[4, 0]}
+
           sx={{
             overflow: "hidden",
             backgroundColor: "transparent",
@@ -1252,10 +1380,6 @@ const CreateQuestion = () => {
                         mx={4}
                         my={2}
                         sx={{
-                          // border:
-                          //   data.correct === "3"
-                          //     ? "1px solid #59A96A"
-                          //     : "1px solid #0A2239",
                           borderRadius: "10px",
                           backgroundColor:
                             data.correct === "3" || data.correct === 3
@@ -1274,10 +1398,6 @@ const CreateQuestion = () => {
                         mx={4}
                         my={2}
                         sx={{
-                          // border:
-                          //   data.correct === "4"
-                          //     ? "1px solid #59A96A"
-                          //     : "1px solid #0A2239",
                           borderRadius: "10px",
                           backgroundColor:
                             data.correct === "4" || data.correct === 4
@@ -1299,6 +1419,16 @@ const CreateQuestion = () => {
                         cursor: "pointer",
                       }}
                       onClick={() => deletequestion(index)}
+                    />
+                    <BiEdit
+                      style={{
+                        position: "absolute",
+                        right: 60,
+                        width: "25px",
+                        height: "25px",
+                        cursor: "pointer",
+                      }}
+                      onClick={() => editquestion(index)}
                     />
                   </Box>
                 </Box>

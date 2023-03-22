@@ -38,7 +38,36 @@ const CreateQuiz = () => {
   useEffect(() => {
     console.log("Loading questiondata", questiondata);
   }, [questiondata]);
+  useEffect(() => {
+    const handleBeforeUnload = (event) => {
+      event.preventDefault();
+      event.returnValue = "";
+    };
 
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    const handleKeyDown = (event) => {
+      if ((event.metaKey || event.ctrlKey) && event.key === "r") {
+        event.preventDefault();
+        const confirmed = window.confirm(
+          "Are you sure you want to reload the page? Any unsaved changes will be lost."
+        );
+
+        if (confirmed) {
+          window.removeEventListener("beforeunload", handleBeforeUnload);
+          window.location.reload();
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
+  
   useEffect(() => {
     if (question) {
       setQuestiondata([...question]);
@@ -276,14 +305,15 @@ const CreateQuiz = () => {
         </Box>
       </Modal>
 
-      <Flex mt={3}>
+      <Flex mt={3} flexDirection={['column', 'row']}>
         <Box
           width={[1, 1, 1 / 5]}
           px={4}
-          ml={4}
+          ml={[1, 4]}
+          mb={[4, 0]}
           sx={{
             backgroundColor: "rgba(255,255,255,0.75)",
-            backdropFilter: "blur(15px)",
+            // backdropFilter: "blur(15px)",
             border: "1px solid #fff",
             borderBottom: "1px solid rgba(255,255,255,0.50)",
             borderRight: "1px solid rgba(255,255,255,0.50)",
@@ -485,7 +515,8 @@ const CreateQuiz = () => {
 
         <Box
           width={[1, 4 / 5]}
-          mx={4}
+          ml={[1, 4]}
+          mb={[4, 0]}
           sx={{
             backgroundColor: "rgba(255,255,255,0.75)",
             borderBottom: "1px solid rgba(255,255,255,0.75)",
