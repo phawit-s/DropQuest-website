@@ -227,6 +227,7 @@ const Myquiz = () => {
             },
           }}
         >
+          
           {filteredQuizzes.length === 0 ? (
             <Text
               sx={{
@@ -251,6 +252,7 @@ const Myquiz = () => {
               );
               const imageUrl = `data:image/png;base64,${base64ImageData}`;
               return (
+                
                 <Box
                   key={index}
                   sx={{

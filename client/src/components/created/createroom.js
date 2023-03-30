@@ -1,39 +1,57 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useLocation, Redirect, useHistory } from "react-router-dom";
 import { Box, Heading, Text, Card, Flex, Link, Button, Image } from "rebass";
 import { Label, Input, Select, Textarea, Radio, Checkbox } from "@rebass/forms";
 import { Scrollbars } from "react-custom-scrollbars";
 import { Modal, Typography } from "@mui/material";
 import { useAuth } from "../../contexts/AuthContext";
+import { useToasts } from "react-toast-notifications";
 import Header from "../Header";
 import api from "../../api";
 import { AiOutlineStar, AiFillStar } from "react-icons/ai";
 
 const Createroom = () => {
-  const { currentUser } = useAuth();
+  const { currentUser, createroom } = useAuth();
   const history = useHistory();
-  const [selectedcategory, setSelectedcategory] = useState(0);
+  const { addToast } = useToasts();
   const [allcategory, setAllcategory] = useState([]);
-  const [category, setCategory] = useState("all");
   const [allquiz, setAllquiz] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [openmodal, setOpenmodal] = useState(false);
+  const [name, setName] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [errorname, setErrorname] = useState(false);
+  const [errorstartdate, setErrorstartdate] = useState(false);
+  const [errorenddate, setErrorenddate] = useState(false);
   const [quizindex, setQuizindex] = useState(0);
+  const [quizid, setQuizid] = useState(0);
+  const [numRooms, setNumRooms] = useState(1);
+  const [rooms, setRooms] = useState([]);
 
-  const handleStartDateChange = (e) => {
-    setStartDate(e.target.value);
-  };
+  useEffect(() => {
+    const newRooms = [];
+    for (let i = 0; i < numRooms; i++) {
+      const randomString = generateRandomString(5);
+      const roomId = `${randomString}`;
+      newRooms.push(roomId);
+    }
+    setRooms(newRooms);
+  }, [numRooms]);
 
-  const handleEndDateChange = (e) => {
-    setEndDate(e.target.value);
-  };
-  let filteredQuizzes = allquiz;
+  // useEffect(() => {
+  //   if (allquiz) {
+  //     setQuizid(allquiz[0].group_id);
+  //   }
+
+  // }, [allquiz]);
 
   useEffect(() => {
     console.log("Showing my Quiz", allquiz);
     console.log("All category", allcategory);
+    if (allquiz && allquiz.length > 0) {
+      setQuizid(allquiz[0].group_id);
+    }
   }, [allquiz, allcategory]);
 
   useEffect(() => {
@@ -60,20 +78,76 @@ const Createroom = () => {
       });
   }, []);
 
-  if (category !== "all") {
-    filteredQuizzes = allquiz.filter((quiz) => quiz.category_name === category);
+  const handleStartDateChange = (e) => {
+    setStartDate(e.target.value);
+  };
+  const handleEndDateChange = (e) => {
+    setEndDate(e.target.value);
+  };
+  const handleRoomChange = (e) => {
+    setName(e.target.value);
+  };
+  const modalsaveOpen = () => setOpenmodal(true);
+  const modalsaveClose = () => setOpenmodal(false);
+
+  function handleSessionChange(event) {
+    setNumRooms(parseInt(event.target.value));
   }
-  if (searchQuery) {
-    filteredQuizzes = filteredQuizzes.filter((quiz) =>
-      quiz.g_name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+
+  function generateRandomString(length) {
+    const characters = "abcdefghijklmnopqrstuvwxyz0123456789";
+    let result = "";
+    for (let i = 0; i < length; i++) {
+      result += characters.charAt(
+        Math.floor(Math.random() * characters.length)
+      );
+    }
+    return result;
   }
+
+  const createandsave = () => {
+    if (name === "") {
+      addToast("กรุณากรอกชื่อห้อง", {
+        appearance: "error",
+        autoDismiss: true,
+      });
+      setErrorname(true);
+      setOpenmodal(false);
+    } else if (startDate === "") {
+      addToast("กรุณาเลือกวันที่เริ่ม", {
+        appearance: "error",
+        autoDismiss: true,
+      });
+      setErrorstartdate(true);
+      setOpenmodal(false);
+    } else if (endDate === "") {
+      addToast("กรุณาเลือกวันที่สิ้นสุด", {
+        appearance: "error",
+        autoDismiss: true,
+      });
+      setErrorenddate(true);
+      setOpenmodal(false);
+    } else {
+      setErrorname(false);
+      setErrorstartdate(false);
+      setErrorenddate(false);
+      console.log(quizid);
+      createroom(name, startDate, endDate, quizid, rooms).then(() => {
+        history.push({
+          pathname: `/`,
+        });
+      });
+    }
+  };
+
+ 
 
   if (!currentUser) {
     return <Redirect to="/login" />;
   }
-  const usequiz = (index) => {
+  const usequiz = (index, quizidindex) => {
     setQuizindex(index);
+    setQuizid(quizidindex);
   };
 
   return (
@@ -84,105 +158,57 @@ const Createroom = () => {
       }}
     >
       <Header />
-
-      <Flex mt={4} ml={[0, 4]} flexDirection={["column", "row"]}>
+      <Modal open={openmodal} onClose={modalsaveClose}>
         <Box
-          width={[1, 1 / 5]}
-          ml={2}
-          px={4}
           sx={{
-            backgroundColor: "rgba(255,255,255,1)",
-            borderBottom: "1px solid rgba(255,255,255,0.50)",
-            height: "100%",
-            borderRadius: "10px",
-            overflowY: "scroll",
-            overflowX: "hidden",
-            overscrollBehaviorY: "contain",
-            "&::-webkit-scrollbar": {
-              width: "0px",
-              background: "transparent",
-            },
-            "-ms-overflow-style": "none",
-            "scrollbar-width": "none",
-            "-webkit-overflow-scrolling": "touch",
+            backgroundColor: "#fff",
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            textAlign: "start",
+            borderRadius: "20px",
           }}
+          height="200px"
+          width={1 / 3}
+          px={4}
+          pt={4}
         >
-          <Flex pt={4}>
-            <Box width={1 / 4} mr={4}>
-              <Label htmlFor="name" fontSize="16px">
-                ชื่อแบบทดสอบ
-                <span style={{ color: "red", fontSize: "18px" }}>*</span>
-              </Label>
-            </Box>
-            <Box width={3 / 4}>
-              <Input
-                id="name"
-                name="name"
-                height="30px"
-                pl={1}
-                // ref={quizname}
-                sx={{
-                  border: "1px solid black",
-                }}
-              />
-            </Box>
-          </Flex>
-
-          <Flex pt={4}>
-            <Box width={1 / 4} mr={4}>
-              <Label htmlFor="name" fontSize="16px">
-                เริ่มสร้าง
-                <span style={{ color: "red", fontSize: "18px" }}>*</span>
-              </Label>
-            </Box>
-            <Box width={3 / 4}>
-              <Input
-                type="date"
-                value={startDate}
-                onChange={handleStartDateChange}
-                min={new Date().toISOString().split("T")[0]}
-                id="name"
-                name="name"
-                height="30px"
-                pl={1}
-                // ref={quizname}
-                sx={{
-                  border: "1px solid black",
-                }}
-              />
-            </Box>
-          </Flex>
-
-          <Flex pt={4}>
-            <Box width={1 / 4} mr={4}>
-              <Label htmlFor="name" fontSize="16px">
-                สิ้นสุด
-                <span style={{ color: "red", fontSize: "18px" }}>*</span>
-              </Label>
-            </Box>
-            <Box width={3 / 4}>
-              <Input
-                type="date"
-                min={startDate}
-                value={endDate}
-                onChange={handleEndDateChange}
-                height="30px"
-                pl={1}
-                // ref={quizname}
-                sx={{
-                  border: "1px solid black",
-                }}
-              />
-            </Box>
-          </Flex>
+          <Text sx={{ fontSize: "20px" }}>ยืนยันการบันทึก?</Text>
 
           <Flex>
             <Button
               mx="auto"
               mr={4}
               mt={4}
-              mb={4}
-              p={12}
+              p={14}
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                border: "1px solid #daddd8",
+                borderRadius: "20px",
+                cursor: "pointer",
+              }}
+              width={3 / 4}
+              fontSize={2}
+              backgroundColor="#daddd8"
+              type="button"
+              onClick={modalsaveClose}
+            >
+              <Text
+                sx={{
+                  color: " #000",
+                  fontSize: "20px",
+                }}
+              >
+                ทำต่อ
+              </Text>
+            </Button>
+            <Button
+              mx="auto"
+              mr={4}
+              mt={4}
+              p={14}
               sx={{
                 display: "flex",
                 justifyContent: "center",
@@ -192,8 +218,9 @@ const Createroom = () => {
               }}
               width={3 / 4}
               fontSize={2}
-              backgroundColor="#D10000"
+              backgroundColor="green"
               type="button"
+              onClick={createandsave}
             >
               <Text
                 sx={{
@@ -201,36 +228,195 @@ const Createroom = () => {
                   fontSize: "20px",
                 }}
               >
-                ยกเลิก
-              </Text>
-            </Button>
-
-            <Button
-              mx="auto"
-              mt={4}
-              mb={4}
-              p={12}
-              sx={{
-                display: "flex",
-                borderRadius: "20px",
-                justifyContent: "center",
-                cursor: "pointer",
-              }}
-              width={3 / 4}
-              fontSize={2}
-              backgroundColor="green"
-              type="button"
-              // onClick={modalsaveOpen}
-            >
-              <Text
-                sx={{
-                  color: " #fff",
-                  fontSize: "20px",
-                }}
-              >
                 บันทึก
               </Text>
             </Button>
+          </Flex>
+        </Box>
+      </Modal>
+
+      <Flex mt={4} ml={[0, 4]} flexDirection={["column", "row"]}>
+        <Box
+          width={[1, 1 / 5]}
+          ml={2}
+          px={4}
+          sx={{
+            backgroundColor: "rgba(255,255,255,1)",
+            borderBottom: "1px solid rgba(255,255,255,0.50)",
+            height: ["100%", "800px"],
+            borderRadius: "10px",
+            overflowY: "scroll",
+            overflowX: "hidden",
+            overscrollBehaviorY: "contain",
+            "&::-webkit-scrollbar": {
+              width: "0px",
+              background: "transparent",
+            },
+            msOverflowStyle: "none",
+            scrollbarWidth: "none",
+            WebkitOverflowScrolling: "touch",
+          }}
+        >
+          <Flex flexDirection="column" height="100%">
+            <Box flexGrow={1}>
+              <Flex pt={4}>
+                <Box width={1 / 4} mr={4}>
+                  <Label htmlFor="name" fontSize="16px">
+                    ชื่อแบบทดสอบ
+                    <span style={{ color: "red", fontSize: "18px" }}>*</span>
+                  </Label>
+                </Box>
+                <Box width={3 / 4}>
+                  <Input
+                    id="name"
+                    name="name"
+                    height="30px"
+                    pl={1}
+                    value={name}
+                    onChange={handleRoomChange}
+                    onClick={() => setErrorname(false)}
+                    sx={{
+                      border: errorname ? "1px solid red" : "1px solid black",
+                    }}
+                  />
+                </Box>
+              </Flex>
+
+              <Flex pt={4}>
+                <Box width={1 / 4} mr={4}>
+                  <Label htmlFor="name" fontSize="16px">
+                    เริ่มสร้าง
+                    <span style={{ color: "red", fontSize: "18px" }}>*</span>
+                  </Label>
+                </Box>
+                <Box width={3 / 4}>
+                  <Input
+                    type="date"
+                    value={startDate}
+                    onChange={handleStartDateChange}
+                    min={new Date().toISOString().split("T")[0]}
+                    id="name"
+                    name="name"
+                    height="30px"
+                    pl={1}
+                    onClick={() => setErrorstartdate(false)}
+                    sx={{
+                      border: errorstartdate
+                        ? "1px solid red"
+                        : "1px solid black",
+                    }}
+                  />
+                </Box>
+              </Flex>
+
+              <Flex pt={4}>
+                <Box width={1 / 4} mr={4}>
+                  <Label htmlFor="name" fontSize="16px">
+                    สิ้นสุด
+                    <span style={{ color: "red", fontSize: "18px" }}>*</span>
+                  </Label>
+                </Box>
+                <Box width={3 / 4}>
+                  <Input
+                    type="date"
+                    min={startDate}
+                    value={endDate}
+                    onChange={handleEndDateChange}
+                    onClick={() => setErrorenddate(false)}
+                    height="30px"
+                    pl={1}
+                    sx={{
+                      border: errorenddate
+                        ? "1px solid red"
+                        : "1px solid black",
+                    }}
+                  />
+                </Box>
+              </Flex>
+
+              <Flex>
+                <Box width={1 / 2} mr={4} mt={4}>
+                  <Label htmlFor="name" fontSize="16px">
+                    จำนวนเซคชั่น
+                  </Label>
+                </Box>
+                <Box width={1 / 2} px={2} mt={4}>
+                  <Select
+                    id="session"
+                    name="session"
+                    height="35px"
+                    defaultValue={numRooms}
+                    onChange={handleSessionChange}
+                  >
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                  </Select>
+                </Box>
+              </Flex>
+              {rooms.map((roomId, index) => (
+                <Text fontSize="20px" my={4} key={roomId}>
+                  Session {index + 1} : {roomId}
+                </Text>
+              ))}
+            </Box>
+
+            <Flex justifyContent="space-between">
+              <Button
+                mx="auto"
+                mr={4}
+                mb={4}
+                p={12}
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  border: "1px solid #C1D7AE",
+                  borderRadius: "20px",
+                  cursor: "pointer",
+                }}
+                width={3 / 4}
+                fontSize={2}
+                backgroundColor="#D10000"
+                type="button"
+              >
+                <Text
+                  sx={{
+                    color: " #000",
+                    fontSize: "20px",
+                  }}
+                >
+                  ยกเลิก
+                </Text>
+              </Button>
+
+              <Button
+                mx="auto"
+                mb={4}
+                p={12}
+                sx={{
+                  display: "flex",
+                  borderRadius: "20px",
+                  justifyContent: "center",
+                  cursor: "pointer",
+                }}
+                width={3 / 4}
+                fontSize={2}
+                backgroundColor="green"
+                type="button"
+                onClick={modalsaveOpen}
+              >
+                <Text
+                  sx={{
+                    color: " #fff",
+                    fontSize: "20px",
+                  }}
+                >
+                  บันทึก
+                </Text>
+              </Button>
+            </Flex>
           </Flex>
         </Box>
         <Box
@@ -242,7 +428,7 @@ const Createroom = () => {
             height: "800px",
             borderRadius: "10px",
             display: "flex",
-            flexWrap: "wrap",
+            flexDirection: "column",
             overflowY: "scroll",
             overflowX: "hidden",
             overscrollBehaviorY: "contain",
@@ -274,108 +460,125 @@ const Createroom = () => {
               display: "flex",
               alignItems: "center",
               paddingLeft: "20px",
+              flexShrink: 0,
             }}
           >
-            {filteredQuizzes.map((quiz, index) => {
+            {allquiz.map((quiz, index) => {
               if (index === quizindex) {
                 return (
-                  <Text fontSize="20px">แบบทดสอบที่เลือก : {quiz.g_name}</Text>
+                  <Text fontSize="20px" key={index}>
+                    แบบทดสอบที่เลือก : {quiz.g_name}
+                  </Text>
                 );
               }
             })}
           </Box>
-          {filteredQuizzes.map((quiz, index) => {
-            const base64ImageData = Buffer.from(quiz.question_image).toString(
-              "base64"
-            );
-            const imageUrl = `data:image/png;base64,${base64ImageData}`;
+          <Flex
+            mt={3}
+            ml={[0, 3]}
+            sx={{
+              flexWrap: "wrap",
+              justifyContent: "flex-start",
+              "& > div": {
+                width: ["40%", "30%"],
+                margin: "1%",
+              },
+            }}
+          >
+            {allquiz.map((quiz, index) => {
+              const base64ImageData = Buffer.from(quiz.question_image).toString(
+                "base64"
+              );
+              const imageUrl = `data:image/png;base64,${base64ImageData}`;
 
-            return (
-              <Box
-                key={index}
-                sx={{
-                  position: "relative",
-                  height: "180px",
-                  width: "300px",
-                  backgroundImage: `url(${imageUrl})`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                  borderRadius: "10px",
-                  overflow: "hidden",
-                  cursor: "pointer",
-                  flexShrink: 0,
-                  zIndex: 3,
-                }}
-                mx={4}
-                onMouseDown={(e) => e.preventDefault()}
-                onClick={() => usequiz(index)}
-              >
+              return (
                 <Box
+                  key={index}
                   sx={{
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    width: "100%",
-                    height: "100%",
-                    backgroundColor:
-                      quizindex === index ? "rgba(0, 240, 0, 0.5)" : "",
-                    opacity: 1,
-                    zIndex: 1,
+                    position: "relative",
+                    height: "200px",
+                    width: "300px",
+                    backgroundImage: `url(${imageUrl})`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                    borderRadius: "10px",
+                    overflow: "hidden",
+                    cursor: "pointer",
+                    alignItems: "flex-start",
+                    zIndex: 3,
                   }}
+                  mx={4}
+                  my={3}
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => usequiz(index, quiz.group_id)}
                 >
                   <Box
                     sx={{
                       position: "absolute",
-                      bottom: 0,
+                      top: 0,
                       left: 0,
                       width: "100%",
-                      height: "45%",
-                      backgroundColor: "white",
-                      opacity: 0.7,
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "flex-start",
-                      justifyContent: "center",
-                      p: 2,
+                      height: "100%",
+                      backgroundColor:
+                        quizindex === index ? "rgba(0, 240, 0, 0.5)" : "",
+                      opacity: 1,
+                      zIndex: 1,
                     }}
                   >
-                    <Text
+                    <Box
                       sx={{
-                        display: "inline",
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        fontSize: "16px",
-                        fontWeight: "bold",
-                        color: "black",
-                        textAlign: "left",
-                        zIndex: 2,
+                        position: "absolute",
+                        bottom: 0,
+                        left: 0,
+                        width: "100%",
+                        height: "45%",
+                        backgroundColor: "white",
+                        opacity: 0.7,
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "flex-start",
+                        justifyContent: "center",
+                        p: 2,
                       }}
-                      ml={2}
                     >
-                      {quiz.g_name}
-                    </Text>
-                    <Text
-                      sx={{
-                        display: "inline",
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        fontSize: "14px",
-                        fontWeight: "bold",
-                        color: "black",
-                        textAlign: "left",
-                        zIndex: 2,
-                      }}
-                      ml={2}
-                    >
-                      created by {quiz.username}
-                    </Text>
+                      <Text
+                        sx={{
+                          display: "inline",
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          fontSize: "16px",
+                          fontWeight: "bold",
+                          color: "black",
+                          textAlign: "left",
+                          zIndex: 2,
+                        }}
+                        ml={2}
+                      >
+                        {quiz.g_name}
+                      </Text>
+                      <Text
+                        sx={{
+                          display: "inline",
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          fontSize: "14px",
+                          fontWeight: "bold",
+                          color: "black",
+                          textAlign: "left",
+                          zIndex: 2,
+                        }}
+                        ml={2}
+                      >
+                        created by {quiz.username}
+                      </Text>
+                    </Box>
                   </Box>
                 </Box>
-              </Box>
-            );
-          })}
+              );
+            })}
+          </Flex>
         </Box>
       </Flex>
     </Box>

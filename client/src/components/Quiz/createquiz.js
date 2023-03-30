@@ -10,7 +10,7 @@ import api from "../../api";
 import Header from "../Header";
 
 const CreateQuiz = () => {
-  const { currentUser, logout, savequiz } = useAuth();
+  const { currentUser, editquiz, savequiz } = useAuth();
   const { addToast } = useToasts();
   const history = useHistory();
   const quizname = useRef();
@@ -21,6 +21,7 @@ const CreateQuiz = () => {
   const [photo, setPhoto] = useState(null);
   const [checkquestion, setCheckquestion] = useState([]);
   const [questiondata, setQuestiondata] = useState([]);
+  const [quizdata, setQuizdata] = useState("");
   const [open, setOpen] = useState(false);
   const [openmodal, setOpenmodal] = useState(false);
   const [errorquizname, setErrorQuizname] = useState(false);
@@ -33,11 +34,15 @@ const CreateQuiz = () => {
   const modalsaveClose = () => setOpenmodal(false);
   const getproductstorage = window.localStorage.getItem("Question");
   const question = getproductstorage ? JSON.parse(getproductstorage) : [];
+  const getQuizdetail = window.localStorage.getItem("EditQuiz");
+  const quizedit = getQuizdetail ? JSON.parse(getQuizdetail) : [];
   const todayDate = new Date().toISOString().slice(0, 10);
+  const quizid = window.localStorage.getItem("Edit id");
 
   useEffect(() => {
     console.log("Loading questiondata", questiondata);
-  }, [questiondata]);
+    console.log("Loading Editdata", quizdata);
+  }, [questiondata, quizdata]);
   useEffect(() => {
     const handleBeforeUnload = (event) => {
       event.preventDefault();
@@ -67,10 +72,13 @@ const CreateQuiz = () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, []);
-  
+
   useEffect(() => {
     if (question) {
       setQuestiondata([...question]);
+    }
+    if (quizedit) {
+      setQuizdata(quizedit);
     }
   }, []);
 
@@ -84,6 +92,31 @@ const CreateQuiz = () => {
       setPhoto(img);
     }
   };
+
+  const canceledit = () => {
+    window.localStorage.removeItem("Question");
+    window.localStorage.removeItem("EditQuiz");
+    history.push({
+      pathname: `/`,
+    });
+  };
+
+  const updateandsave = () =>{
+    const quizdata = {
+      groupname: quizname.current.value,
+      category: category.current.value,
+      releasedate: todayDate,
+      score: score.current.value,
+      timer: timer.current.value,
+      description: description.current.value,
+    };
+    editquiz(quizdata, question, quizid).then(() => {
+      history.push({
+        pathname: `/`,
+      });
+    });
+  }
+  
   const createandsave = () => {
     const quizdata = {
       groupname: quizname.current.value,
@@ -93,6 +126,7 @@ const CreateQuiz = () => {
       timer: timer.current.value,
       description: description.current.value,
     };
+
     if (quizname.current.value === "") {
       addToast("กรุณากรอกชื่อแบบทดสอบ", {
         appearance: "error",
@@ -133,7 +167,7 @@ const CreateQuiz = () => {
         history.push({
           pathname: `/`,
         });
-      });
+      }); 
     }
   };
 
@@ -213,7 +247,7 @@ const CreateQuiz = () => {
               fontSize={2}
               backgroundColor="#C1D7AE"
               type="button"
-              onClick={() => cancelcreate()}
+              onClick={quizdata.length !== 0 ? canceledit : cancelcreate}
             >
               <Text
                 sx={{
@@ -244,7 +278,7 @@ const CreateQuiz = () => {
           px={4}
           pt={4}
         >
-          <Text sx={{ fontSize: "20px" }}>ยืนยันการบันทึก?</Text>
+          <Text sx={{ fontSize: "20px" }}>{quizdata.length !== 0 ? "ยืนยันการอัพเดท?" : "ยืนยันการบันทึก?"}</Text>
 
           <Flex>
             <Button
@@ -290,7 +324,7 @@ const CreateQuiz = () => {
               fontSize={2}
               backgroundColor="green"
               type="button"
-              onClick={() => createandsave()}
+              onClick={quizdata.length !== 0 ? updateandsave : createandsave}
             >
               <Text
                 sx={{
@@ -305,7 +339,7 @@ const CreateQuiz = () => {
         </Box>
       </Modal>
 
-      <Flex mt={3} flexDirection={['column', 'row']}>
+      <Flex mt={3} flexDirection={["column", "row"]}>
         <Box
           width={[1, 1, 1 / 5]}
           px={4}
@@ -331,6 +365,7 @@ const CreateQuiz = () => {
             </Box>
             <Box width={3 / 4}>
               <Input
+                defaultValue={quizdata.length !== 0 ? quizdata[0].g_name : ""}
                 id="name"
                 name="name"
                 height="30px"
@@ -354,7 +389,11 @@ const CreateQuiz = () => {
               <Select
                 id="category"
                 name="category"
-                defaultValue=""
+                defaultValue={
+                  quizdata.length !== 0
+                    ? quizdata[0].category_id.toString()
+                    : ""
+                }
                 height="40px"
                 ref={category}
               >
@@ -381,6 +420,9 @@ const CreateQuiz = () => {
             <Box width={3 / 4}>
               <Input
                 id="timer"
+                defaultValue={
+                  quizdata.length !== 0 ? quizdata[0].question_time : ""
+                }
                 name="timer"
                 height="30px"
                 pl={1}
@@ -403,6 +445,9 @@ const CreateQuiz = () => {
             <Box width={3 / 4}>
               <Input
                 id="score"
+                defaultValue={
+                  quizdata.length !== 0 ? quizdata[0].question_score : ""
+                }
                 name="score"
                 height="30px"
                 pl={1}
@@ -424,6 +469,7 @@ const CreateQuiz = () => {
             </Box>
             <Box width={3 / 4}>
               <Input
+                disabled={quizdata.length !== 0 ? "disabled" : ""}
                 height="40px"
                 type="file"
                 id="thumbnail"
@@ -443,6 +489,9 @@ const CreateQuiz = () => {
             </Box>
             <Box width={3 / 4}>
               <Textarea
+                defaultValue={
+                  quizdata.length !== 0 ? quizdata[0].question_description : ""
+                }
                 height="250px"
                 id="description"
                 name="description"
@@ -507,7 +556,7 @@ const CreateQuiz = () => {
                   fontSize: "20px",
                 }}
               >
-                บันทึก
+                {quizdata.length !== 0 ? "อัพเดท" : "บันทึก"}
               </Text>
             </Button>
           </Flex>
@@ -516,6 +565,7 @@ const CreateQuiz = () => {
         <Box
           width={[1, 4 / 5]}
           ml={[1, 4]}
+          mr={[0, 4]}
           mb={[4, 0]}
           sx={{
             backgroundColor: "rgba(255,255,255,0.75)",
@@ -566,7 +616,7 @@ const CreateQuiz = () => {
                     key={index}
                     sx={{
                       backgroundColor: "rgba(255,255,255,0.50)",
-                      backdropFilter: "blur(15px)",
+                      // backdropFilter: "blur(15px)",
                       border: "1px solid #fff",
                       borderBottom: "1px solid rgba(255,255,255,0.50)",
                       borderRight: "1px solid rgba(255,255,255,0.50)",
@@ -576,7 +626,7 @@ const CreateQuiz = () => {
                     }}
                   >
                     <Box sx={{ borderRadius: "10px" }} py={2} px={4} mb={2}>
-                      <Text mb={4}>{data.question}</Text>
+                      <Text mb={4}>{data.question_name}</Text>
                     </Box>
                     <Box>
                       <Flex>
@@ -587,12 +637,12 @@ const CreateQuiz = () => {
                           my={2}
                           sx={{
                             border:
-                              data.correct === "1" || data.correct === 1
+                              data.correct_choice === "1" || data.correct_choice === 1
                                 ? "1px solid #59A96A"
                                 : "1px solid #0A2239",
                             borderRadius: "10px",
                             backgroundColor:
-                              data.correct === "1" || data.correct === 1
+                              data.correct_choice === "1" || data.correct_choice === 1
                                 ? "#59A96A"
                                 : "#fff",
                             color: "black",
@@ -609,12 +659,12 @@ const CreateQuiz = () => {
                           my={2}
                           sx={{
                             border:
-                              data.correct === "2" || data.correct === 2
+                              data.correct_choice === "2" || data.correct_choice === 2
                                 ? "1px solid #59A96A"
                                 : "1px solid #0A2239",
                             borderRadius: "10px",
                             backgroundColor:
-                              data.correct === "2" || data.correct === 2
+                              data.correct_choice === "2" || data.correct_choice === 2
                                 ? "#59A96A"
                                 : "#fff",
                             color: "black",
@@ -634,12 +684,12 @@ const CreateQuiz = () => {
                           sx={{
                             cursor: "pointer",
                             border:
-                              data.correct === "3" || data.correct === 3
+                              data.correct_choice === "3" || data.correct_choice === 3
                                 ? "1px solid #59A96A"
                                 : "1px solid #0A2239",
                             borderRadius: "10px",
                             backgroundColor:
-                              data.correct === "3" || data.correct === 3
+                              data.correct_choice === "3" || data.correct_choice === 3
                                 ? "#59A96A"
                                 : "#fff",
                             color: "black",
@@ -657,12 +707,12 @@ const CreateQuiz = () => {
                           sx={{
                             cursor: "pointer",
                             border:
-                              data.correct === "4" || data.correct === 4
+                              data.correct_choice === "4" || data.correct_choice === 4
                                 ? "1px solid #59A96A"
                                 : "1px solid #0A2239",
                             borderRadius: "10px",
                             backgroundColor:
-                              data.correct === "4" || data.correct === 4
+                              data.correct_choice === "4" || data.correct_choice === 4
                                 ? "#59A96A"
                                 : "#fff",
                             color: "black",

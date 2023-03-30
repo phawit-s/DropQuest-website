@@ -16,6 +16,8 @@ const AuthContext = createContext({
   uploadphoto: () => Promise,
   logout: () => Promise,
   savequiz: () => Promise,
+  editquiz: () => Promise,
+  createroom: () => Promise,
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -35,7 +37,6 @@ export const AuthProvider = ({ children }) => {
   if (loading) {
     return <Box></Box>;
   }
-
 
   async function registeremail(email, password, username, imageFile) {
     const formData = new FormData();
@@ -109,6 +110,7 @@ export const AuthProvider = ({ children }) => {
 
   async function logout() {
     localStorage.removeItem("user");
+    localStorage.removeItem("Question");
     setCurrentuser(null);
     history.push({
       pathname: `/login`,
@@ -119,6 +121,48 @@ export const AuthProvider = ({ children }) => {
     });
   }
 
+  async function editquiz(quizdata, questiondata, quizid) {
+    const formData = new FormData();
+    formData.append("quizid", quizid);
+    formData.append("quizdata", JSON.stringify(quizdata));
+    formData.append("questiondata", JSON.stringify(questiondata));
+
+    api
+      .post("/updatequiz", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
+      .then(() => {
+        addToast("Create success!!", {
+          appearance: "success",
+          autoDismiss: true,
+        });
+      });
+
+    window.localStorage.removeItem("Question");
+    window.localStorage.removeItem("EditQuiz");
+  }
+
+  async function createroom(name, startdate, enddate, quizid, rooms) {
+    const userid = currentUser.user_id;
+    api
+      .post("/createroom", {
+        userid: userid,
+        name: name,
+        startdate: startdate,
+        enddate: enddate,
+        quizid: quizid,
+        room : JSON.stringify(rooms)
+      })
+      .then(() => {
+        addToast("Create Room success!!", {
+          appearance: "success",
+          autoDismiss: true,
+        });
+      });
+  }
+
   async function savequiz(quizdata, questiondata, imageFile) {
     const userid = currentUser.user_id;
     const formData = new FormData();
@@ -126,6 +170,7 @@ export const AuthProvider = ({ children }) => {
     formData.append("quizdata", JSON.stringify(quizdata));
     formData.append("questiondata", JSON.stringify(questiondata));
     formData.append("image", imageFile);
+
     api
       .post("/createquiz", formData, {
         headers: {
@@ -149,6 +194,8 @@ export const AuthProvider = ({ children }) => {
     changepassword,
     logout,
     savequiz,
+    editquiz,
+    createroom,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

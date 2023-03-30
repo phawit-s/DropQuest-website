@@ -148,12 +148,13 @@ const CreateQuestion = () => {
 
       const hasQuestion = uniqueQuestions.find(
         (q) =>
-          q.question_name.includes(refquestion.question) &&
+          q.question_name.includes(refquestion.question_name) &&
           !q.choice1.includes(refquestion.choice1) &&
           !q.choice2.includes(refquestion.choice2) &&
           !q.choice3.includes(refquestion.choice3) &&
           !q.choice4.includes(refquestion.choice4)
       );
+      console.log(hasQuestion,"hasQuestion");
       if (hasQuestion) {
         setSamequestion((prevState) => [
           ...prevState,
@@ -171,13 +172,13 @@ const CreateQuestion = () => {
     setOpensave(false);
     dataquestion.map((question) => {
       refs.forEach((ref, refIndex) => {
-        if (ref.current.innerText === question.question) {
+        if (ref.current.innerText === question) {
           ref.current.innerText = question.question;
           refchoice1[refIndex].current.innerText = question.choice1;
           refchoice2[refIndex].current.innerText = question.choice2;
           refchoice3[refIndex].current.innerText = question.choice3;
           refchoice4[refIndex].current.innerText = question.choice4;
-          dataquestion[refIndex].correct = question.correct;
+          dataquestion[refIndex].correct_choice = question.correct_choice;
         }
       });
     });
@@ -201,7 +202,7 @@ const CreateQuestion = () => {
     if (savetype === "left") {
       const checkquestionnames = checksamequestion.map((question) => question);
       const checkindex = dataquestion.findIndex(
-        (dq) => dq.question === samequestion[nextquestion]
+        (dq) => dq.question_name === samequestion[nextquestion]
       );
       checkquestionnames.forEach((question) => {
         refs.forEach((ref, refIndex) => {
@@ -214,7 +215,7 @@ const CreateQuestion = () => {
             refchoice2[refIndex].current.innerText = question.choice2;
             refchoice3[refIndex].current.innerText = question.choice3;
             refchoice4[refIndex].current.innerText = question.choice4;
-            dataquestion[refIndex].correct = question.correct_choice;
+            dataquestion[refIndex].correct_choice = question.correct_choice;
           }
         });
       });
@@ -229,20 +230,20 @@ const CreateQuestion = () => {
       }
     } else {
       const checkindex = dataquestion.findIndex(
-        (dq) => dq.question === samequestion[nextquestion]
+        (dq) => dq.question_name === samequestion[nextquestion]
       );
       dataquestion.map((question) => {
         refs.forEach((ref, refIndex) => {
           if (
-            ref.current.innerText === question.question &&
+            ref.current.innerText === question.question_name &&
             refIndex === checkindex
           ) {
-            ref.current.innerText = question.question;
+            ref.current.innerText = question.question_name;
             refchoice1[refIndex].current.innerText = question.choice1;
             refchoice2[refIndex].current.innerText = question.choice2;
             refchoice3[refIndex].current.innerText = question.choice3;
             refchoice4[refIndex].current.innerText = question.choice4;
-            dataquestion[refIndex].correct = question.correct;
+            dataquestion[refIndex].correct_choice = question.correct_choice;
           }
         });
       });
@@ -273,15 +274,15 @@ const CreateQuestion = () => {
   };
   const usefavquestion = (favindex) => {
     const sent = {
-      question: favouritedataquestion[favindex].question,
+      question_name: favouritedataquestion[favindex].question_name,
       choice1: favouritedataquestion[favindex].choice1,
       choice2: favouritedataquestion[favindex].choice2,
       choice3: favouritedataquestion[favindex].choice3,
       choice4: favouritedataquestion[favindex].choice4,
-      correct: favouritedataquestion[favindex].correct_choice,
+      correct_choice: favouritedataquestion[favindex].correct_choice,
     };
     const isQuestionSent = dataquestion.some(
-      (item) => item.question === sent.question
+      (item) => item.question_name === sent.question_name
     );
 
     if (!isQuestionSent) {
@@ -296,12 +297,12 @@ const CreateQuestion = () => {
   };
   const createnewquestion = (editindex, status) => {
     const sent = {
-      question: questiontopic.current.value,
+      question_name: questiontopic.current.value,
       choice1: questionchoice1.current.value,
       choice2: questionchoice2.current.value,
       choice3: questionchoice3.current.value,
       choice4: questionchoice4.current.value,
-      correct: correctchoice.current.value,
+      correct_choice: correctchoice.current.value,
     };
 
     const arry = [
@@ -317,7 +318,7 @@ const CreateQuestion = () => {
     // const questionToExclude = questiontopic.current.value;
     if (
       dataquestion.filter(
-        (e, i) => e.question === questiontopic.current.value && i !== editindex
+        (e, i) => e.question_name === questiontopic.current.value && i !== editindex
       ).length > 0
     ) {
       addToast("คำถามถูกใช้แล้ว", {
@@ -357,14 +358,15 @@ const CreateQuestion = () => {
       });
     } else {
       if (status) {
+        setChangequestion("")
         setDataQuestion((dataquestion) => {
           const updatedQuestion = {
-            question: questiontopic.current.value,
+            question_name: questiontopic.current.value,
             choice1: questionchoice1.current.value,
             choice2: questionchoice2.current.value,
             choice3: questionchoice3.current.value,
             choice4: questionchoice4.current.value,
-            correct: correctchoice.current.value,
+            correct_choice: correctchoice.current.value,
           };
 
           const newDataquestion = [...dataquestion];
@@ -385,10 +387,8 @@ const CreateQuestion = () => {
     }
   };
 
-  const deletequestion = async (index) => {
-    const deleteeddata = dataquestion.filter(
-      (value) => value.question != dataquestion[index].question
-    );
+  const deletequestion = async (deleteindex) => {
+    const deleteeddata = dataquestion.filter((_, index) => index !== deleteindex);
     setDataQuestion(deleteeddata);
     window.localStorage.setItem("Question", JSON.stringify(deleteeddata));
   };
@@ -401,12 +401,12 @@ const CreateQuestion = () => {
     const allquestion = [];
     refs.map((refquestion, index) => {
       const question = {
-        question: refquestion.current.innerText,
+        question_name: refquestion.current.innerText,
         choice1: refchoice1[index].current.innerText,
         choice2: refchoice2[index].current.innerText,
         choice3: refchoice3[index].current.innerText,
         choice4: refchoice4[index].current.innerText,
-        correct: dataquestion[index].correct,
+        correct_choice: dataquestion[index].correct_choice,
       };
       allquestion.push(question);
     });
@@ -479,9 +479,9 @@ const CreateQuestion = () => {
     .filter((question) => question !== null)[0];
 
   const dq = dataquestion.find(
-    (dq) => dq.question === samequestion[nextquestion]
+    (dq) => dq.question_name === samequestion[nextquestion]
   );
-
+  console.log(dq);
   return (
     <Box
       minHeight="969px"
@@ -603,7 +603,7 @@ const CreateQuestion = () => {
                         mr={3}
                         mt={3}
                         color={
-                          dq.correct === 1 || dq.correct === "1"
+                          dq.correct_choice === 1 || dq.correct_choice === "1"
                             ? "green"
                             : "black"
                         }
@@ -618,7 +618,7 @@ const CreateQuestion = () => {
                         mr={3}
                         mt={3}
                         color={
-                          dq.correct === 2 || dq.correct === "2"
+                          dq.correct_choice === 2 || dq.correct_choice === "2"
                             ? "green"
                             : "black"
                         }
@@ -633,7 +633,7 @@ const CreateQuestion = () => {
                         mr={3}
                         mt={3}
                         color={
-                          dq.correct === 3 || dq.correct === "3"
+                          dq.correct_choice === 3 || dq.correct_choice === "3"
                             ? "green"
                             : "black"
                         }
@@ -648,7 +648,7 @@ const CreateQuestion = () => {
                         mr={3}
                         mt={3}
                         color={
-                          dq.correct === 4 || dq.correct === "4"
+                          dq.correct_choice === 4 || dq.correct_choice === "4"
                             ? "green"
                             : "black"
                         }
@@ -911,7 +911,7 @@ const CreateQuestion = () => {
                   ref={correctchoice}
                   defaultValue={
                     changequestion !== ""
-                      ? dataquestion[changequestion].correct
+                      ? dataquestion[changequestion].correct_choice
                       : "1"
                   }
                 >
@@ -928,7 +928,7 @@ const CreateQuestion = () => {
               ref={questiontopic}
               defaultValue={
                 changequestion !== ""
-                  ? dataquestion[changequestion].question
+                  ? dataquestion[changequestion].question_name
                   : ""
               }
               fontSize={20}
@@ -1079,7 +1079,7 @@ const CreateQuestion = () => {
                     mt={4}
                     textAlign="left"
                   >
-                    คำถาม : {question.question}
+                    คำถาม : {question.question_name}
                   </Text>
                   <Text
                     fontSize="20px"
@@ -1136,7 +1136,7 @@ const CreateQuestion = () => {
                       }}
                       onClick={() => usefavquestion(index)}
                     >
-                      <Text sx={{ color: "black" }}> ใช้คำถาม</Text>
+                      <Text sx={{ color: "black" }}>ใช้คำถาม</Text>
                     </Button>
                   </Box>
                 </Box>
@@ -1197,7 +1197,7 @@ const CreateQuestion = () => {
                         fontSize: "18px",
                       }}
                     >
-                      {question.question}
+                      {question.question_name}
                     </Text>
                     {/* <Box
                       onClick={(e) => {
@@ -1312,7 +1312,6 @@ const CreateQuestion = () => {
                   key={index}
                   sx={{
                     backgroundColor: "rgba(255,255,255,0.50)",
-
                     border: "1px solid #fff",
                     borderBottom: "1px solid rgba(255,255,255,0.50)",
                     borderRight: "1px solid rgba(255,255,255,0.50)",
@@ -1330,7 +1329,7 @@ const CreateQuestion = () => {
                     mb={2}
                   >
                     <Text mb={3} ref={refs[index]} fontSize="20px">
-                      {data.question}
+                      {data.question_name}
                     </Text>
                   </Box>
 
@@ -1344,7 +1343,7 @@ const CreateQuestion = () => {
                         sx={{
                           borderRadius: "10px",
                           backgroundColor:
-                            data.correct === "1" || data.correct === 1
+                            data.correct_choice === "1" || data.correct_choice === 1
                               ? "#59A96A"
                               : "#fff",
                           color: "black",
@@ -1362,7 +1361,7 @@ const CreateQuestion = () => {
                         sx={{
                           borderRadius: "10px",
                           backgroundColor:
-                            data.correct === "2" || data.correct === 2
+                            data.correct_choice === "2" || data.correct_choice === 2
                               ? "#59A96A"
                               : "#fff",
                           color: "black",
@@ -1382,7 +1381,7 @@ const CreateQuestion = () => {
                         sx={{
                           borderRadius: "10px",
                           backgroundColor:
-                            data.correct === "3" || data.correct === 3
+                            data.correct_choice === "3" || data.correct_choice === 3
                               ? "#59A96A"
                               : "#fff",
                           color: "black",
@@ -1400,7 +1399,7 @@ const CreateQuestion = () => {
                         sx={{
                           borderRadius: "10px",
                           backgroundColor:
-                            data.correct === "4" || data.correct === 4
+                            data.correct_choice === "4" || data.correct_choice === 4
                               ? "#59A96A"
                               : "#fff",
                           color: "black",

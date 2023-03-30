@@ -36,7 +36,6 @@ conn
 
         app.get("/users", function (req, res) {
           db.query("SELECT username, email FROM users;", (err, result) => {
-            console.log(result);
             if (err) {
               console.log(err);
             } else {
@@ -49,7 +48,6 @@ conn
           db.query(
             "SELECT question_name, choice1, choice2, choice3, choice4, correct_choice FROM question_list;",
             (err, result) => {
-              console.log(result);
               if (err) {
                 console.log(err);
               } else {
@@ -63,7 +61,6 @@ conn
           db.query(
             "SELECT question_group.group_id, question_group.g_name, users.username, category.category_name, question_group.question_image FROM question_group INNER JOIN category ON question_group.category_category_id=category.category_id JOIN users ON question_group.user_user_id=users.user_id;",
             (err, result) => {
-              console.log(result);
               if (err) {
                 console.log(err);
               } else {
@@ -73,13 +70,38 @@ conn
           );
         });
 
+        app.post("/myroom", function (req, res) {
+          const userid = req.body.userid;
+          db.query(
+            "SELECT room_id, name, startdate, enddate,question_group_group_id, g_name FROM room join question_group ON room.question_group_group_id = question_group.group_id where room.user_user_id = ?;",
+            [userid],
+            (err, result) => {
+              if (err) {
+                console.log(err);
+              } else {
+                res.send(result);
+              }
+            }
+          );
+        });
+
+        app.post("/roomdetail", function (req, res) {
+          const userid = req.body.userid;
+          db.query("SELECT course_code, room_room_id FROM course JOIN room ON room.room_id = course.room_room_id WHERE room.user_user_id = ?;", [userid], (err, result) => {
+            if (err) {
+              console.log(err);
+            } else {
+              res.send(result);
+            }
+          });
+        });
+
         app.post("/allmyquiz", function (req, res) {
           const userid = req.body.userid;
           db.query(
             "SELECT question_group.group_id, question_group.g_name,category.category_name, users.username, question_group.question_image FROM question_group INNER JOIN category ON question_group.category_category_id=category.category_id  INNER JOIN users ON question_group.user_user_id=users.user_id where question_group.user_user_id = ?;",
             [userid],
             (err, result) => {
-              console.log(result);
               if (err) {
                 console.log(err);
               } else {
@@ -91,12 +113,10 @@ conn
 
         app.post("/quizdetail", function (req, res) {
           const quizid = req.body.quizid;
-          console.log(quizid);
           db.query(
             "SELECT question_name,choice1,choice2,choice3,choice4,correct_choice FROM question_list JOIN question_list_has_question_group ON question_list_has_question_group.question_list_question_id = question_list.question_id JOIN question_group  ON question_group.group_id = question_list_has_question_group.question_group_group_id WHERE question_group.group_id = ?;",
             [quizid],
             (err, result) => {
-              console.log(result);
               if (err) {
                 console.log(err);
               } else {
@@ -108,12 +128,10 @@ conn
 
         app.post("/quiztopic", function (req, res) {
           const quizid = req.body.quizid;
-          console.log(quizid);
           db.query(
-            "SELECT distinct g_name,question_time,question_score,question_description,users.username FROM question_list JOIN question_list_has_question_group ON question_list_has_question_group.question_list_question_id = question_list.question_id JOIN question_group  ON question_group.group_id = question_list_has_question_group.question_group_group_id INNER JOIN users ON question_group.user_user_id=users.user_id WHERE question_group.group_id = ?;",
+            "SELECT distinct g_name,question_time,question_score,question_description,users.username,category_name, category_id FROM question_list JOIN question_list_has_question_group ON question_list_has_question_group.question_list_question_id = question_list.question_id JOIN question_group ON question_group.group_id = question_list_has_question_group.question_group_group_id JOIN category ON question_group.category_category_id = category.category_id INNER JOIN users ON question_group.user_user_id=users.user_id WHERE question_group.group_id = ?;",
             [quizid],
             (err, result) => {
-              console.log(result);
               if (err) {
                 console.log(err);
               } else {
@@ -127,7 +145,6 @@ conn
           db.query(
             "SELECT DISTINCT category_name FROM category INNER JOIN question_group ON question_group.category_category_id=category.category_id;",
             (err, result) => {
-              console.log(result);
               if (err) {
                 console.log(err);
               } else {
@@ -138,17 +155,13 @@ conn
         });
 
         app.get("/allcategory", function (req, res) {
-          db.query(
-            "SELECT category_name FROM category;",
-            (err, result) => {
-              console.log(result);
-              if (err) {
-                console.log(err);
-              } else {
-                res.send(result);
-              }
+          db.query("SELECT category_name FROM category;", (err, result) => {
+            if (err) {
+              console.log(err);
+            } else {
+              res.send(result);
             }
-          );
+          });
         });
 
         app.post("/create", upload.single("image"), (req, res) => {
@@ -173,7 +186,6 @@ conn
                   console.log(err);
                   res.status(500).send({ message: "Error uploading image" });
                 } else {
-                  console.log(result);
                   res.status(201).send({ message: "Image uploaded" });
                 }
               });
@@ -187,7 +199,6 @@ conn
         app.post("/login", (req, res) => {
           const email = req.body.email;
           const password = req.body.password;
-          console.log(email, password);
           const sql = "SELECT * FROM users WHERE email = ?";
           const values = [email];
 
@@ -313,28 +324,6 @@ conn
           });
         });
 
-        app.post("/createroom", (req, res) => {
-          const roomname = req.body.name;
-          const startdate = req.body.startdate;
-          const enddate = req.body.password;
-
-
-          const sql =
-            "INSERT INTO users (email, username, password, image) VALUES (?,?,?,?)";
-          const values = [roomname, startdate, enddate, imageBuffer];
-
-          db.query(sql, values, (err, result) => {
-            if (err) {
-              console.log(err);
-              res.status(500).send({ message: "Error uploading image" });
-            } else {
-              console.log(result);
-              res.status(201).send({ message: "Image uploaded" });
-            }
-          });
-            
-        });
-
         app.post("/createquiz", upload.single("image"), (req, res) => {
           // Extract user id and quiz data from request body
           const userId = req.body.userid;
@@ -378,8 +367,6 @@ conn
                   // Get the inserted group id
                   const groupId = result.insertId;
                   const data = JSON.parse(req.body.questiondata);
-                  console.log(data);
-                  console.log(groupId, "group_id");
 
                   // Insert data into question_list table and question_list_has_question_group table
                   const questionListPromises = data.map((question) => {
@@ -387,7 +374,7 @@ conn
                       db.query(
                         "SELECT * FROM question_list WHERE question_name = ? AND choice1 = ? AND choice2 = ? AND choice3 = ? AND choice4 = ?",
                         [
-                          question.question,
+                          question.question_name,
                           question.choice1,
                           question.choice2,
                           question.choice3,
@@ -402,7 +389,7 @@ conn
                             db.query(
                               "INSERT INTO question_list (question_name,choice1,choice2,choice3,choice4,correct_choice) VALUES (?,?,?,?,?,?)",
                               [
-                                question.question,
+                                question.question_name,
                                 question.choice1,
                                 question.choice2,
                                 question.choice3,
@@ -458,38 +445,215 @@ conn
             });
         });
 
-        app.delete("/deletequiz/:id", (req, res) => {
-          const quizId = req.params.id;
-        
+        app.post("/updatequiz", upload.none(), (req, res) => {
+          // Extract quiz data from request body
+          const {
+            groupname,
+            category,
+            releasedate,
+            score,
+            timer,
+            description,
+          } = JSON.parse(req.body.quizdata);
+
+          const quizid = req.body.quizid;
+
+          // Update data in question_group table
           db.query(
-            "DELETE FROM question_list_has_question_group WHERE question_group_group_id = ?",
-            [quizId],
+            "UPDATE question_group SET g_name = ?, createddate = ?, question_time = ?, question_score = ?, category_category_id = ?, question_description = ? WHERE group_id = ?",
+            [
+              groupname,
+              releasedate,
+              timer,
+              score,
+              category,
+              description,
+              quizid,
+            ],
             (err, result) => {
               if (err) {
                 return res.status(500).send(err);
               }
-              console.log(result, "questionhasgroup");
+
+              const data = JSON.parse(req.body.questiondata);
+
+              // Delete questions that are no longer used in this quiz
               db.query(
-                "DELETE FROM question_list WHERE question_id IN (SELECT question_list_question_id FROM question_list_has_question_group WHERE question_group_group_id = ?)",
+                "DELETE FROM question_list_has_question_group WHERE question_group_group_id = ?",
+                [quizid],
+                (err, result) => {
+                  if (err) {
+                    return res.status(500).send(err);
+                  }
+
+                  // Update or add new questions
+                  const questionListPromises = data.map((question) => {
+                    return new Promise((resolve, reject) => {
+                      db.query(
+                        "SELECT * FROM question_list WHERE question_id = ?",
+                        [question.question_id],
+                        (err, result) => {
+                          if (err) {
+                            console.log(err);
+                            reject(err);
+                          }
+
+                          if (result.length === 0) {
+                            db.query(
+                              "INSERT INTO question_list (question_name,choice1,choice2,choice3,choice4,correct_choice) VALUES (?,?,?,?,?,?)",
+                              [
+                                question.question_name,
+                                question.choice1,
+                                question.choice2,
+                                question.choice3,
+                                question.choice4,
+                                question.correct_choice,
+                              ],
+                              (err, result) => {
+                                if (err) {
+                                  console.log(err);
+                                  reject(err);
+                                }
+
+                                const questionId = result.insertId;
+                                db.query(
+                                  "INSERT INTO question_list_has_question_group (question_list_question_id, question_group_group_id) VALUES (?, ?)",
+                                  [questionId, quizid],
+                                  (err, result) => {
+                                    if (err) {
+                                      reject(err);
+                                    }
+
+                                    resolve();
+                                  }
+                                );
+                              }
+                            );
+                          } else {
+                            db.query(
+                              "UPDATE question_list SET question_name = ?, choice1 = ?, choice2 = ?, choice3 = ?, choice4 = ?, correct_choice = ? WHERE question_id = ?",
+                              [
+                                question.question_name,
+                                question.choice1,
+                                question.choice2,
+                                question.choice3,
+                                question.choice4,
+                                question.correct,
+                                question.question_id,
+                              ],
+                              (err, result) => {
+                                if (err) {
+                                  console.log(err);
+                                  reject(err);
+                                }
+
+                                resolve();
+                              }
+                            );
+                          }
+                        }
+                      );
+                    });
+                  });
+
+                  Promise.all(questionListPromises)
+                    .then(() => {
+                      return res
+                        .status(200)
+                        .send({ message: "Quiz updated successfully" });
+                    })
+                    .catch((err) => {
+                      return res.status(500).send(err);
+                    });
+                }
+              );
+            }
+          );
+        });
+
+        app.delete("/deletequiz/:id", (req, res) => {
+          const quizId = req.params.id;
+
+          db.query(
+            "SET FOREIGN_KEY_CHECKS = 0", // disable foreign key constraint
+            (err, result) => {
+              if (err) {
+                return res.status(500).send(err);
+              }
+              db.query(
+                "DELETE FROM question_list_has_question_group WHERE question_group_group_id = ?",
                 [quizId],
                 (err, result) => {
                   if (err) {
                     return res.status(500).send(err);
                   }
-                  console.log(result, "question_list");
                   db.query(
-                    "DELETE FROM question_group WHERE group_id = ?",
+                    "DELETE FROM question_list WHERE question_id NOT IN (SELECT question_list_question_id FROM question_list_has_question_group)",
                     [quizId],
                     (err, result) => {
                       if (err) {
                         return res.status(500).send(err);
                       }
-                      console.log(result, "question_group");
-                      return res.status(200).send("Quiz deleted successfully");
+                      db.query(
+                        "DELETE FROM question_group WHERE group_id = ?",
+                        [quizId],
+                        (err, result) => {
+                          if (err) {
+                            return res.status(500).send(err);
+                          }
+                          db.query(
+                            "SET FOREIGN_KEY_CHECKS = 1", // re-enable foreign key constraint
+                            (err, result) => {
+                              if (err) {
+                                return res.status(500).send(err);
+                              }
+                              return res
+                                .status(200)
+                                .send("Quiz deleted successfully");
+                            }
+                          );
+                        }
+                      );
                     }
                   );
                 }
               );
+            }
+          );
+        });
+
+        app.post("/createroom", (req, res) => {
+          const { name, startdate, enddate, quizid, room } = req.body;
+          const userid = req.body.userid;
+          const roomCodes = JSON.parse(room);
+
+          // Insert into room table
+          db.query(
+            "INSERT INTO room (name, startdate, enddate, question_group_group_id, user_user_id) VALUES (?, ?, ?, ?,?)",
+            [name, startdate, enddate, quizid, userid],
+            (err, result) => {
+              if (err) {
+                console.log(err);
+                return res.status(500).send(err);
+              }
+
+              const roomId = result.insertId;
+
+              // Insert into course table for each room code
+              roomCodes.forEach((code) => {
+                db.query(
+                  "INSERT INTO course (course_code,room_room_id) VALUES (?,?)",
+                  [code, roomId],
+                  (err, result) => {
+                    if (err) {
+                      console.log(err);
+                      return res.status(500).send(err);
+                    }
+                    
+                  }
+                );
+              });
+              return res.status(200).send("Create Room successfully");
             }
           );
         });

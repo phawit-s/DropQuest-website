@@ -14,7 +14,10 @@ const Header = () => {
   const [color, setColor] = useState("");
   const [colortwo, setColortwo] = useState("");
   const [profilecolor, setProfileColor] = useState("");
-  const [createroomcolor  , setCreateroomcolor] = useState("");
+  const [createroomcolor, setCreateroomcolor] = useState("");
+  const [myroomcolor, setMyroomcolor] = useState("");
+  const getproductstorage = window.localStorage.getItem("Question");
+  const question = getproductstorage ? JSON.parse(getproductstorage) : [];
   const toggleroom = () => {
     setToggleRoom(!toggleRoom);
   };
@@ -23,6 +26,104 @@ const Header = () => {
   };
   const toggleprofile = () => {
     setToggleProfile(!toggleProfile);
+  };
+  const gotohome = () => {
+    if (question.length === 0) {
+      history.push({
+        pathname: `/`,
+      });
+    } else {
+      const confirmed = window.confirm(
+        "Are you sure you want to change the page? Any unsaved changes will be lost."
+      );
+
+      if (confirmed) {
+        window.localStorage.removeItem("Question");
+        window.localStorage.removeItem("EditQuiz");
+        history.push({
+          pathname: `/`,
+        });
+      }
+    }
+  };
+  const gotomyquiz = () => {
+    if (question.length === 0) {
+      history.push({
+        pathname: `/myquiz`,
+      });
+    } else {
+      const confirmed = window.confirm(
+        "Are you sure you want to change the page? Any unsaved changes will be lost."
+      );
+
+      if (confirmed) {
+        window.localStorage.removeItem("Question");
+        window.localStorage.removeItem("EditQuiz");
+        history.push({
+          pathname: `/myquiz`,
+        });
+      }
+    }
+  };
+
+  const gotocreateroom = () => {
+    if (question.length === 0) {
+      history.push({
+        pathname: `/createroom`,
+      });
+    } else {
+      const confirmed = window.confirm(
+        "Are you sure you want to change the page? Any unsaved changes will be lost."
+      );
+
+      if (confirmed) {
+        window.localStorage.removeItem("Question");
+        window.localStorage.removeItem("EditQuiz");
+        history.push({
+          pathname: `/createroom`,
+        });
+      }
+    }
+  };
+
+  const gotomyroom = () => {
+    if (question.length === 0) {
+      history.push({
+        pathname: `/myroom`,
+      });
+    } else {
+      const confirmed = window.confirm(
+        "Are you sure you want to change the page? Any unsaved changes will be lost."
+      );
+
+      if (confirmed) {
+        window.localStorage.removeItem("Question");
+        window.localStorage.removeItem("EditQuiz");
+        history.push({
+          pathname: `/myroom`,
+        });
+      }
+    }
+  };
+
+  const gotoprofile = () => {
+    if (question.length === 0) {
+      history.push({
+        pathname: `/profile`,
+      });
+    } else {
+      const confirmed = window.confirm(
+        "Are you sure you want to change the page? Any unsaved changes will be lost."
+      );
+
+      if (confirmed) {
+        window.localStorage.removeItem("Question");
+        window.localStorage.removeItem("EditQuiz");
+        history.push({
+          pathname: `/profile`,
+        });
+      }
+    }
   };
 
   const base64Image = new Buffer(currentUser.image, "binary").toString(
@@ -74,11 +175,7 @@ const Header = () => {
         fontSize="20px"
         mr={3}
         sx={{ cursor: "pointer" }}
-        onClick={() =>
-          history.push({
-            pathname: `/`,
-          })
-        }
+        onClick={gotohome}
       >
         หน้าหลัก
       </Text>
@@ -103,7 +200,7 @@ const Header = () => {
             <Box
               width="100px"
               sx={{
-                backgroundColor: "white", 
+                backgroundColor: "white",
                 p: 2,
                 borderRadius: "10px",
                 position: "absolute",
@@ -112,16 +209,19 @@ const Header = () => {
               <Text
                 onMouseEnter={() => setCreateroomcolor("#364AFF")}
                 onMouseLeave={() => setCreateroomcolor("")}
-                sx={{ cursor: "pointer", color: createroomcolor}}
-                onClick={() =>
-                  history.push({
-                    pathname: `/createroom`,
-                  })
-                }
+                sx={{ cursor: "pointer", color: createroomcolor }}
+                onClick={gotocreateroom}
               >
                 สร้างห้อง
               </Text>
-              <Text color="black">ห้องของฉัน</Text>
+              <Text
+                onMouseEnter={() => setMyroomcolor("#364AFF")}
+                onMouseLeave={() => setMyroomcolor("")}
+                sx={{ cursor: "pointer", color: myroomcolor }}
+                onClick={gotomyroom}
+              >
+                ห้องของฉัน
+              </Text>
               <Text color="black">สรุปผล</Text>
             </Box>
           </motion.div>
@@ -169,11 +269,7 @@ const Header = () => {
                 onMouseEnter={() => setColortwo("#364AFF")}
                 onMouseLeave={() => setColortwo("")}
                 sx={{ cursor: "pointer", color: colortwo }}
-                onClick={() =>
-                  history.push({
-                    pathname: `/myquiz`,
-                  })
-                }
+                onClick={gotomyquiz}
               >
                 แบบทดสอบของฉัน
               </Text>
@@ -219,11 +315,7 @@ const Header = () => {
                 onMouseEnter={() => setProfileColor("#364AFF")}
                 onMouseLeave={() => setProfileColor("")}
                 sx={{ cursor: "pointer", color: profilecolor }}
-                onClick={() =>
-                  history.push({
-                    pathname: `/profile`,
-                  })
-                }
+                onClick={gotoprofile}
                 fontSize="16px"
               >
                 โปรไฟล์

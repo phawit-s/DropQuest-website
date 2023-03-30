@@ -12,7 +12,7 @@ import { AiOutlineStar, AiFillStar } from "react-icons/ai";
 const Detail = () => {
   const { currentUser } = useAuth();
   const { addToast } = useToasts();
-  const history = useHistory()
+  const history = useHistory();
   const [quizdetail, setQuizdetail] = useState([]);
   const [quiztopic, setQuiztopic] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -67,9 +67,10 @@ const Detail = () => {
     setLoadquestion(index);
   };
 
-  const deletequiz = () =>{
-    api.delete('/deletequiz/' + quizid)
-      .then(response => {
+  const deletequiz = () => {
+    api
+      .delete("/deletequiz/" + quizid)
+      .then((response) => {
         addToast("Delete!!", {
           appearance: "success",
           autoDismiss: true,
@@ -78,15 +79,34 @@ const Detail = () => {
           pathname: `/`,
         });
       })
-      .catch(error => {
+      .catch((error) => {
         console.log(error);
       });
-  }
+  };
   const modalsaveClose = () => setOpensave(false);
-  const modalsaveOpen = () => setOpensave(true)
+  const modalsaveOpen = () => setOpensave(true);
+
+  const editquiz = () => {
+    window.localStorage.setItem(
+      "EditQuiz",
+      JSON.stringify(quiztopic)
+    );
+    window.localStorage.setItem(
+      "Edit id",
+      JSON.stringify(quizid)
+    );
+    window.localStorage.setItem(
+      "Question",
+      JSON.stringify(quizdetail)
+    );
+    history.push({
+      pathname: `/createquiz`,
+    });
+  };
+
   const favoritequestion = (index, action) => {
     const question = {
-      question: quizdetail[index].question_name,
+      question_name: quizdetail[index].question_name,
       choice1: quizdetail[index].choice1,
       choice2: quizdetail[index].choice2,
       choice3: quizdetail[index].choice3,
@@ -96,7 +116,7 @@ const Detail = () => {
 
     let updatedQuestions = [...favoriteQuestions];
     const existingIndex = updatedQuestions.findIndex(
-      (q) => q.question === quizdetail[index].question_name
+      (q) => q.question_name === quizdetail[index].question_name
     );
 
     if (action === "save") {
@@ -125,82 +145,81 @@ const Detail = () => {
     >
       <Header />
       <Modal open={opensave} onClose={modalsaveClose}>
-      <Box
-            sx={{
-              backgroundColor: "#fff",
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              textAlign: "center",
-              borderRadius: "20px",
-              display: "inline-block",
-              height: "20%",
-            }}
-            width={{ xs: "100%", sm: "75%", md: "50%" }}
-            px={4}
-            pt={4}
-            pb={5}
-          >
-            <Text sx={{ fontSize: "20px" }}>ต้องการลบแบบทดสอบนี้?</Text>
-            <Flex justifyContent="center" alignItems="center">
-              <Button
-                mx="auto"
-                mr={4}
-                mt={4}
-                p={14}
+        <Box
+          sx={{
+            backgroundColor: "#fff",
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            textAlign: "center",
+            borderRadius: "20px",
+            display: "inline-block",
+            height: "20%",
+          }}
+          width={{ xs: "100%", sm: "75%", md: "50%" }}
+          px={4}
+          pt={4}
+          pb={5}
+        >
+          <Text sx={{ fontSize: "20px" }}>ต้องการลบแบบทดสอบนี้?</Text>
+          <Flex justifyContent="center" alignItems="center">
+            <Button
+              mx="auto"
+              mr={4}
+              mt={4}
+              p={14}
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                border: "1px solid #D10000",
+                borderRadius: "20px",
+                cursor: "pointer",
+              }}
+              width={3 / 4}
+              fontSize={2}
+              backgroundColor="#fff"
+              type="button"
+              onClick={modalsaveClose}
+            >
+              <Text
                 sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  border: "1px solid #D10000",
-                  borderRadius: "20px",
-                  cursor: "pointer",
+                  color: " #000",
+                  fontSize: "20px",
                 }}
-                width={3 / 4}
-                fontSize={2}
-                backgroundColor="#fff"
-                type="button"
-                onClick={modalsaveClose}
               >
-                <Text
-                  sx={{
-                    color: " #000",
-                    fontSize: "20px",
-                  }}
-                >
-                  ยกเลิก
-                </Text>
-              </Button>
-              <Button
-                mx="auto"
-                mr={4}
-                mt={4}
-                p={14}
+                ยกเลิก
+              </Text>
+            </Button>
+            <Button
+              mx="auto"
+              mr={4}
+              mt={4}
+              p={14}
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                border: "1px solid #D10000",
+                borderRadius: "20px",
+                cursor: "pointer",
+              }}
+              width={3 / 4}
+              fontSize={2}
+              backgroundColor="#D10000"
+              type="button"
+              onClick={deletequiz}
+            >
+              <Text
                 sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  border: "1px solid #D10000",
-                  borderRadius: "20px",
-                  cursor: "pointer",
+                  color: " #000",
+                  fontSize: "20px",
                 }}
-                width={3 / 4}
-                fontSize={2}
-                backgroundColor="#D10000"
-                type="button"
-                onClick={deletequiz}
               >
-                <Text
-                  sx={{
-                    color: " #000",
-                    fontSize: "20px",
-                  }}
-                >
-                  ลบแบบทดสอบ
-                </Text>
-              </Button>
-            </Flex>
-          </Box>
-      
+                ลบแบบทดสอบ
+              </Text>
+            </Button>
+          </Flex>
+        </Box>
       </Modal>
 
       {quiztopic.map((topic, index) => {
@@ -313,7 +332,7 @@ const Detail = () => {
             {quizdetail.map((question, index) => {
               const isFavorite =
                 favoriteQuestions.findIndex(
-                  (q) => q.question === question.question_name
+                  (q) => q.question_name === question.question_name
                 ) !== -1;
 
               if (index === loadquestion) {
@@ -386,62 +405,66 @@ const Detail = () => {
               }
             })}
           </Box>
-          {checkid.length > 0 ?<Flex>
-            <Button
-              ml={[4,"auto"]}
-              my={4}
-              p={12}
-              sx={{
-                display: "flex",
-                justifyContent: "center",
-                border: "1px solid #C1D7AE",
-                borderRadius: "20px",
-                cursor: "pointer",
-              }}
-              width={[2 / 4, 1 / 4]}
-              fontSize={2}
-              backgroundColor="#D10000"
-              type="button"
-              onClick={modalsaveOpen}
-            >
-              <Text
+          {checkid.length > 0 ? (
+            <Flex>
+              <Button
+                ml={[4, "auto"]}
+                my={4}
+                p={12}
                 sx={{
-                  color: " #000",
-                  fontSize: "20px",
+                  display: "flex",
+                  justifyContent: "center",
+                  border: "1px solid #C1D7AE",
+                  borderRadius: "20px",
+                  cursor: "pointer",
                 }}
+                width={[2 / 4, 1 / 4]}
+                fontSize={2}
+                backgroundColor="#D10000"
+                type="button"
+                onClick={modalsaveOpen}
               >
-                ลบแบบทดสอบ
-              </Text>
-            </Button>
+                <Text
+                  sx={{
+                    color: " #000",
+                    fontSize: "20px",
+                  }}
+                >
+                  ลบแบบทดสอบ
+                </Text>
+              </Button>
 
-            <Button
-              ml={[4, 3]}
-              mr={[4, 1]}
-              my={4}
-              p={12}
-              sx={{
-                display: "flex",
-                whiteSpace: "nowrap",
-                borderRadius: "20px",
-                justifyContent: "center",
-                cursor: "pointer",
-              }}
-              width={[2 / 4, 1 / 4]}
-              fontSize={2}
-              backgroundColor="#ffcd3c"
-              type="button"
-              // onClick={modalsaveOpen}
-            >
-              <Text
+              <Button
+                ml={[4, 3]}
+                mr={[4, 1]}
+                my={4}
+                p={12}
                 sx={{
-                  color: " #000",
-                  fontSize: "20px",
+                  display: "flex",
+                  whiteSpace: "nowrap",
+                  borderRadius: "20px",
+                  justifyContent: "center",
+                  cursor: "pointer",
                 }}
+                width={[2 / 4, 1 / 4]}
+                fontSize={2}
+                backgroundColor="#ffcd3c"
+                type="button"
+                onClick={editquiz}
               >
-                แก้ไขแบบทดสอบ
-              </Text>
-            </Button>
-          </Flex>: ""}
+                <Text
+                  sx={{
+                    color: " #000",
+                    fontSize: "20px",
+                  }}
+                >
+                  แก้ไขแบบทดสอบ
+                </Text>
+              </Button>
+            </Flex>
+          ) : (
+            ""
+          )}
         </Flex>
       </Flex>
     </Box>
