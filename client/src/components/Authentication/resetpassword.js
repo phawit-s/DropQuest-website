@@ -45,7 +45,7 @@ const Resetpassword = () => {
             borderRadius: "10px",
             fontWeight: "500",
             fontSize: "20px",
-            boxShadow: "0px 2px 20px 2px rgba(255, 0, 0, 0.25);",
+            boxShadow: "0px 2px 20px 2px #23aaff;",
           }}
           bg="#fff"
         >

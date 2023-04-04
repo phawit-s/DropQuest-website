@@ -7,6 +7,7 @@ import { Modal, Typography } from "@mui/material";
 import { useAuth } from "../../contexts/AuthContext";
 import { useToasts } from "react-toast-notifications";
 import Header from "../Header";
+import Mobileheader from "../Mobileheader"
 import api from "../../api";
 import { AiOutlineStar, AiFillStar } from "react-icons/ai";
 
@@ -28,6 +29,17 @@ const Createroom = () => {
   const [quizid, setQuizid] = useState(0);
   const [numRooms, setNumRooms] = useState(1);
   const [rooms, setRooms] = useState([]);
+  const [isDesktop, setIsDesktop] = useState(window.innerWidth > 768);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsDesktop(window.innerWidth >= 768);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   useEffect(() => {
     const newRooms = [];
@@ -39,12 +51,6 @@ const Createroom = () => {
     setRooms(newRooms);
   }, [numRooms]);
 
-  // useEffect(() => {
-  //   if (allquiz) {
-  //     setQuizid(allquiz[0].group_id);
-  //   }
-
-  // }, [allquiz]);
 
   useEffect(() => {
     console.log("Showing my Quiz", allquiz);
@@ -157,7 +163,7 @@ const Createroom = () => {
         backgroundColor: "rgba(134, 248, 255, 0.13);",
       }}
     >
-      <Header />
+      {isDesktop ? <Header /> : <Mobileheader />}
       <Modal open={openmodal} onClose={modalsaveClose}>
         <Box
           sx={{

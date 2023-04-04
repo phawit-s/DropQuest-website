@@ -6,6 +6,7 @@ import { Modal, Typography } from "@mui/material";
 import { useAuth } from "../contexts/AuthContext";
 import { useToasts } from "react-toast-notifications";
 import Header from "./Header";
+import Mobileheader from "./Mobileheader";
 import api from "../api";
 import { AiOutlineStar, AiFillStar } from "react-icons/ai";
 
@@ -23,7 +24,17 @@ const Detail = () => {
   const quizid = location.state.quizid;
   let favoriteQuestions =
     JSON.parse(window.localStorage.getItem("Favourite Question")) || [];
+  const [isDesktop, setIsDesktop] = useState(window.innerWidth > 768);
 
+  useEffect(() => {
+    const handleResize = () => {
+      setIsDesktop(window.innerWidth >= 768);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
   useEffect(() => {
     console.log("Showing all Questions", quizdetail);
     console.log("Loading id", quizid);
@@ -87,18 +98,9 @@ const Detail = () => {
   const modalsaveOpen = () => setOpensave(true);
 
   const editquiz = () => {
-    window.localStorage.setItem(
-      "EditQuiz",
-      JSON.stringify(quiztopic)
-    );
-    window.localStorage.setItem(
-      "Edit id",
-      JSON.stringify(quizid)
-    );
-    window.localStorage.setItem(
-      "Question",
-      JSON.stringify(quizdetail)
-    );
+    window.localStorage.setItem("EditQuiz", JSON.stringify(quiztopic));
+    window.localStorage.setItem("Edit id", JSON.stringify(quizid));
+    window.localStorage.setItem("Question", JSON.stringify(quizdetail));
     history.push({
       pathname: `/createquiz`,
     });
@@ -143,7 +145,7 @@ const Detail = () => {
         backgroundColor: "rgba(134, 248, 255, 0.13);",
       }}
     >
-      <Header />
+      {isDesktop ? <Header /> : <Mobileheader />}
       <Modal open={opensave} onClose={modalsaveClose}>
         <Box
           sx={{

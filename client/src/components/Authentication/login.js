@@ -4,14 +4,63 @@ import { Box, Text, Card, Flex, Button, Image } from "rebass";
 import { Label, Input } from "@rebass/forms";
 import { FaGoogle, FaFacebookF, FaGithub } from "react-icons/fa";
 import { useAuth } from "../../contexts/AuthContext";
+import { GoogleLogin } from "react-google-login";
+import { gapi } from "gapi-script";
 
 const Login = () => {
   const history = useHistory();
   const emailref = useRef();
   const passwordref = useRef();
   const [isLogin, setIsLogin] = useState(false);
-  const { loginemail } = useAuth();
+  const [profile, setProfile] = useState("");
+  const [isSignedIn, setIsSignedin] = useState(false);
+  const { loginemail, googlelogin } = useAuth();
+  const clientid =
+    "104253971362-maefhqpjrko1rdmbcrjeng9r605j3qor.apps.googleusercontent.com";
 
+  useEffect(() => {
+    gapi.load("auth2", () => {
+      // Initialize the auth2 library with your client ID
+      gapi.auth2.init({ client_id: clientid }).then(() => {
+        // Get the auth2 instance
+        const auth2 = gapi.auth2.getAuthInstance();
+        const check = auth2.isSignedIn.get();
+        // Sign out the user
+        console.log(check, "checkfwerw");
+        if (check) {
+          
+          setProfile(null);
+          auth2.signOut().then(() => {
+            console.log("User signed out.");
+          });
+        }
+      });
+    });
+  }, []);
+
+  useEffect(() => {
+    if (profile) {
+      googlelogin(
+        profile.email,
+        profile.givenName,
+        profile.imageUrl,
+        profile.googleId
+      ).then(() => {
+        setIsLogin(true);
+      });
+    }
+  }, [profile]);
+
+  const onSuccess = (res) => {
+    setProfile(res.profileObj);
+    console.log("success", res);
+  };
+  const logout = () => {
+    setProfile(null);
+  };
+  const onError = (res) => {
+    console.log("error", res);
+  };
   const loginsubmit = async () => {
     loginemail(emailref.current.value, passwordref.current.value).then(() => {
       setIsLogin(true);
@@ -36,19 +85,16 @@ const Login = () => {
   }
 
   return (
-    <Box
-    sx={{backgroundColor: "red"}}
-      
-    >
+    <Box sx={{ backgroundColor: "red" }}>
       <Card
         width={["100%", 2 / 4, 1 / 4]}
         py={4}
         sx={{
           position: "absolute" /* or absolute */,
-        top: "50%",
-        left: "50%",
-        /* bring your own prefixes */
-        transform: "translate(-50%, -50%)",
+          top: "50%",
+          left: "50%",
+          /* bring your own prefixes */
+          transform: "translate(-50%, -50%)",
           borderRadius: "10px",
           fontWeight: "500",
           fontSize: "20px",
@@ -180,70 +226,14 @@ const Login = () => {
         </Text>
 
         <Flex justifyContent="center" mt={4}>
-          <Button
-            mr={4}
-            width="50px"
-            height="50px"
-            bg="#F44336"
-            sx={{
-              borderRadius: "50%",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-            // onClick={() =>
-            //   signInWithGoogle()
-            //     .then((user) => {
-            //       setIsLogin(true);
-            //     })
-            //     .catch((e) => console.log(e.message))
-            // }
-          >
-            <FaGoogle size={36} />
-          </Button>
-
-          <Button
-            width="50px"
-            height="50px"
-            mr={4}
-            bg="#000"
-            sx={{
-              borderRadius: "50%",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-            // onClick={() =>
-            //   signInWithGithub()
-            //     .then((user) => {
-            //       setIsLogin(true);
-            //     })
-            //     .catch((e) => console.log(e.message))
-            // }
-          >
-            <FaGithub size={36} />
-          </Button>
-
-          <Button
-            width="50px"
-            height="50px"
-            bg="#1877F2"
-            sx={{
-              borderRadius: "50%",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-            // onClick={() =>
-            //   signInWithFacebook()
-            //     .then((user) => {
-            //       setIsLogin(true);
-            //     })
-            //     .catch((e) => console.log(e.message))
-            // }
-          >
-            <FaFacebookF size={36} />
-          </Button>
+          <GoogleLogin
+            clientId={clientid}
+            buttonText="Sign in with Google"
+            onSuccess={onSuccess}
+            onFailure={onError}
+            cookiePolicy={"single_host_origin"}
+            isSignedIn={true}
+          />
         </Flex>
       </Card>
     </Box>

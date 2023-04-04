@@ -6,6 +6,7 @@ import { Scrollbars } from "react-custom-scrollbars";
 import { useAuth } from "../contexts/AuthContext";
 import { useTheme } from "styled-components";
 import Header from "./Header";
+import Mobileheader from "./Mobileheader";
 import api from "../api";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
@@ -19,6 +20,17 @@ const Home = () => {
   const [allquiz, setAllquiz] = useState([]);
   const [allcategory, setAllcategory] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isDesktop, setIsDesktop] = useState(window.innerWidth > 768);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsDesktop(window.innerWidth >= 768);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   useEffect(() => {
     console.log("Showing all Quiz", allquiz);
@@ -69,12 +81,14 @@ const Home = () => {
 
   return (
     <Box
+      overflow="hidden"
       minHeight="100vh"
       sx={{
         backgroundColor: "rgba(134, 248, 255, 0.13);",
+
       }}
     >
-      <Header />
+      {isDesktop ? <Header /> : <Mobileheader />}
       <Box sx={{ width: "100%", alignItems: "flex-start" }}>
         <Label htmlFor='search' ml="4" mb="3" fontSize="18px" fontWeight="700">ค้นหา</Label>
         <Input

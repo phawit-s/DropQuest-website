@@ -3,14 +3,13 @@ import { useHistory, Redirect } from "react-router-dom";
 import { useToasts } from "react-toast-notifications";
 import { Box } from "rebass";
 import api from "../api";
-import { auth, database } from "../config/firebaseconfig";
-import { signInWithEmailAndPassword, signOut } from "firebase/auth";
 import _ from "lodash";
 
 const AuthContext = createContext({
   currentUser: null,
   registeremail: () => Promise,
   loginemail: () => Promise,
+  googlelogin: () => Promise,
   resetpassword: () => Promise,
   changepassword: () => Promise,
   uploadphoto: () => Promise,
@@ -107,6 +106,40 @@ export const AuthProvider = ({ children }) => {
         });
       });
   }
+  async function googlelogin(email, username, image, password) {
+    console.log(image, "image");
+    const response = await fetch(image, {
+      responseType: "blob",
+    });
+    const imageBlob = await response.blob();
+    const formData = new FormData();
+    formData.append("image", imageBlob, "image.jpg");
+    formData.append("email", email);
+    formData.append("username", username);
+    formData.append("password", password);
+    api
+      .post("/googlelogin", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
+      .then((response) => {
+        const user = response.data;
+        
+        localStorage.setItem("user", JSON.stringify(user));
+        setCurrentuser(user);
+        addToast("Login success!!", {
+          appearance: "success",
+          autoDismiss: true,
+        });
+      })
+      .catch((error) => {
+        addToast(error.response.data.message, {
+          appearance: "error",
+          autoDismiss: true,
+        });
+      });
+  }
 
   async function logout() {
     localStorage.removeItem("user");
@@ -153,7 +186,7 @@ export const AuthProvider = ({ children }) => {
         startdate: startdate,
         enddate: enddate,
         quizid: quizid,
-        room : JSON.stringify(rooms)
+        room: JSON.stringify(rooms),
       })
       .then(() => {
         addToast("Create Room success!!", {
@@ -190,6 +223,7 @@ export const AuthProvider = ({ children }) => {
     currentUser,
     registeremail,
     loginemail,
+    googlelogin,
     resetpassword,
     changepassword,
     logout,

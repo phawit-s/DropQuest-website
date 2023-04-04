@@ -7,6 +7,7 @@ import { Modal, Typography } from "@mui/material";
 import { useToasts } from "react-toast-notifications";
 import { useAuth } from "../../contexts/AuthContext";
 import Header from "../Header";
+import Mobileheader from "../Mobileheader";
 import api from "../../api";
 import { AiOutlineStar, AiFillStar } from "react-icons/ai";
 
@@ -24,7 +25,17 @@ const Myroom = () => {
   const [enddate, setEnddate] = useState("");
   const [timeLeft, setTimeLeft] = useState("");
   const location = useLocation();
+  const [isDesktop, setIsDesktop] = useState(window.innerWidth > 768);
 
+  useEffect(() => {
+    const handleResize = () => {
+      setIsDesktop(window.innerWidth >= 768);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
   let favoriteQuestions =
     JSON.parse(window.localStorage.getItem("Favourite Question")) || [];
 
@@ -39,9 +50,6 @@ const Myroom = () => {
     }
   }, [allroom, roomdetail]);
 
-  if (!currentUser) {
-    return <Redirect to="/login" />;
-  }
   useEffect(() => {
     api
       .post("/myroom", { userid: currentUser.user_id })
@@ -54,6 +62,7 @@ const Myroom = () => {
         setLoading(false);
       });
   }, []);
+
   useEffect(() => {
     api
       .post("/roomdetail", { userid: currentUser.user_id })
@@ -97,7 +106,9 @@ const Myroom = () => {
 
     return () => clearInterval(intervalId);
   }, [loadroom, enddate]);
-
+  if (!currentUser) {
+    return <Redirect to="/login" />;
+  }
   return (
     <Box
       minHeight="100vh"
@@ -106,7 +117,7 @@ const Myroom = () => {
         backgroundColor: "rgba(134, 248, 255, 0.13);",
       }}
     >
-      <Header />
+      {isDesktop ? <Header /> : <Mobileheader />}
       <Modal open={opensave} onClose={modalsaveClose}>
         <Box
           sx={{
@@ -227,7 +238,7 @@ const Myroom = () => {
           }}
         >
           <Text mx="auto" mt={4} fontSize="20px">
-            จำนวนห้องทั้งหมด:
+            จำนวนห้องทั้งหมด: {allroom.length} ห้อง
           </Text>
           {allroom.map((room, index) => {
             return (

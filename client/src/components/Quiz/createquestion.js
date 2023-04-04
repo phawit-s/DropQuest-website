@@ -6,6 +6,7 @@ import { Scrollbars } from "react-custom-scrollbars";
 import { Modal, Typography } from "@mui/material";
 import { useAuth } from "../../contexts/AuthContext";
 import Header from "../Header";
+import Mobileheader from "../Mobileheader";
 import { useToasts } from "react-toast-notifications";
 import { BsTrash } from "react-icons/bs";
 import { FaTrash } from "react-icons/fa";
@@ -55,6 +56,17 @@ const CreateQuestion = () => {
   const getfavourite = window.localStorage.getItem("Favourite Question");
   const question = getproductstorage ? JSON.parse(getproductstorage) : [];
   const favouritequestion = getfavourite ? JSON.parse(getfavourite) : [];
+  const [isDesktop, setIsDesktop] = useState(window.innerWidth > 768);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsDesktop(window.innerWidth >= 768);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
   useEffect(() => {
     console.log("Adding Question", dataquestion);
@@ -82,28 +94,30 @@ const CreateQuestion = () => {
   useEffect(() => {
     const handleBeforeUnload = (event) => {
       event.preventDefault();
-      event.returnValue = '';
+      event.returnValue = "";
     };
 
-    window.addEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener("beforeunload", handleBeforeUnload);
 
     const handleKeyDown = (event) => {
-      if ((event.metaKey || event.ctrlKey) && event.key === 'r') {
+      if ((event.metaKey || event.ctrlKey) && event.key === "r") {
         event.preventDefault();
-        const confirmed = window.confirm('Are you sure you want to reload the page? Any unsaved changes will be lost.');
+        const confirmed = window.confirm(
+          "Are you sure you want to reload the page? Any unsaved changes will be lost."
+        );
 
         if (confirmed) {
-          window.removeEventListener('beforeunload', handleBeforeUnload);
+          window.removeEventListener("beforeunload", handleBeforeUnload);
           window.location.reload();
         }
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
 
     return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      window.removeEventListener("keydown", handleKeyDown);
     };
   }, []);
 
@@ -154,7 +168,7 @@ const CreateQuestion = () => {
           !q.choice3.includes(refquestion.choice3) &&
           !q.choice4.includes(refquestion.choice4)
       );
-      console.log(hasQuestion,"hasQuestion");
+      console.log(hasQuestion, "hasQuestion");
       if (hasQuestion) {
         setSamequestion((prevState) => [
           ...prevState,
@@ -318,7 +332,8 @@ const CreateQuestion = () => {
     // const questionToExclude = questiontopic.current.value;
     if (
       dataquestion.filter(
-        (e, i) => e.question_name === questiontopic.current.value && i !== editindex
+        (e, i) =>
+          e.question_name === questiontopic.current.value && i !== editindex
       ).length > 0
     ) {
       addToast("คำถามถูกใช้แล้ว", {
@@ -358,7 +373,7 @@ const CreateQuestion = () => {
       });
     } else {
       if (status) {
-        setChangequestion("")
+        setChangequestion("");
         setDataQuestion((dataquestion) => {
           const updatedQuestion = {
             question_name: questiontopic.current.value,
@@ -388,7 +403,9 @@ const CreateQuestion = () => {
   };
 
   const deletequestion = async (deleteindex) => {
-    const deleteeddata = dataquestion.filter((_, index) => index !== deleteindex);
+    const deleteeddata = dataquestion.filter(
+      (_, index) => index !== deleteindex
+    );
     setDataQuestion(deleteeddata);
     window.localStorage.setItem("Question", JSON.stringify(deleteeddata));
   };
@@ -484,7 +501,7 @@ const CreateQuestion = () => {
   console.log(dq);
   return (
     <Box
-      minHeight="969px"
+      minHeight="100vh"
       sx={{
         backgroundColor: "rgba(134, 248, 255, 0.13) ;",
       }}
@@ -1146,9 +1163,9 @@ const CreateQuestion = () => {
         </Box>
       </Modal>
 
-      <Header />
+      {isDesktop ? <Header /> : <Mobileheader />}
 
-      <Flex mt={3} flexDirection={['column', 'row']}>
+      <Flex mt={3} flexDirection={["column", "row"]}>
         <Box
           width={[1, 2 / 5]}
           ml={[1, 4]}
@@ -1289,7 +1306,6 @@ const CreateQuestion = () => {
           width={[1, 4 / 5]}
           ml={[1, 4]}
           mb={[4, 0]}
-
           sx={{
             overflow: "hidden",
             backgroundColor: "transparent",
@@ -1343,7 +1359,8 @@ const CreateQuestion = () => {
                         sx={{
                           borderRadius: "10px",
                           backgroundColor:
-                            data.correct_choice === "1" || data.correct_choice === 1
+                            data.correct_choice === "1" ||
+                            data.correct_choice === 1
                               ? "#59A96A"
                               : "#fff",
                           color: "black",
@@ -1361,7 +1378,8 @@ const CreateQuestion = () => {
                         sx={{
                           borderRadius: "10px",
                           backgroundColor:
-                            data.correct_choice === "2" || data.correct_choice === 2
+                            data.correct_choice === "2" ||
+                            data.correct_choice === 2
                               ? "#59A96A"
                               : "#fff",
                           color: "black",
@@ -1381,7 +1399,8 @@ const CreateQuestion = () => {
                         sx={{
                           borderRadius: "10px",
                           backgroundColor:
-                            data.correct_choice === "3" || data.correct_choice === 3
+                            data.correct_choice === "3" ||
+                            data.correct_choice === 3
                               ? "#59A96A"
                               : "#fff",
                           color: "black",
@@ -1399,7 +1418,8 @@ const CreateQuestion = () => {
                         sx={{
                           borderRadius: "10px",
                           backgroundColor:
-                            data.correct_choice === "4" || data.correct_choice === 4
+                            data.correct_choice === "4" ||
+                            data.correct_choice === 4
                               ? "#59A96A"
                               : "#fff",
                           color: "black",

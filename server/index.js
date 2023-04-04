@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const multer = require("multer");
 const sharp = require("sharp");
+
 const path = require("path");
 const nodemailer = require("nodemailer");
 const bcrypt = require("bcrypt");
@@ -87,13 +88,17 @@ conn
 
         app.post("/roomdetail", function (req, res) {
           const userid = req.body.userid;
-          db.query("SELECT course_code, room_room_id FROM course JOIN room ON room.room_id = course.room_room_id WHERE room.user_user_id = ?;", [userid], (err, result) => {
-            if (err) {
-              console.log(err);
-            } else {
-              res.send(result);
+          db.query(
+            "SELECT course_code, room_room_id FROM course JOIN room ON room.room_id = course.room_room_id WHERE room.user_user_id = ?;",
+            [userid],
+            (err, result) => {
+              if (err) {
+                console.log(err);
+              } else {
+                res.send(result);
+              }
             }
-          });
+          );
         });
 
         app.post("/allmyquiz", function (req, res) {
@@ -178,8 +183,14 @@ conn
             .then((data) => {
               const imageBuffer = data;
               const sql =
-                "INSERT INTO users (email, username, password, image) VALUES (?,?,?,?)";
-              const values = [email, username, passwordHash, imageBuffer];
+                "INSERT INTO users (email, username, password, image, googlestatus) VALUES (?,?,?,?,?)";
+              const values = [
+                email,
+                username,
+                passwordHash,
+                imageBuffer,
+                "false",
+              ];
 
               db.query(sql, values, (err, result) => {
                 if (err) {
@@ -195,6 +206,87 @@ conn
               res.status(500).send({ message: "Error resizing image" });
             });
         });
+
+        app.post("/googlelogin", upload.single("image"), (req, res) => {
+          const email = req.body.email;
+          const username = req.body.username;
+          const password = req.body.password;
+          const image = req.file;
+          const imageBuffer = image.buffer;
+        
+          // Check if email already exists in database
+          const checkUserSql = "SELECT * FROM users WHERE email = ? and password = ?";
+          const checkUserValues = [email, password];
+          db.query(checkUserSql, checkUserValues, (err, result) => {
+            if (err) {
+              console.log(err);
+              res.status(500).send({ message: "Error checking user" });
+            } else if (result.length > 0) {
+              // Email already exists in database, log user in
+              res.status(200).send({
+                message: "Logged in",
+                email: result[0]?.email,
+                username: result[0]?.username,
+                image: result[0]?.image,
+                user_id: result[0]?.user_id,
+                status: result[0]?.googlestatus,
+              });
+            } else {
+              // Email doesn't exist in database, insert new record
+              const insertUserSql =
+                "INSERT INTO users (email, username, password, image, googlestatus) VALUES (?,?,?,?,?)";
+              sharp(imageBuffer)
+                .resize(100, 100)
+                .toBuffer()
+                .then((data) => {
+                  const imageBuffer = data;
+                  const values = [
+                    email,
+                    username,
+                    password,
+                    imageBuffer,
+                    "true",
+                  ];
+                  db.query(insertUserSql, values, (err, result) => {
+                    if (err) {
+                      console.log(err);
+                      res.status(500).send({ message: "Error inserting user" });
+                    } else {
+                      const selectUserSql =
+                        "SELECT * FROM users WHERE email = ?";
+                      const selectUserValues = [email];
+                      db.query(
+                        selectUserSql,
+                        selectUserValues,
+                        (err, result) => {
+                          if (err) {
+                            console.log(err);
+                            res
+                              .status(500)
+                              .send({ message: "Error selecting user" });
+                          } else {
+                            res.status(200).send({
+                              message: "Logged in",
+                              email: result[0]?.email,
+                              username: result[0]?.username,
+                              image: result[0]?.image,
+                              user_id: result[0]?.user_id,
+                              status: result[0]?.googlestatus,
+                            });
+                          }
+                        }
+                      );
+                    }
+                  });
+                })
+                .catch((err) => {
+                  console.log(err);
+                  res.status(500).send({ message: "Error resizing image" });
+                });
+            }
+          });
+        });
+        
 
         app.post("/login", (req, res) => {
           const email = req.body.email;
@@ -221,9 +313,11 @@ conn
                 } else if (match) {
                   res.status(200).send({
                     message: "Logged in",
+                    email: result[0]?.email,
                     username: result[0].username,
                     image: result[0].image,
                     user_id: result[0].user_id,
+                    status: result[0].googlestatus,
                   });
                 } else {
                   res
@@ -649,7 +743,6 @@ conn
                       console.log(err);
                       return res.status(500).send(err);
                     }
-                    
                   }
                 );
               });

@@ -5,6 +5,7 @@ import { Label, Input } from "@rebass/forms";
 import { Scrollbars } from "react-custom-scrollbars";
 import { useAuth } from "../../contexts/AuthContext";
 import Header from "../Header";
+import Mobileheader from "../Mobileheader";
 import api from "../../api";
 import { AiOutlineStar, AiFillStar } from "react-icons/ai";
 
@@ -18,6 +19,17 @@ const Myquiz = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   let filteredQuizzes = allquiz;
+  const [isDesktop, setIsDesktop] = useState(window.innerWidth > 768);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsDesktop(window.innerWidth >= 768);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
   useEffect(() => {
     console.log("Showing my Quiz", allquiz);
@@ -78,7 +90,7 @@ const Myquiz = () => {
         backgroundColor: "rgba(134, 248, 255, 0.13);",
       }}
     >
-      <Header />
+      {isDesktop ? <Header /> : <Mobileheader />}
       <Input
         id="search"
         name="search"
@@ -227,7 +239,6 @@ const Myquiz = () => {
             },
           }}
         >
-          
           {filteredQuizzes.length === 0 ? (
             <Text
               sx={{
@@ -252,7 +263,6 @@ const Myquiz = () => {
               );
               const imageUrl = `data:image/png;base64,${base64ImageData}`;
               return (
-                
                 <Box
                   key={index}
                   sx={{

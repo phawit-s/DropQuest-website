@@ -66,6 +66,26 @@ const Header = () => {
     }
   };
 
+  const gotocreatequiz = () => {
+    if (question.length === 0) {
+      history.push({
+        pathname: `/createquiz`,
+      });
+    } else {
+      const confirmed = window.confirm(
+        "Are you sure you want to change the page? Any unsaved changes will be lost."
+      );
+
+      if (confirmed) {
+        window.localStorage.removeItem("Question");
+        window.localStorage.removeItem("EditQuiz");
+        history.push({
+          pathname: `/createquiz`,
+        });
+      }
+    }
+  };
+
   const gotocreateroom = () => {
     if (question.length === 0) {
       history.push({
@@ -257,11 +277,7 @@ const Header = () => {
                 onMouseEnter={() => setColor("#364AFF")}
                 onMouseLeave={() => setColor("")}
                 sx={{ cursor: "pointer", color: color }}
-                onClick={() =>
-                  history.push({
-                    pathname: `/createquiz`,
-                  })
-                }
+                onClick={gotocreatequiz}
               >
                 สร้างแบบทดสอบ
               </Text>

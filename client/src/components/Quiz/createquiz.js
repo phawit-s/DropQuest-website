@@ -8,6 +8,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { useToasts } from "react-toast-notifications";
 import api from "../../api";
 import Header from "../Header";
+import Mobileheader from "../Mobileheader";
 
 const CreateQuiz = () => {
   const { currentUser, editquiz, savequiz } = useAuth();
@@ -38,6 +39,17 @@ const CreateQuiz = () => {
   const quizedit = getQuizdetail ? JSON.parse(getQuizdetail) : [];
   const todayDate = new Date().toISOString().slice(0, 10);
   const quizid = window.localStorage.getItem("Edit id");
+  const [isDesktop, setIsDesktop] = useState(window.innerWidth > 768);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsDesktop(window.innerWidth >= 768);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
   useEffect(() => {
     console.log("Loading questiondata", questiondata);
@@ -101,7 +113,7 @@ const CreateQuiz = () => {
     });
   };
 
-  const updateandsave = () =>{
+  const updateandsave = () => {
     const quizdata = {
       groupname: quizname.current.value,
       category: category.current.value,
@@ -115,8 +127,8 @@ const CreateQuiz = () => {
         pathname: `/`,
       });
     });
-  }
-  
+  };
+
   const createandsave = () => {
     const quizdata = {
       groupname: quizname.current.value,
@@ -167,7 +179,7 @@ const CreateQuiz = () => {
         history.push({
           pathname: `/`,
         });
-      }); 
+      });
     }
   };
 
@@ -179,12 +191,12 @@ const CreateQuiz = () => {
   };
   return (
     <Box
-      minHeight="969px"
+      minHeight="100vh"
       sx={{
         backgroundColor: "rgba(134, 248, 255, 0.13);",
       }}
     >
-      <Header />
+      {isDesktop ? <Header /> : <Mobileheader />}
       <Modal open={open} onClose={handleClose}>
         <Box
           sx={{
@@ -278,7 +290,9 @@ const CreateQuiz = () => {
           px={4}
           pt={4}
         >
-          <Text sx={{ fontSize: "20px" }}>{quizdata.length !== 0 ? "ยืนยันการอัพเดท?" : "ยืนยันการบันทึก?"}</Text>
+          <Text sx={{ fontSize: "20px" }}>
+            {quizdata.length !== 0 ? "ยืนยันการอัพเดท?" : "ยืนยันการบันทึก?"}
+          </Text>
 
           <Flex>
             <Button
@@ -637,12 +651,14 @@ const CreateQuiz = () => {
                           my={2}
                           sx={{
                             border:
-                              data.correct_choice === "1" || data.correct_choice === 1
+                              data.correct_choice === "1" ||
+                              data.correct_choice === 1
                                 ? "1px solid #59A96A"
                                 : "1px solid #0A2239",
                             borderRadius: "10px",
                             backgroundColor:
-                              data.correct_choice === "1" || data.correct_choice === 1
+                              data.correct_choice === "1" ||
+                              data.correct_choice === 1
                                 ? "#59A96A"
                                 : "#fff",
                             color: "black",
@@ -659,12 +675,14 @@ const CreateQuiz = () => {
                           my={2}
                           sx={{
                             border:
-                              data.correct_choice === "2" || data.correct_choice === 2
+                              data.correct_choice === "2" ||
+                              data.correct_choice === 2
                                 ? "1px solid #59A96A"
                                 : "1px solid #0A2239",
                             borderRadius: "10px",
                             backgroundColor:
-                              data.correct_choice === "2" || data.correct_choice === 2
+                              data.correct_choice === "2" ||
+                              data.correct_choice === 2
                                 ? "#59A96A"
                                 : "#fff",
                             color: "black",
@@ -684,12 +702,14 @@ const CreateQuiz = () => {
                           sx={{
                             cursor: "pointer",
                             border:
-                              data.correct_choice === "3" || data.correct_choice === 3
+                              data.correct_choice === "3" ||
+                              data.correct_choice === 3
                                 ? "1px solid #59A96A"
                                 : "1px solid #0A2239",
                             borderRadius: "10px",
                             backgroundColor:
-                              data.correct_choice === "3" || data.correct_choice === 3
+                              data.correct_choice === "3" ||
+                              data.correct_choice === 3
                                 ? "#59A96A"
                                 : "#fff",
                             color: "black",
@@ -707,12 +727,14 @@ const CreateQuiz = () => {
                           sx={{
                             cursor: "pointer",
                             border:
-                              data.correct_choice === "4" || data.correct_choice === 4
+                              data.correct_choice === "4" ||
+                              data.correct_choice === 4
                                 ? "1px solid #59A96A"
                                 : "1px solid #0A2239",
                             borderRadius: "10px",
                             backgroundColor:
-                              data.correct_choice === "4" || data.correct_choice === 4
+                              data.correct_choice === "4" ||
+                              data.correct_choice === 4
                                 ? "#59A96A"
                                 : "#fff",
                             color: "black",
