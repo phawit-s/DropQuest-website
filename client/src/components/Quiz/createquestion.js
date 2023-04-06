@@ -503,7 +503,7 @@ const CreateQuestion = () => {
     <Box
       minHeight="100vh"
       sx={{
-        backgroundColor: "rgba(134, 248, 255, 0.13) ;",
+        backgroundColor: "rgb(240, 242, 245) ;",
       }}
     >
       <Modal open={opensave} onClose={modalsaveClose}>

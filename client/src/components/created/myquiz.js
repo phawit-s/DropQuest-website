@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useHistory, useLocation, Redirect } from "react-router-dom";
 import { Box, Heading, Text, Card, Flex, Link, Button, Image } from "rebass";
-import { Label, Input } from "@rebass/forms";
-import { Scrollbars } from "react-custom-scrollbars";
+import { Label, Input, Select } from "@rebass/forms";
+
 import { useAuth } from "../../contexts/AuthContext";
 import Header from "../Header";
 import Mobileheader from "../Mobileheader";
 import api from "../../api";
-import { AiOutlineStar, AiFillStar } from "react-icons/ai";
 
 const Myquiz = () => {
   const { currentUser } = useAuth();
@@ -87,7 +86,7 @@ const Myquiz = () => {
     <Box
       minHeight="100vh"
       sx={{
-        backgroundColor: "rgba(134, 248, 255, 0.13);",
+        backgroundColor: "rgb(240, 242, 245);",
       }}
     >
       {isDesktop ? <Header /> : <Mobileheader />}
@@ -118,97 +117,111 @@ const Myquiz = () => {
           },
         }}
       />
-      <Flex mt={4}>
-        <Box
-          width={[1, 1, 1 / 5]}
-          ml={2}
-          sx={{
-            height: "800px",
-            borderRadius: "10px",
-            overflowY: "scroll",
-            overflowX: "hidden",
-            overscrollBehaviorY: "contain",
-            "&::-webkit-scrollbar": {
-              width: "0px",
-              background: "transparent",
-            },
-            "-ms-overflow-style": "none",
-            "scrollbar-width": "none",
-            "-webkit-overflow-scrolling": "touch",
-          }}
-        >
-          <Button
-            mx="auto"
-            mr={4}
-            mt={4}
-            mb={2}
-            p={14}
+      <Flex mt={4} flexDirection={["column", "row"]}>
+        {isDesktop ? (
+          <Box
+            width={[1, 1, 1 / 5]}
+            ml={2}
             sx={{
-              display: "flex",
-              justifyContent: "center",
-              // border: "1px solid #C1D7AE",
+              height: "800px",
               borderRadius: "10px",
-              cursor: "pointer",
+              overflowY: "scroll",
+              overflowX: "hidden",
+              overscrollBehaviorY: "contain",
+              "&::-webkit-scrollbar": {
+                width: "0px",
+                background: "transparent",
+              },
+              "-ms-overflow-style": "none",
+              "scrollbar-width": "none",
+              "-webkit-overflow-scrolling": "touch",
             }}
-            width={1}
-            fontSize={2}
-            backgroundColor={
-              selectedcategory === 0 ? "#C1D7AE" : "rgba(255,255,255,0)"
-            }
-            type="button"
-            onClick={() => selectcategory(0, "all")}
           >
-            <Text
+            <Button
+              mx="auto"
+              mr={4}
+              mt={4}
+              mb={2}
+              p={14}
               sx={{
-                color: " #000",
-                fontSize: "20px",
+                display: "flex",
+                justifyContent: "center",
+                borderRadius: "10px",
+                cursor: "pointer",
               }}
+              width={1}
+              fontSize={2}
+              backgroundColor={
+                selectedcategory === 0 ? "#C1D7AE" : "rgba(255,255,255,0)"
+              }
+              type="button"
+              onClick={() => selectcategory(0, "all")}
             >
-              ทั้งหมด
-            </Text>
-          </Button>
-          {allcategory.map((category, index) => {
-            return (
-              <Box key={index}>
-                <Button
-                  key={index}
-                  mx="auto"
-                  mr={4}
-                  mt={4}
-                  mb={2}
-                  p={14}
-                  sx={{
-                    display: "flex",
-                    justifyContent: "center",
-                    // border: "1px solid #C1D7AE",
-                    borderRadius: "20px",
-                    cursor: "pointer",
-                  }}
-                  width={1}
-                  fontSize={2}
-                  backgroundColor={
-                    selectedcategory === index + 1
-                      ? "#C1D7AE"
-                      : "rgba(255,255,255,0)"
-                  }
-                  type="button"
-                  onClick={() =>
-                    selectcategory(index + 1, category.category_name)
-                  }
-                >
-                  <Text
+              <Text
+                sx={{
+                  color: " #000",
+                  fontSize: "20px",
+                }}
+              >
+                ทั้งหมด
+              </Text>
+            </Button>
+            {allcategory.map((category, index) => {
+              return (
+                <Box key={index}>
+                  <Button
+                    key={index}
+                    mx="auto"
+                    mr={4}
+                    mt={4}
+                    mb={2}
+                    p={14}
                     sx={{
-                      color: " #000",
-                      fontSize: "20px",
+                      display: "flex",
+                      justifyContent: "center",
+                      // border: "1px solid #C1D7AE",
+                      borderRadius: "20px",
+                      cursor: "pointer",
                     }}
+                    width={1}
+                    fontSize={2}
+                    backgroundColor={
+                      selectedcategory === index + 1
+                        ? "#C1D7AE"
+                        : "rgba(255,255,255,0)"
+                    }
+                    type="button"
+                    onClick={() =>
+                      selectcategory(index + 1, category.category_name)
+                    }
                   >
-                    {category.category_name}
-                  </Text>
-                </Button>
-              </Box>
-            );
-          })}
-        </Box>
+                    <Text
+                      sx={{
+                        color: " #000",
+                        fontSize: "20px",
+                      }}
+                    >
+                      {category.category_name}
+                    </Text>
+                  </Button>
+                </Box>
+              );
+            })}
+          </Box>
+        ) : (
+          <Box
+            mx={4}
+            mb={4}
+          >
+            <Text fontSize={"16px"} mb={2}>เลือกหมวดหมู่</Text>
+            <Select id="category" name="category" defaultValue="ทั้งหมด" onChange={(event) => selectcategory(event.target.selectedIndex + 1, event.target.value)} backgroundColor='white'>
+              {allcategory.map((category, index) => (
+                <option key={index} >{category.category_name}</option>
+              ))}
+            </Select>
+          </Box>
+        )
+        }
         <Box
           width={[1, 4 / 5]}
           mx={4}
@@ -230,7 +243,7 @@ const Myquiz = () => {
               borderRadius: "10px",
             },
             "&::-webkit-scrollbar-thumb": {
-              background: "rgba(134, 248, 255, 0.13)",
+              background: "rgb(240, 242, 245)",
               borderRadius: "20px",
               border: "2px solid #F6F6F6",
             },
@@ -278,7 +291,7 @@ const Myquiz = () => {
                     flexShrink: 0,
                     mb: 4,
                   }}
-                  mx={4}
+                  mx={[2,4]}
                   onMouseDown={(e) => e.preventDefault()}
                   onClick={() => gotodetail(quiz.group_id)}
                 >

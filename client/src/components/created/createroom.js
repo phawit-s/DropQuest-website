@@ -7,7 +7,7 @@ import { Modal, Typography } from "@mui/material";
 import { useAuth } from "../../contexts/AuthContext";
 import { useToasts } from "react-toast-notifications";
 import Header from "../Header";
-import Mobileheader from "../Mobileheader"
+import Mobileheader from "../Mobileheader";
 import api from "../../api";
 import { AiOutlineStar, AiFillStar } from "react-icons/ai";
 
@@ -25,7 +25,7 @@ const Createroom = () => {
   const [errorname, setErrorname] = useState(false);
   const [errorstartdate, setErrorstartdate] = useState(false);
   const [errorenddate, setErrorenddate] = useState(false);
-  const [quizindex, setQuizindex] = useState(0);
+  const [quizindex, setQuizindex] = useState(null);
   const [quizid, setQuizid] = useState(0);
   const [numRooms, setNumRooms] = useState(1);
   const [rooms, setRooms] = useState([]);
@@ -35,9 +35,9 @@ const Createroom = () => {
     const handleResize = () => {
       setIsDesktop(window.innerWidth >= 768);
     };
-    window.addEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
     return () => {
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener("resize", handleResize);
     };
   }, []);
 
@@ -50,7 +50,6 @@ const Createroom = () => {
     }
     setRooms(newRooms);
   }, [numRooms]);
-
 
   useEffect(() => {
     console.log("Showing my Quiz", allquiz);
@@ -146,8 +145,6 @@ const Createroom = () => {
     }
   };
 
- 
-
   if (!currentUser) {
     return <Redirect to="/login" />;
   }
@@ -160,7 +157,7 @@ const Createroom = () => {
     <Box
       minHeight="100vh"
       sx={{
-        backgroundColor: "rgba(134, 248, 255, 0.13);",
+        backgroundColor: "rgb(240, 242, 245);",
       }}
     >
       {isDesktop ? <Header /> : <Mobileheader />}
@@ -367,6 +364,14 @@ const Createroom = () => {
                   Session {index + 1} : {roomId}
                 </Text>
               ))}
+              {quizindex !== null ? (
+                ""
+              ) : (
+                <Text fontSize="20px" color="red">
+                  <span style={{ fontSize: "18px" }}>*</span>
+                  กรุณาเลือกแบบทดสอบสำหรับการสร้างห้อง
+                </Text>
+              )}
             </Box>
 
             <Flex justifyContent="space-between">
@@ -446,7 +451,7 @@ const Createroom = () => {
               borderRadius: "10px",
             },
             "&::-webkit-scrollbar-thumb": {
-              background: "rgba(134, 248, 255, 0.13)",
+              background: "rgb(240, 242, 245)",
               borderRadius: "20px",
               border: "2px solid #F6F6F6",
             },
@@ -469,15 +474,18 @@ const Createroom = () => {
               flexShrink: 0,
             }}
           >
-            {allquiz.map((quiz, index) => {
-              if (index === quizindex) {
-                return (
-                  <Text fontSize="20px" key={index}>
-                    แบบทดสอบที่เลือก : {quiz.g_name}
-                  </Text>
-                );
-              }
-            })}
+            <Flex>
+              <Text fontSize="20px">แบบทดสอบที่เลือก :</Text>
+              {allquiz.map((quiz, index) => {
+                if (index === quizindex) {
+                  return (
+                    <Text fontSize="20px" key={index}>
+                      {quiz.g_name}
+                    </Text>
+                  );
+                }
+              })}
+            </Flex>
           </Box>
           <Flex
             mt={3}

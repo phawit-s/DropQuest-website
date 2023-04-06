@@ -133,13 +133,15 @@ export default function Register() {
 
   return (
     <Box>
-      <Box m={5} ml="auto" mr="auto" width={[4 / 5, 4 / 5, 2 / 5]}>
+      <Box m={5} ml="auto" mr="auto" width={[4 / 5, 4 / 5, 1 / 4]}>
         <Card
           width={1}
           py={4}
           sx={{
             borderRadius: "16px",
-            boxShadow: "0px 2px 20px 2px #23aaff;",
+            backgroundColor: "rgba(255,255,255,0.50)",
+            border: "1px solid #ced4da",
+            boxShadow: "0px 3px 10px 2px rgb(240, 242, 245);",
           }}
           bg="#fff"
         >
@@ -347,7 +349,7 @@ export default function Register() {
             }}
             width={3 / 4}
             fontSize={2}
-            backgroundColor="rgba(255, 0, 0, 0.24);"
+            backgroundColor="#23aaff;"
             type="button"
             onClick={register}
           >
@@ -361,12 +363,12 @@ export default function Register() {
               ลงทะเบียน
             </Text>
           </Button>
-          <Flex mt={3} mr={60} sx={{ justifyContent: "center" }}>
+          <Flex mt={3} mr={60} sx={{ justifyContent: "right" }}>
             <Text>มีสมาชิกอยู่แล้ว?</Text>
             <Text
               ml={2}
               sx={{
-                color: "rgba(255, 0, 0, 0.24);",
+                color: "#23aaff;",
                 textAlign: "center",
                 cursor: "pointer",
                 textDecoration: "underline",

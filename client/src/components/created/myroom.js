@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useHistory, useLocation, Redirect } from "react-router-dom";
 import { Box, Heading, Text, Card, Flex, Link, Button, Image } from "rebass";
-import { Label, Input } from "@rebass/forms";
+import { Label, Input, Select } from "@rebass/forms";
 import { Scrollbars } from "react-custom-scrollbars";
 import { Modal, Typography } from "@mui/material";
 import { useToasts } from "react-toast-notifications";
@@ -79,6 +79,7 @@ const Myroom = () => {
   const modalsaveClose = () => setOpensave(false);
   const modalsaveOpen = () => setOpensave(true);
   const selectroom = (index, checkindex) => {
+    console.log(index, checkindex);
     console.log("Select Room ", index);
     setLoadRoom(index);
     setLoadindex(checkindex);
@@ -114,7 +115,7 @@ const Myroom = () => {
       minHeight="100vh"
       overflow="hidden"
       sx={{
-        backgroundColor: "rgba(134, 248, 255, 0.13);",
+        backgroundColor: "rgb(240, 242, 245);",
       }}
     >
       {isDesktop ? <Header /> : <Mobileheader />}
@@ -215,7 +216,7 @@ const Myroom = () => {
             borderBottom: "1px solid rgba(255,255,255,0.50)",
             borderRight: "1px solid rgba(255,255,255,0.50)",
             boxShadow: "0 25px 50px rgba(0,0,0,0.1)",
-            height: "700px",
+            height: ["140px", "700px"],
             borderRadius: "10px",
             overflowY: "scroll",
             overflowX: "hidden",
@@ -228,7 +229,7 @@ const Myroom = () => {
               borderRadius: "10px",
             },
             "&::-webkit-scrollbar-thumb": {
-              background: "rgba(134, 248, 255, 0.13)",
+              background: "rgb(240, 242, 245)",
               borderRadius: "20px",
               border: "2px solid #F6F6F6",
             },
@@ -240,40 +241,68 @@ const Myroom = () => {
           <Text mx="auto" mt={4} fontSize="20px">
             จำนวนห้องทั้งหมด: {allroom.length} ห้อง
           </Text>
-          {allroom.map((room, index) => {
-            return (
-              <Box key={index}>
-                <Button
-                  mx="auto"
-                  mr={4}
-                  mt={4}
-                  mb={2}
-                  p={14}
-                  sx={{
-                    display: "flex",
-                    justifyContent: "center",
-                    border: "1px solid #C1D7AE",
-                    borderRadius: "20px",
-                    cursor: "pointer",
-                  }}
-                  width={1}
-                  fontSize={2}
-                  backgroundColor={loadindex === index ? "green" : "white"}
-                  type="button"
-                  onClick={() => selectroom(room.room_id, index)}
-                >
-                  <Text
+
+          {isDesktop ? (
+            allroom.map((room, index) => {
+              return (
+                <Box key={index}>
+                  <Button
+                    mx="auto"
+                    mr={4}
+                    mt={4}
+                    mb={2}
+                    p={14}
                     sx={{
-                      color: " #000",
-                      fontSize: "20px",
+                      display: "flex",
+                      justifyContent: "center",
+                      border: "1px solid #C1D7AE",
+                      borderRadius: "20px",
+                      cursor: "pointer",
                     }}
+                    width={1}
+                    fontSize={2}
+                    backgroundColor={
+                      timeLeft === "หมดเวลา" && loadindex === index
+                        ? "red"
+                        : loadindex === index
+                        ? "green"
+                        : "white"
+                    }
+                    type="button"
+                    onClick={() => selectroom(room.room_id, index)}
                   >
-                    ห้องที่ {index + 1}
-                  </Text>
-                </Button>
-              </Box>
-            );
-          })}
+                    <Text
+                      sx={{
+                        color: " #000",
+                        fontSize: "20px",
+                      }}
+                    >
+                      ห้องที่ {index + 1}
+                    </Text>
+                  </Button>
+                </Box>
+              );
+            })
+          ) : (
+            <Select
+              id="choice"
+              name="choice"
+              defaultValue="ทั้งหมด"
+              onChange={(event) =>
+                selectroom(
+                  parseInt(event.target.value),
+                  event.target.selectedIndex
+                )
+              }
+              backgroundColor="white"
+            >
+              {allroom.map((room, index) => (
+                <option key={index} value={room.room_id}>
+                  ห้องที่ {index + 1}
+                </option>
+              ))}
+            </Select>
+          )}
         </Box>
 
         <Flex flexDirection="column" width="100%">
@@ -298,7 +327,14 @@ const Myroom = () => {
                     <Text ml={4} my={4} fontSize="26px">
                       แบบทดสอบที่ใช้ : {room.g_name}
                     </Text>
-                    <Text ml={4} my={4} fontSize="26px">
+                    <Text
+                      ml={4}
+                      my={4}
+                      fontSize="26px"
+                      sx={{
+                        color: timeLeft == "หมดเวลา" ? "red" : "black",
+                      }}
+                    >
                       เวลาที่เหลือ : {timeLeft}
                     </Text>
                   </Box>
@@ -312,7 +348,7 @@ const Myroom = () => {
               if (room.room_room_id === loadroom) {
                 return (
                   <Box sx={{ ml: 4, mt: 3 }} key={index}>
-                    <Text ml={[0, 4]} mb={4} fontSize="22px" color={"black"}>
+                    <Text ml={[0, 4]} mb={4} fontSize="22px">
                       Code : {room.course_code}
                     </Text>
                   </Box>

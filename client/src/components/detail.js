@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, Redirect, useHistory } from "react-router-dom";
 import { Box, Heading, Text, Card, Flex, Link, Button, Image } from "rebass";
-import { Scrollbars } from "react-custom-scrollbars";
+import { Label, Input, Select } from "@rebass/forms";
 import { Modal, Typography } from "@mui/material";
 import { useAuth } from "../contexts/AuthContext";
 import { useToasts } from "react-toast-notifications";
@@ -142,7 +142,7 @@ const Detail = () => {
       minHeight="100vh"
       overflow="hidden"
       sx={{
-        backgroundColor: "rgba(134, 248, 255, 0.13);",
+        backgroundColor: "rgb(240, 242, 245);",
       }}
     >
       {isDesktop ? <Header /> : <Mobileheader />}
@@ -253,12 +253,11 @@ const Detail = () => {
           mb={3}
           sx={{
             backgroundColor: "rgba(255,255,255,0.75)",
-            // backdropFilter: "blur(15px)",
             border: "1px solid #fff",
             borderBottom: "1px solid rgba(255,255,255,0.50)",
             borderRight: "1px solid rgba(255,255,255,0.50)",
             boxShadow: "0 25px 50px rgba(0,0,0,0.1)",
-            height: "700px",
+            height: ["140px", "700px"],
             borderRadius: "10px",
             overflowY: "scroll",
             overflowX: "hidden",
@@ -271,7 +270,7 @@ const Detail = () => {
               borderRadius: "10px",
             },
             "&::-webkit-scrollbar-thumb": {
-              background: "rgba(134, 248, 255, 0.13)",
+              background: "rgb(240, 242, 245)",
               borderRadius: "20px",
               border: "2px solid #F6F6F6",
             },
@@ -280,44 +279,58 @@ const Detail = () => {
             },
           }}
         >
-          <Text mx="auto" mt={4} fontSize="20px">
+          <Text mx="auto" mt={4} mb={2} fontSize="20px">
             จำนวนข้อทั้งหมด: {quizdetail.length}
           </Text>
-          {quizdetail.map((question, index) => {
-            return (
-              <Box key={index}>
-                <Button
-                  key={index}
-                  mx="auto"
-                  mr={4}
-                  mt={4}
-                  mb={2}
-                  p={14}
-                  sx={{
-                    display: "flex",
-                    justifyContent: "center",
-                    border: "1px solid #C1D7AE",
-                    borderRadius: "20px",
-                    cursor: "pointer",
-                  }}
-                  width={1}
-                  fontSize={2}
-                  backgroundColor={loadquestion === index ? "green" : "white"}
-                  type="button"
-                  onClick={() => selectquestion(index)}
-                >
-                  <Text
+          {isDesktop ? (
+            quizdetail.map((question, index) => {
+              return (
+                <Box key={index}>
+                  <Button
+                    key={index}
+                    mx="auto"
+                    mr={4}
+                    mt={4}
+                    mb={2}
+                    p={14}
                     sx={{
-                      color: " #000",
-                      fontSize: "20px",
+                      display: "flex",
+                      justifyContent: "center",
+                      border: "1px solid #C1D7AE",
+                      borderRadius: "20px",
+                      cursor: "pointer",
                     }}
+                    width={1}
+                    fontSize={2}
+                    backgroundColor={loadquestion === index ? "green" : "white"}
+                    type="button"
+                    onClick={() => selectquestion(index)}
                   >
-                    ข้อที่ {index + 1}
-                  </Text>
-                </Button>
-              </Box>
-            );
-          })}
+                    <Text
+                      sx={{
+                        color: " #000",
+                        fontSize: "20px",
+                      }}
+                    >
+                      ข้อที่ {index + 1}
+                    </Text>
+                  </Button>
+                </Box>
+              );
+            })
+          ) : (
+            <Select
+              id="choice"
+              name="choice"
+              defaultValue="ทั้งหมด"
+              onChange={(event) => selectquestion(event.target.selectedIndex)}
+              backgroundColor="white"
+            >
+              {quizdetail.map((room, index) => (
+                <option key={index}>ข้อที่ {index + 1}</option>
+              ))}
+            </Select>
+          )}
         </Box>
         <Flex flexDirection="column" width="100%">
           <Box
@@ -443,7 +456,6 @@ const Detail = () => {
                 p={12}
                 sx={{
                   display: "flex",
-                  whiteSpace: "nowrap",
                   borderRadius: "20px",
                   justifyContent: "center",
                   cursor: "pointer",

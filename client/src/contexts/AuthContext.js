@@ -8,6 +8,7 @@ import _ from "lodash";
 const AuthContext = createContext({
   currentUser: null,
   registeremail: () => Promise,
+  editprofile: () => Promise,
   loginemail: () => Promise,
   googlelogin: () => Promise,
   resetpassword: () => Promise,
@@ -62,6 +63,33 @@ export const AuthProvider = ({ children }) => {
     }
   }
 
+  async function editprofile(username, imageFile) {
+    const formData = new FormData();
+    formData.append("userid", currentUser.user_id);
+    formData.append("image", imageFile);
+    formData.append("username", username);
+    api
+      .post("/editprofile", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
+      .then((response) => {
+        localStorage.setItem("user", JSON.stringify(response.data));
+        setCurrentuser(response.data);
+        addToast("Edit success!!", {
+          appearance: "success",
+          autoDismiss: true,
+        });
+      })
+      .catch((error) => {
+        addToast(error.response.data.message, {
+          appearance: "error",
+          autoDismiss: true,
+        });
+      });
+  }
+
   async function resetpassword(email) {
     api.post("/resetpassword", { email: email }).catch((error) => {
       addToast(error.response.data.message, {
@@ -107,13 +135,17 @@ export const AuthProvider = ({ children }) => {
       });
   }
   async function googlelogin(email, username, image, password) {
-    console.log(image, "image");
-    const response = await fetch(image, {
-      responseType: "blob",
-    });
-    const imageBlob = await response.blob();
     const formData = new FormData();
-    formData.append("image", imageBlob, "image.jpg");
+    if (image) {
+      const response = await fetch(
+        "https://cors-anywhere.herokuapp.com/" + image,
+        {
+          responseType: "blob",
+        }
+      );
+      const imageBlob = await response.blob();
+      formData.append("image", imageBlob, "image.jpg");
+    }
     formData.append("email", email);
     formData.append("username", username);
     formData.append("password", password);
@@ -125,7 +157,7 @@ export const AuthProvider = ({ children }) => {
       })
       .then((response) => {
         const user = response.data;
-        
+
         localStorage.setItem("user", JSON.stringify(user));
         setCurrentuser(user);
         addToast("Login success!!", {
@@ -222,6 +254,7 @@ export const AuthProvider = ({ children }) => {
   const value = {
     currentUser,
     registeremail,
+    editprofile,
     loginemail,
     googlelogin,
     resetpassword,

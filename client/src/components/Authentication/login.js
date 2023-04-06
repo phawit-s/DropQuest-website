@@ -26,7 +26,6 @@ const Login = () => {
         const auth2 = gapi.auth2.getAuthInstance();
         const check = auth2.isSignedIn.get();
         // Sign out the user
-        console.log(check, "checkfwerw");
         if (check) {
           
           setProfile(null);
@@ -87,25 +86,19 @@ const Login = () => {
   return (
     <Box sx={{ backgroundColor: "red" }}>
       <Card
-        width={["100%", 2 / 4, 1 / 4]}
+        width={["80%", 2 / 4, 1 / 4]}
         py={4}
         sx={{
-          position: "absolute" /* or absolute */,
+          position: "absolute",
           top: "50%",
           left: "50%",
-          /* bring your own prefixes */
           transform: "translate(-50%, -50%)",
           borderRadius: "10px",
           fontWeight: "500",
           fontSize: "20px",
           backgroundColor: "rgba(255,255,255,0.50)",
-          // backdropFilter: "blur(15px)",
           border: "1px solid #ced4da",
-          borderBottom: "1px solid rgba(255,255,255,0.50)",
-          borderRight: "1px solid rgba(255,255,255,0.50)",
-          // boxShadow: "0 25px 50px rgba(0,0,0,0.1)",
-          // gap: "30px",
-          boxShadow: "0px 1px 10px 2px #23aaff;",
+          boxShadow: "0px 3px 10px 2px rgb(240, 242, 245);",
         }}
       >
         <Box m={3} mx={56}>
@@ -208,7 +201,7 @@ const Login = () => {
           <Text
             ml={1}
             sx={{
-              color: "rgba(255, 0, 0, 0.67);",
+              color: "#1e95d4;",
               textDecoration: "underline",
               cursor: "pointer",
               ":hover": {

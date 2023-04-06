@@ -168,6 +168,61 @@ conn
             }
           });
         });
+        app.post("/editprofile", upload.single("image"), (req, res) => {
+          const userid = req.body.userid;
+          const username = req.body.username;
+          const image = req.file;
+          const imageBuffer = image.buffer;
+
+          sharp(imageBuffer)
+            .resize(100, 100)
+            .toBuffer()
+            .then((data) => {
+              const imageBuffer = data;
+              const sql =
+                "UPDATE users SET username = ?, image = ? WHERE user_id = ?";
+              const values = [username, imageBuffer, userid];
+
+              db.query(sql, values, (err, result) => {
+                if (err) {
+                  console.log(err);
+                  res.status(500).send({ message: "Error updating profile" });
+                } else {
+                  const selectSql =
+                    "SELECT email, username, image, user_id, googlestatus FROM users WHERE user_id = ?";
+                  const selectValues = [userid];
+
+                  db.query(
+                    selectSql,
+                    selectValues,
+                    (selectErr, selectResult) => {
+                      if (selectErr) {
+                        console.log(selectErr);
+                        res
+                          .status(500)
+                          .send({
+                            message: "Error fetching updated user data",
+                          });
+                      } else {
+                        res.status(200).send({
+                          message: "Logged in",
+                          email: selectResult[0]?.email,
+                          username: selectResult[0]?.username,
+                          image: selectResult[0]?.image,
+                          user_id: selectResult[0]?.user_id,
+                          status: selectResult[0]?.googlestatus,
+                        });
+                      }
+                    }
+                  );
+                }
+              });
+            })
+            .catch((err) => {
+              console.log(err);
+              res.status(500).send({ message: "Error resizing image" });
+            });
+        });
 
         app.post("/create", upload.single("image"), (req, res) => {
           const email = req.body.email;
@@ -213,9 +268,10 @@ conn
           const password = req.body.password;
           const image = req.file;
           const imageBuffer = image.buffer;
-        
+
           // Check if email already exists in database
-          const checkUserSql = "SELECT * FROM users WHERE email = ? and password = ?";
+          const checkUserSql =
+            "SELECT * FROM users WHERE email = ? and password = ?";
           const checkUserValues = [email, password];
           db.query(checkUserSql, checkUserValues, (err, result) => {
             if (err) {
@@ -286,7 +342,6 @@ conn
             }
           });
         });
-        
 
         app.post("/login", (req, res) => {
           const email = req.body.email;

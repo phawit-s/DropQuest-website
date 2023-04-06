@@ -84,8 +84,7 @@ const Home = () => {
       overflow="hidden"
       minHeight="100vh"
       sx={{
-        backgroundColor: "rgba(134, 248, 255, 0.13);",
-
+        backgroundColor: "rgb(240, 242, 245)",
       }}
     >
       {isDesktop ? <Header /> : <Mobileheader />}

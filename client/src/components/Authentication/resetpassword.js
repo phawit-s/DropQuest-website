@@ -19,6 +19,7 @@ const Resetpassword = () => {
             appearance: "success",
             autoDismiss: true,
           });
+          
         })
         .catch((error) => {
           addToast(error.message, {
@@ -82,7 +83,7 @@ const Resetpassword = () => {
             }}
             width={3 / 4}
             fontSize={2}
-            backgroundColor="rgba(255, 0, 0, 0.24);"
+            backgroundColor="#23aaff;"
             type="button"
             onClick={resetsubmit}
           >
@@ -104,7 +105,7 @@ const Resetpassword = () => {
             sx={{
               width: "70%",
               height: "20px",
-              borderBottom: "1px solid rgba(255, 0, 0, 0.24)",
+              borderBottom: "1px solid #23aaff",
               textAlign: "center",
             }}
           ></Box>

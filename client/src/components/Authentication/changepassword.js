@@ -21,20 +21,17 @@ const ChangePassword = () => {
     const change = changepassword(token, password);
     try {
       if (change) {
-        addToast("Register success!!", {
-          appearance: "success",
-          autoDismiss: true,
-        }).then(() => {
-          history.push({
-            pathname: `/login`,
-          });
-        });
+        window.location.replace("/login");
       }
     } catch (err) {
       alert(err);
     }
   };
-
+  const goback = () => {
+    history.push({
+      pathname: `/login`,
+    });
+  };
   return (
     <Box>
       <Box m={6} ml="auto" mr="auto" width={[4 / 5, 4 / 5, 2 / 5]}>
@@ -82,7 +79,7 @@ const ChangePassword = () => {
             }}
             width={3 / 4}
             fontSize={2}
-            backgroundColor="rgba(255, 0, 0, 0.24);"
+            backgroundColor="#23aaff"
             type="button"
             onClick={resetsubmit}
           >
@@ -95,6 +92,22 @@ const ChangePassword = () => {
               ยืนยัน
             </Text>
           </Button>
+          <Box
+            mx="auto"
+            sx={{
+              width: "70%",
+              height: "20px",
+              borderBottom: "1px solid #23aaff",
+              textAlign: "center",
+            }}
+          />
+          <Text
+            mt={3}
+            sx={{ textAlign: "center", cursor: "pointer" }}
+            onClick={goback}
+          >
+            เข้าสู่ระบบ
+          </Text>
         </Card>
       </Box>
     </Box>
