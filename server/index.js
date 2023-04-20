@@ -569,7 +569,6 @@ conn
                   // Get the inserted group id
                   const groupId = result.insertId;
                   const data = JSON.parse(req.body.questiondata);
-
                   // Insert data into question_list table and question_list_has_question_group table
                   const questionListPromises = data.map((question) => {
                     return new Promise((resolve, reject) => {
@@ -596,7 +595,7 @@ conn
                                 question.choice2,
                                 question.choice3,
                                 question.choice4,
-                                question.correct,
+                                question.correct_choice,
                               ],
                               (err, result) => {
                                 if (err) {
@@ -861,7 +860,7 @@ conn
 
         // start the server
         const port = 4001;
-        app.listen(port, 'dropquest.it.kmitl.ac.th' , function () {
+        app.listen(port, 'dropquest.it.kmitl.ac.th' ,function () {
           console.log(`Server listening on port ${port}`);
         });
       }

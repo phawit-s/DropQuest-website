@@ -23,7 +23,6 @@ const CreateQuestion = () => {
   const { addToast } = useToasts();
   const history = useHistory();
   const [dataquestion, setDataQuestion] = useState([]);
-  const [favouritedataquestion, setFavouriteDataQuestion] = useState([]);
   const [samequestion, setSamequestion] = useState([]);
   const [checksamequestion, setChecksamequestion] = useState([]);
   const [datacheckquestion, setDataCheckquestion] = useState([]);
@@ -84,7 +83,7 @@ const CreateQuestion = () => {
     console.log("Using Question", savenumber);
   }, [
     dataquestion,
-    favouritedataquestion,
+    favouritequestion,
     datacheckquestion,
     samequestion,
     savenumber,
@@ -93,9 +92,6 @@ const CreateQuestion = () => {
   useEffect(() => {
     if (question) {
       setDataQuestion([...question]);
-    }
-    if (favouritequestion) {
-      setFavouriteDataQuestion([...favouritequestion]);
     }
   }, []);
 
@@ -296,12 +292,12 @@ const CreateQuestion = () => {
   };
   const usefavquestion = (favindex) => {
     const sent = {
-      question_name: favouritedataquestion[favindex].question_name,
-      choice1: favouritedataquestion[favindex].choice1,
-      choice2: favouritedataquestion[favindex].choice2,
-      choice3: favouritedataquestion[favindex].choice3,
-      choice4: favouritedataquestion[favindex].choice4,
-      correct_choice: favouritedataquestion[favindex].correct_choice,
+      question_name: favouritequestion[favindex].question_name,
+      choice1: favouritequestion[favindex].choice1,
+      choice2: favouritequestion[favindex].choice2,
+      choice3: favouritequestion[favindex].choice3,
+      choice4: favouritequestion[favindex].choice4,
+      correct_choice: favouritequestion[favindex].correct_choice,
     };
     const isQuestionSent = dataquestion.some(
       (item) => item.question_name === sent.question_name
@@ -1092,7 +1088,7 @@ const CreateQuestion = () => {
           >
             <AiOutlineClose />
           </Box>
-          {favouritedataquestion.map((question, index) => {
+          {favouritequestion.map((question, index) => {
             if (favindex === index) {
               return (
                 <Box key={index}>

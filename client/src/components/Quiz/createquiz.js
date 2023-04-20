@@ -149,7 +149,7 @@ const CreateQuiz = () => {
       });
       setErrorQuizname(!errorquizname);
       setOpenmodal(false);
-    } else if (result.length !== 0 && samename === undefined) {
+    } else if (result.length !== undefined && samename === undefined) {
       addToast("ชื่อแบบทดสอบถูกใช้ไปแล้ว", {
         appearance: "error",
         autoDismiss: true,
@@ -185,6 +185,7 @@ const CreateQuiz = () => {
       setErrorScore(true);
       setErrorTime(true);
       setErrorDescription(true);
+      console.log(question, questiondata);
       editquiz(updatedata, question, quizid).then(() => {
         history.push({
           pathname: `/`,
@@ -203,10 +204,10 @@ const CreateQuiz = () => {
       description: description.current.value,
     };
 
+    console.log(quizdata, question, photo, "quizdata, question, photo", "test");
     const result = alltopic.find(
       ({ g_name }) => g_name === quizname.current.value
     );
-      console.log(result, "check", quizname.current.value);
     if (quizname.current.value === "") {
       addToast("กรุณากรอกชื่อแบบทดสอบ", {
         appearance: "error",
@@ -246,6 +247,7 @@ const CreateQuiz = () => {
       alert("คำถามยังไม่ถูกสร้าง");
       setOpenmodal(false);
     } else {
+      
       setErrorQuizname(true);
       setErrorScore(true);
       setErrorTime(true);
