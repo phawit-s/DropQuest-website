@@ -136,16 +136,16 @@ export const AuthProvider = ({ children }) => {
   }
   async function googlelogin(email, username, image, password) {
     const formData = new FormData();
-    if (image) {
-      const response = await fetch(
-        "https://cors-anywhere.herokuapp.com/" + image,
-        {
-          responseType: "blob",
-        }
-      );
-      const imageBlob = await response.blob();
-      formData.append("image", imageBlob, "image.jpg");
-    }
+    const imageUrl =
+      "https://www.nicepng.com/png/detail/933-9332131_profile-picture-default-png.png";
+    const proxyUrl = "https://cors-anywhere.herokuapp.com/";
+
+    const response = await fetch(proxyUrl + imageUrl, {
+      responseType: "blob",
+    });
+
+    const imageBlob = await response.blob();
+    formData.append("image", imageBlob, "image.jpg");
     formData.append("email", email);
     formData.append("username", username);
     formData.append("password", password);

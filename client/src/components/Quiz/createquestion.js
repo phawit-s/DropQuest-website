@@ -41,6 +41,7 @@ const CreateQuestion = () => {
   const [checkmodal, setCheckmodal] = useState(false);
   const [nextquestion, setNextquestion] = useState(0);
   const [changequestion, setChangequestion] = useState("");
+  const [favouritequestion, setFavouriteQuestion] = useState([]);
   const questiontopic = useRef();
   const questionchoice1 = useRef();
   const questionchoice2 = useRef();
@@ -53,9 +54,9 @@ const CreateQuestion = () => {
   const refchoice3 = [];
   const refchoice4 = [];
   const getproductstorage = window.localStorage.getItem("Question");
-  const getfavourite = window.localStorage.getItem("Favourite Question");
+  // const getfavourite = window.localStorage.getItem("Favourite Question");
+  // const favouritequestion = getfavourite ? JSON.parse(getfavourite) : [];
   const question = getproductstorage ? JSON.parse(getproductstorage) : [];
-  const favouritequestion = getfavourite ? JSON.parse(getfavourite) : [];
   const [isDesktop, setIsDesktop] = useState(window.innerWidth > 768);
 
   useEffect(() => {
@@ -66,6 +67,13 @@ const CreateQuestion = () => {
     return () => {
       window.removeEventListener("resize", handleResize);
     };
+  }, []);
+
+  useEffect(() => {
+    // Update the state with the initial value from localStorage
+    setFavouriteQuestion(
+      JSON.parse(localStorage.getItem("Favourite Question"))
+    );
   }, []);
 
   useEffect(() => {
@@ -272,18 +280,18 @@ const CreateQuestion = () => {
       }
     }
   };
-  const deletefavquestion = (favindex) => {
+  const deletefavquestion = (question, favindex) => {
     let updatedQuestions = [...favouritequestion];
-    const existingIndex = updatedQuestions.findIndex(
-      (q) => q.question === favouritedataquestion[favindex].question
+    const newQuestion = updatedQuestions.filter(
+      (obj) => JSON.stringify(obj) !== JSON.stringify(question)
     );
-    if (existingIndex !== -1) {
-      updatedQuestions.splice(existingIndex, 1);
-    }
-    setFavouriteDataQuestion(updatedQuestions);
+
     window.localStorage.setItem(
       "Favourite Question",
-      JSON.stringify(updatedQuestions)
+      JSON.stringify(newQuestion)
+    );
+    setFavouriteQuestion(
+      JSON.parse(localStorage.getItem("Favourite Question"))
     );
   };
   const usefavquestion = (favindex) => {
@@ -1185,17 +1193,19 @@ const CreateQuestion = () => {
             flexDirection: "column",
           }}
         >
-          {favouritedataquestion.length !== 0 ? (
+          {favouritequestion.length !== 0 ? (
             <Scrollbars
               style={{ width: "100%", height: "100%", overflow: "hidden" }}
             >
-              {favouritedataquestion.map((question, index) => {
+              {favouritequestion.map((question, index) => {
                 return (
                   <Box
                     mt={3}
                     p={4}
                     key={index}
                     sx={{
+                      display: "flex", // Add display: flex to create a flexbox
+                      justifyContent: "space-between", // Add justify-content to create space between the main box and the trash icon
                       backgroundColor: "rgba(255,255,255,1)",
                       border: "1px solid rgba(0,0,0,0.3)",
                       borderRadius: "5px",
@@ -1216,20 +1226,20 @@ const CreateQuestion = () => {
                     >
                       {question.question_name}
                     </Text>
-                    {/* <Box
+                    <Box
                       onClick={(e) => {
                         e.stopPropagation();
-                        deletefavquestion(index);
+                        deletefavquestion(question, index);
                       }}
                       sx={{
                         position: "relative",
-                        bottom: "10px",
-                        right: "0px",
+                        bottom: "0px",
+                        right: "10px",
                         cursor: "pointer",
                       }}
                     >
                       <FaTrash />
-                    </Box> */}
+                    </Box>
                   </Box>
                 );
               })}

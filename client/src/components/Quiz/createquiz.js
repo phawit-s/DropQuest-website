@@ -20,7 +20,7 @@ const CreateQuiz = () => {
   const score = useRef();
   const description = useRef();
   const [photo, setPhoto] = useState(null);
-  const [checkquestion, setCheckquestion] = useState([]);
+  const [alltopic, setAlltopic] = useState([]);
   const [questiondata, setQuestiondata] = useState([]);
   const [quizdata, setQuizdata] = useState("");
   const [open, setOpen] = useState(false);
@@ -54,7 +54,9 @@ const CreateQuiz = () => {
   useEffect(() => {
     console.log("Loading questiondata", questiondata);
     console.log("Loading Editdata", quizdata);
-  }, [questiondata, quizdata]);
+    console.log("Loading All Topic", alltopic);
+  }, [questiondata, quizdata, alltopic]);
+
   useEffect(() => {
     const handleBeforeUnload = (event) => {
       event.preventDefault();
@@ -94,6 +96,17 @@ const CreateQuiz = () => {
     }
   }, []);
 
+  useEffect(() => {
+    api
+      .post("/allquiztopic")
+      .then((response) => {
+        setAlltopic(response.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, []);
+
   if (!currentUser) {
     return <Redirect to="/login" />;
   }
@@ -114,7 +127,7 @@ const CreateQuiz = () => {
   };
 
   const updateandsave = () => {
-    const quizdata = {
+    const updatedata = {
       groupname: quizname.current.value,
       category: category.current.value,
       releasedate: todayDate,
@@ -122,11 +135,62 @@ const CreateQuiz = () => {
       timer: timer.current.value,
       description: description.current.value,
     };
-    editquiz(quizdata, question, quizid).then(() => {
-      history.push({
-        pathname: `/`,
+
+    const result = alltopic.find(
+      ({ g_name }) => g_name === quizname.current.value
+    );
+    const samename =  quizdata.find(
+      ({ g_name }) => g_name === quizname.current.value
+    );
+    if (quizname.current.value === "") {
+      addToast("กรุณากรอกชื่อแบบทดสอบ", {
+        appearance: "error",
+        autoDismiss: true,
       });
-    });
+      setErrorQuizname(!errorquizname);
+      setOpenmodal(false);
+    } else if (result.length !== 0 && samename === undefined) {
+      addToast("ชื่อแบบทดสอบถูกใช้ไปแล้ว", {
+        appearance: "error",
+        autoDismiss: true,
+      });
+      setErrorQuizname(!errorquizname);
+      setOpenmodal(false);
+    } else if (score.current.value === "") {
+      addToast("กรุณากรอกระยะเวลาของแต่ละข้อ", {
+        appearance: "error",
+        autoDismiss: true,
+      });
+      setErrorScore(!errorscore);
+      setOpenmodal(false);
+    } else if (timer.current.value === "") {
+      addToast("กรุณากรอกคะแนนของแต่ละข้อ", {
+        appearance: "error",
+        autoDismiss: true,
+      });
+      setErrorTime(!errortime);
+      setOpenmodal(false);
+    } else if (description.current.value === "") {
+      addToast("กรุณากรอกคำอธิบาย", {
+        appearance: "error",
+        autoDismiss: true,
+      });
+      setErrorDescription(!errordescription);
+      setOpenmodal(false);
+    } else if (questiondata.length === 0) {
+      alert("คำถามยังไม่ถูกสร้าง");
+      setOpenmodal(false);
+    } else {
+      setErrorQuizname(true);
+      setErrorScore(true);
+      setErrorTime(true);
+      setErrorDescription(true);
+      editquiz(updatedata, question, quizid).then(() => {
+        history.push({
+          pathname: `/`,
+        });
+      });
+    }
   };
 
   const createandsave = () => {
@@ -139,8 +203,19 @@ const CreateQuiz = () => {
       description: description.current.value,
     };
 
+    const result = alltopic.find(
+      ({ g_name }) => g_name === quizname.current.value
+    );
+      console.log(result, "check", quizname.current.value);
     if (quizname.current.value === "") {
       addToast("กรุณากรอกชื่อแบบทดสอบ", {
+        appearance: "error",
+        autoDismiss: true,
+      });
+      setErrorQuizname(!errorquizname);
+      setOpenmodal(false);
+    } else if (result !== undefined) {
+      addToast("ชื่อแบบทดสอบถูกใช้ไปแล้ว", {
         appearance: "error",
         autoDismiss: true,
       });
@@ -286,7 +361,7 @@ const CreateQuiz = () => {
             borderRadius: "20px",
           }}
           height="200px"
-          width={1 / 3}
+          width={[2 / 3, 1 / 3]}
           px={4}
           pt={4}
         >
@@ -307,8 +382,8 @@ const CreateQuiz = () => {
                 borderRadius: "20px",
                 cursor: "pointer",
               }}
-              width={3 / 4}
-              fontSize={2}
+              width={[1, 3 / 4]}
+              fontSize={[1, 2]}
               backgroundColor="#daddd8"
               type="button"
               onClick={modalsaveClose}
@@ -334,8 +409,8 @@ const CreateQuiz = () => {
                 borderRadius: "20px",
                 cursor: "pointer",
               }}
-              width={3 / 4}
-              fontSize={2}
+              width={[1, 3 / 4]}
+              fontSize={[1, 2]}
               backgroundColor="green"
               type="button"
               onClick={quizdata.length !== 0 ? updateandsave : createandsave}

@@ -18,7 +18,7 @@ const Myroom = () => {
   const [roomdetail, setRoomdetail] = useState([]);
   const [allroom, setAllroom] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [favorite, setFavorite] = useState(false);
+  const [roomname, setRoomname] = useState("");
   const [opensave, setOpensave] = useState(false);
   const [loadroom, setLoadRoom] = useState(0);
   const [loadindex, setLoadindex] = useState(0);
@@ -44,6 +44,7 @@ const Myroom = () => {
     console.log("All detail", roomdetail);
     if (allroom && allroom.length > 0) {
       setEnddate(allroom[0].enddate);
+      setRoomname(allroom[0].name);
     }
     if (roomdetail && roomdetail.length > 0) {
       setLoadRoom(roomdetail[0].room_room_id);
@@ -85,6 +86,13 @@ const Myroom = () => {
     setLoadindex(checkindex);
     setEnddate(allroom[checkindex].enddate);
   };
+  const gotosummary = (roomid) => {
+    history.push({
+      pathname: `/summary`,
+      state: { roomid: roomid },
+    });
+  };
+
   useEffect(() => {
     function calculateTimeLeft() {
       const difference = new Date(enddate) - new Date();
@@ -107,6 +115,7 @@ const Myroom = () => {
 
     return () => clearInterval(intervalId);
   }, [loadroom, enddate]);
+
   if (!currentUser) {
     return <Redirect to="/login" />;
   }
@@ -207,7 +216,7 @@ const Myroom = () => {
         <Box
           width={[1, 1, 1 / 5]}
           px={4}
-          ml={[0, 1]}
+          ml={[0, 0]}
           mb={3}
           sx={{
             backgroundColor: "rgba(255,255,255,0.75)",
@@ -309,7 +318,7 @@ const Myroom = () => {
           <Box
             width={[1, 1]}
             ml={[0, 4]}
-            mr={4}
+            mr={1}
             sx={{
               backgroundColor: "rgba(255,255,255,1)",
               borderBottom: "1px solid rgba(255,255,255,0.50)",
@@ -344,17 +353,57 @@ const Myroom = () => {
             <Text ml={4} my={4} fontSize="26px">
               เซคชั่นทั้งหมด
             </Text>
-            {roomdetail.map((room, index) => {
-              if (room.room_room_id === loadroom) {
-                return (
-                  <Box sx={{ ml: 4, mt: 3 }} key={index}>
-                    <Text ml={[0, 4]} mb={4} fontSize="22px">
-                      Code : {room.course_code}
-                    </Text>
-                  </Box>
-                );
-              }
-            })}
+            {roomdetail.length === 0 ? (
+              <Text ml={[0, 4]} mb={4} fontSize="22px">
+                ไม่มีห้องที่ถูกสร้างขึ้น
+              </Text>
+            ) : (
+              roomdetail.map((room, index) => {
+                if (room.room_room_id === loadroom) {
+                  return (
+                    <Box sx={{ ml: 4, mt: 3 }} key={index}>
+                      <Text ml={[0, 4]} mb={4} fontSize="22px">
+                        Code : {room.course_code}
+                      </Text>
+                    </Box>
+                  );
+                }
+              })
+            )}
+
+            {roomdetail.length === 0 ? (
+              ""
+            ) : (
+              <Button
+                mr={[0, 4]}
+                mt={4}
+                p={14}
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  cursor: "pointer",
+                  position: "absolute",
+                  right: 60,
+                  border: "1px solid black",
+                  borderRadius: "10px",
+                }}
+                width={[2 / 5, 1 / 5]}
+                fontSize={3}
+                backgroundColor="rgb(240, 242, 245);"
+                type="button"
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => gotosummary(loadroom)}
+              >
+                <Text
+                  sx={{
+                    color: "#000",
+                    fontSize: "16px",
+                  }}
+                >
+                  ดูคะแนน
+                </Text>
+              </Button>
+            )}
           </Box>
         </Flex>
       </Flex>

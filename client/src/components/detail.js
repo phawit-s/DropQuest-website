@@ -227,18 +227,18 @@ const Detail = () => {
       {quiztopic.map((topic, index) => {
         return (
           <Box px={4} key={index}>
-            <Text as="span" fontSize={[2, 3]}>
+            <Text as="span" fontSize={["20px", 3]}>
               ชื่อแบบทดสอบ : {topic.g_name} โดย ({topic.username})
             </Text>
 
-            <Text mt={3} fontSize={[2, 3]}>
+            <Text mt={3} fontSize={["20px", 3]}>
               คำอธิบายแบบทดสอบ: {topic.question_description}
             </Text>
             <Flex>
-              <Text mt={3} fontSize={[2, 3]} mr={4}>
+              <Text mt={3} fontSize={["20px", 3]} mr={4}>
                 เวลาของแต่ละข้อ: {topic.question_time} วินาที
               </Text>
-              <Text mt={3} fontSize={[2, 3]}>
+              <Text mt={3} fontSize={["20px", 3]}>
                 คะแนนของแต่ละข้อ: {topic.question_score} คะแนน
               </Text>
             </Flex>
@@ -353,11 +353,11 @@ const Detail = () => {
               if (index === loadquestion) {
                 return (
                   <Box sx={{ ml: 4, mt: 3 }} key={index}>
-                    <Text ml={4} my={4} fontSize="26px">
+                    <Text ml={[2,4]} my={4} fontSize={["24px","26px"]}>
                       {question.question_name}
                     </Text>
                     <Text
-                      ml={[0, 4]}
+                      ml={[2, 4]}
                       mb={4}
                       fontSize="22px"
                       color={question.correct_choice === 1 ? "green" : "black"}
@@ -365,7 +365,7 @@ const Detail = () => {
                       1. {question.choice1}
                     </Text>
                     <Text
-                      ml={[0, 4]}
+                      ml={[2, 4]}
                       mb={4}
                       fontSize="22px"
                       color={question.correct_choice === 2 ? "green" : "black"}
@@ -373,7 +373,7 @@ const Detail = () => {
                       2. {question.choice2}
                     </Text>
                     <Text
-                      ml={[0, 4]}
+                      ml={[2, 4]}
                       mb={4}
                       fontSize="22px"
                       color={question.correct_choice === 3 ? "green" : "black"}
@@ -381,7 +381,7 @@ const Detail = () => {
                       3. {question.choice3}
                     </Text>
                     <Text
-                      ml={[0, 4]}
+                      ml={[2, 4]}
                       mb={4}
                       fontSize="22px"
                       color={question.correct_choice === 4 ? "green" : "black"}

@@ -71,6 +71,61 @@ conn
           );
         });
 
+        app.post("/allsession", function (req, res) {
+          const roomid = req.body.roomid;
+          db.query(
+            "SELECT distinct course_code, course_id From course where course.room_room_id = ?;",
+            [roomid],
+            (err, result) => {
+              if (err) {
+                console.log(err);
+              } else {
+                res.send(result);
+              }
+            }
+          );
+        });
+
+        app.post("/sessioninfo", function (req, res) {
+          const roomid = req.body.roomid;
+          db.query(
+            "SELECT student_name, score, course_id, course_code FROM studentlist join studentlist_has_course ON studentlist.student_id = studentlist_has_course.studentlist_student_id join course ON studentlist_has_course.course_course_id = course.course_id where course.room_room_id = ?;",
+            [roomid],
+            (err, result) => {
+              if (err) {
+                console.log(err);
+              } else {
+                res.send(result);
+              }
+            }
+          );
+        });
+
+        app.post("/roominfo", function (req, res) {
+          const roomid = req.body.roomid;
+          db.query(
+            "SELECT name, startdate,enddate FROM room where room_id = ?;",
+            [roomid],
+            (err, result) => {
+              if (err) {
+                console.log(err);
+              } else {
+                res.send(result);
+              }
+            }
+          );
+        });
+
+        app.post("/allquiztopic", function (req, res) {
+          db.query("SELECT g_name FROM question_group;", (err, result) => {
+            if (err) {
+              console.log(err);
+            } else {
+              res.send(result);
+            }
+          });
+        });
+
         app.post("/myroom", function (req, res) {
           const userid = req.body.userid;
           db.query(
@@ -198,11 +253,9 @@ conn
                     (selectErr, selectResult) => {
                       if (selectErr) {
                         console.log(selectErr);
-                        res
-                          .status(500)
-                          .send({
-                            message: "Error fetching updated user data",
-                          });
+                        res.status(500).send({
+                          message: "Error fetching updated user data",
+                        });
                       } else {
                         res.status(200).send({
                           message: "Logged in",

@@ -132,9 +132,9 @@ const Myquiz = () => {
                 width: "0px",
                 background: "transparent",
               },
-              "-ms-overflow-style": "none",
-              "scrollbar-width": "none",
-              "-webkit-overflow-scrolling": "touch",
+              msOverflowStyle: "none",
+              scrollbarWidth: "none",
+              WebkitOverflowScrolling: "touch",
             }}
           >
             <Button
@@ -209,19 +209,28 @@ const Myquiz = () => {
             })}
           </Box>
         ) : (
-          <Box
-            mx={4}
-            mb={4}
-          >
-            <Text fontSize={"16px"} mb={2}>เลือกหมวดหมู่</Text>
-            <Select id="category" name="category" defaultValue="ทั้งหมด" onChange={(event) => selectcategory(event.target.selectedIndex + 1, event.target.value)} backgroundColor='white'>
+          <Box mx={4} mb={4}>
+            <Text fontSize={"16px"} mb={2}>
+              เลือกหมวดหมู่
+            </Text>
+            <Select
+              id="category"
+              name="category"
+              defaultValue="ทั้งหมด"
+              onChange={(event) =>
+                selectcategory(
+                  event.target.selectedIndex + 1,
+                  event.target.value
+                )
+              }
+              backgroundColor="white"
+            >
               {allcategory.map((category, index) => (
-                <option key={index} >{category.category_name}</option>
+                <option key={index}>{category.category_name}</option>
               ))}
             </Select>
           </Box>
-        )
-        }
+        )}
         <Box
           width={[1, 4 / 5]}
           mx={4}
@@ -291,7 +300,7 @@ const Myquiz = () => {
                     flexShrink: 0,
                     mb: 4,
                   }}
-                  mx={[2,4]}
+                  mx={[2, 4]}
                   onMouseDown={(e) => e.preventDefault()}
                   onClick={() => gotodetail(quiz.group_id)}
                 >

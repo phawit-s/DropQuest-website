@@ -12,8 +12,9 @@ import Profile from "./components/Authentication/profile";
 import CreateQuiz from "./components/Quiz/createquiz";
 import CreateQuestion from "./components/Quiz/createquestion";
 import Myquiz from "./components/created/myquiz";
-import Createroom from "./components/created/createroom";
+import Createroom from "./components/Quiz/createroom";
 import Myroom from "./components/created/myroom";
+import Score from "./components/summary/score";
 import { ThemeProvider } from "styled-components";
 import theme from "./contexts/theme";
 
@@ -39,6 +40,7 @@ function App() {
               <Route exact path="/myquiz" component={Myquiz} />
               <Route exact path="/createroom" component={Createroom} />
               <Route exact path="/myroom" component={Myroom} />
+              <Route exact path="/summary" component={Score} />
             </Switch>
           </Router>
         </AuthProvider>

@@ -1,15 +1,14 @@
 import React, { useEffect, useState, useRef } from "react";
-import { useLocation, Redirect, useHistory } from "react-router-dom";
+import { Redirect, useHistory } from "react-router-dom";
 import { Box, Heading, Text, Card, Flex, Link, Button, Image } from "rebass";
 import { Label, Input, Select, Textarea, Radio, Checkbox } from "@rebass/forms";
 import { Scrollbars } from "react-custom-scrollbars";
 import { Modal, Typography } from "@mui/material";
 import { useAuth } from "../../contexts/AuthContext";
 import { useToasts } from "react-toast-notifications";
+import api from "../../api";
 import Header from "../Header";
 import Mobileheader from "../Mobileheader";
-import api from "../../api";
-import { AiOutlineStar, AiFillStar } from "react-icons/ai";
 
 const Createroom = () => {
   const { currentUser, createroom } = useAuth();
@@ -25,6 +24,7 @@ const Createroom = () => {
   const [errorname, setErrorname] = useState(false);
   const [errorstartdate, setErrorstartdate] = useState(false);
   const [errorenddate, setErrorenddate] = useState(false);
+  const [errorquiz, setErrorquiz] = useState(false);
   const [quizindex, setQuizindex] = useState(null);
   const [quizid, setQuizid] = useState(0);
   const [numRooms, setNumRooms] = useState(1);
@@ -131,6 +131,14 @@ const Createroom = () => {
         autoDismiss: true,
       });
       setErrorenddate(true);
+      setOpenmodal(false);
+    } 
+    else if (quizindex === null) {
+      addToast("กรุณาเลือกแบบทดสอบ", {
+        appearance: "error",
+        autoDismiss: true,
+      });
+      setErrorquiz(true);
       setOpenmodal(false);
     } else {
       setErrorname(false);
@@ -265,7 +273,7 @@ const Createroom = () => {
               <Flex pt={4}>
                 <Box width={1 / 4} mr={4}>
                   <Label htmlFor="name" fontSize="16px">
-                    ชื่อแบบทดสอบ
+                    ชื่อห้อง
                     <span style={{ color: "red", fontSize: "18px" }}>*</span>
                   </Label>
                 </Box>
@@ -364,6 +372,14 @@ const Createroom = () => {
                   Session {index + 1} : {roomId}
                 </Text>
               ))}
+              {allquiz.length === 0 ? (
+                <Text fontSize="20px" color="red" my={3}>
+                  <span style={{ fontSize: "18px" }}>*</span>
+                  กรุณาเลือกสร้างแบบทดสอบก่อน
+                </Text>
+              ) : (
+                ""
+              )}
               {quizindex !== null ? (
                 ""
               ) : (
@@ -475,7 +491,7 @@ const Createroom = () => {
             }}
           >
             <Flex>
-              <Text fontSize="20px">แบบทดสอบที่เลือก :</Text>
+              <Text fontSize="20px" color={errorquiz ? "red" : "black"}>แบบทดสอบที่เลือก : </Text>
               {allquiz.map((quiz, index) => {
                 if (index === quizindex) {
                   return (
