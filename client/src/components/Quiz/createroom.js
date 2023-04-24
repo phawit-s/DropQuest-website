@@ -30,7 +30,10 @@ const Createroom = () => {
   const [numRooms, setNumRooms] = useState(1);
   const [rooms, setRooms] = useState([]);
   const [isDesktop, setIsDesktop] = useState(window.innerWidth > 768);
-
+  const [selecteQuiz, setSelectquiz] = useState(true);
+  let favouriteQuiz =
+    JSON.parse(window.localStorage.getItem("Favourite Quiz")) || [];
+  let showallquiz = selecteQuiz ? allquiz : favouriteQuiz;
   useEffect(() => {
     const handleResize = () => {
       setIsDesktop(window.innerWidth >= 768);
@@ -132,8 +135,7 @@ const Createroom = () => {
       });
       setErrorenddate(true);
       setOpenmodal(false);
-    } 
-    else if (quizindex === null) {
+    } else if (quizindex === null) {
       addToast("กรุณาเลือกแบบทดสอบ", {
         appearance: "error",
         autoDismiss: true,
@@ -345,6 +347,62 @@ const Createroom = () => {
                 </Box>
               </Flex>
 
+              <Button
+                mx="auto"
+                mr={4}
+                mt={4}
+                mb={2}
+                p={14}
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  border: "1px solid #C1D7AE",
+                  borderRadius: "20px",
+                  cursor: "pointer",
+                }}
+                width={1}
+                fontSize={2}
+                backgroundColor={selecteQuiz ? "green" : "white"}
+                type="button"
+                onClick={() => setSelectquiz(true)}
+              >
+                <Text
+                  sx={{
+                    color: " #000",
+                    fontSize: "20px",
+                  }}
+                >
+                  แบบทดสอบของฉัน
+                </Text>
+              </Button>
+              <Button
+                mx="auto"
+                mr={4}
+                mt={4}
+                p={14}
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  border: "1px solid #C1D7AE",
+                  borderRadius: "20px",
+                  cursor: "pointer",
+                }}
+                width={1}
+                fontSize={2}
+                backgroundColor={selecteQuiz ? "white" : "green"}
+                type="button"
+                onClick={() => setSelectquiz(false)}
+              >
+                <Text
+                  sx={{
+                    color: " #000",
+                    fontSize: "20px",
+                  }}
+                >
+                  แบบทดสอบที่ชื่นชอบ
+                </Text>
+              </Button>
+
               <Flex>
                 <Box width={1 / 2} mr={4} mt={4}>
                   <Label htmlFor="name" fontSize="16px">
@@ -491,8 +549,10 @@ const Createroom = () => {
             }}
           >
             <Flex>
-              <Text fontSize="20px" color={errorquiz ? "red" : "black"}>แบบทดสอบที่เลือก : </Text>
-              {allquiz.map((quiz, index) => {
+              <Text fontSize="20px" color={errorquiz ? "red" : "black"}>
+                แบบทดสอบที่เลือก :{" "}
+              </Text>
+              {showallquiz.map((quiz, index) => {
                 if (index === quizindex) {
                   return (
                     <Text fontSize="20px" key={index}>
@@ -515,7 +575,7 @@ const Createroom = () => {
               },
             }}
           >
-            {allquiz.map((quiz, index) => {
+            {showallquiz.map((quiz, index) => {
               const base64ImageData = Buffer.from(quiz.question_image).toString(
                 "base64"
               );
