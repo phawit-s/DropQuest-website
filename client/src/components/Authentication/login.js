@@ -1,8 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useHistory, Redirect } from "react-router-dom";
-import { Box, Text, Card, Flex, Button, Image } from "rebass";
+import { Box, Text, Card, Flex, Button } from "rebass";
 import { Label, Input } from "@rebass/forms";
-import { FaGoogle, FaFacebookF, FaGithub } from "react-icons/fa";
 import { useAuth } from "../../contexts/AuthContext";
 import { GoogleLogin } from "react-google-login";
 import { gapi } from "gapi-script";
@@ -13,7 +12,6 @@ const Login = () => {
   const passwordref = useRef();
   const [isLogin, setIsLogin] = useState(false);
   const [profile, setProfile] = useState("");
-  const [isSignedIn, setIsSignedin] = useState(false);
   const { loginemail, googlelogin } = useAuth();
   const clientid =
     "104253971362-maefhqpjrko1rdmbcrjeng9r605j3qor.apps.googleusercontent.com";
@@ -53,9 +51,6 @@ const Login = () => {
   const onSuccess = (res) => {
     setProfile(res.profileObj);
     console.log("success", res);
-  };
-  const logout = () => {
-    setProfile(null);
   };
   const onError = (res) => {
     console.log("error", res);

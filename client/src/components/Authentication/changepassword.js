@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useHistory, useParams, Redirect, useLocation } from "react-router-dom";
 import { Box, Text, Card, Flex, Button, Image } from "rebass";
-import { useToasts } from "react-toast-notifications";
 import { Label, Input } from "@rebass/forms";
 import { useAuth } from "../../contexts/AuthContext";
 
@@ -14,7 +13,6 @@ const ChangePassword = () => {
   const history = useHistory();
   const [password, setPassword] = useState("");
   const { changepassword } = useAuth();
-  const { addToast } = useToasts();
   const { token } = useParams();
 
   const resetsubmit = async () => {

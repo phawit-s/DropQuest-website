@@ -1,14 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useHistory, Redirect, useLocation } from "react-router-dom";
-import { Box, Heading, Text } from "rebass";
+import { Box, Text } from "rebass";
 import { Label, Input } from "@rebass/forms";
-import { Scrollbars } from "react-custom-scrollbars";
 import { useAuth } from "../contexts/AuthContext";
-import { useTheme } from "styled-components";
 import Header from "./Header";
 import Mobileheader from "./Mobileheader";
 import api from "../api";
-import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { gapi } from "gapi-script";
@@ -18,7 +15,6 @@ const Home = () => {
   const { currentUser } = useAuth();
   const history = useHistory();
   const location = useLocation();
-  const theme = useTheme();
   const [allquiz, setAllquiz] = useState([]);
   const [favorite, setFavorite] = useState(false);
   const [allcategory, setAllcategory] = useState([]);
@@ -57,8 +53,7 @@ const Home = () => {
   }, []);
 
   useEffect(() => {
-    console.log("Showing all Quiz", allquiz);
-    console.log("Showing all Category", allcategory);
+    console.log("Loading");
   }, [allquiz, allcategory]);
 
   useEffect(() => {

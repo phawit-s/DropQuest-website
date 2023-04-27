@@ -1,19 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { useHistory, useLocation, Redirect } from "react-router-dom";
-import { Box, Heading, Text, Card, Flex, Link, Button, Image } from "rebass";
-import { Label, Input, Select } from "@rebass/forms";
-import { Scrollbars } from "react-custom-scrollbars";
-import { Modal, Typography } from "@mui/material";
-import { useToasts } from "react-toast-notifications";
+import { useHistory, Redirect } from "react-router-dom";
+import { Box, Text, Flex, Button } from "rebass";
+import { Select } from "@rebass/forms";
+import { Modal } from "@mui/material";
 import { useAuth } from "../../contexts/AuthContext";
 import Header from "../Header";
 import Mobileheader from "../Mobileheader";
 import api from "../../api";
-import { AiOutlineStar, AiFillStar } from "react-icons/ai";
 
 const Myroom = () => {
   const { currentUser } = useAuth();
-  const { addToast } = useToasts();
   const history = useHistory();
   const [roomdetail, setRoomdetail] = useState([]);
   const [allroom, setAllroom] = useState([]);
@@ -24,7 +20,6 @@ const Myroom = () => {
   const [loadindex, setLoadindex] = useState(0);
   const [enddate, setEnddate] = useState("");
   const [timeLeft, setTimeLeft] = useState("");
-  const location = useLocation();
   const [isDesktop, setIsDesktop] = useState(window.innerWidth > 768);
 
   useEffect(() => {
@@ -36,12 +31,10 @@ const Myroom = () => {
       window.removeEventListener("resize", handleResize);
     };
   }, []);
-  let favoriteQuestions =
-    JSON.parse(window.localStorage.getItem("Favourite Question")) || [];
+
 
   useEffect(() => {
-    console.log("Showing all Room", allroom);
-    console.log("All detail", roomdetail);
+    console.log("Loading");
     if (allroom && allroom.length > 0) {
       setEnddate(allroom[0].enddate);
       setRoomname(allroom[0].name);
@@ -80,8 +73,6 @@ const Myroom = () => {
   const modalsaveClose = () => setOpensave(false);
   const modalsaveOpen = () => setOpensave(true);
   const selectroom = (index, checkindex) => {
-    console.log(index, checkindex);
-    console.log("Select Room ", index);
     setLoadRoom(index);
     setLoadindex(checkindex);
     setEnddate(allroom[checkindex].enddate);
@@ -212,7 +203,7 @@ const Myroom = () => {
         </Text>
       </Box>
 
-      <Flex mt={4} ml={[0, 4]} flexDirection={["column", "row"]}>
+      <Flex mt={4} ml={[0, 4]} flexDirection={["column", "column", "row"]}>
         <Box
           width={[1, 1, 1 / 5]}
           px={4}
@@ -317,7 +308,7 @@ const Myroom = () => {
         <Flex flexDirection="column" width="100%">
           <Box
             width={[1, 1]}
-            ml={[0, 4]}
+            ml={[0, 0, 4]}
             mr={1}
             sx={{
               backgroundColor: "rgba(255,255,255,1)",

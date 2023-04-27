@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { useHistory, useLocation, Redirect } from "react-router-dom";
-import { Box, Heading, Text, Card, Flex, Link, Button, Image } from "rebass";
-import { Label, Input, Select } from "@rebass/forms";
+import { useHistory, Redirect } from "react-router-dom";
+import { Box, Text, Flex, Button } from "rebass";
+import { Input, Select } from "@rebass/forms";
 
 import { useAuth } from "../../contexts/AuthContext";
 import Header from "../Header";
@@ -31,8 +31,7 @@ const Myquiz = () => {
   }, []);
 
   useEffect(() => {
-    console.log("Showing my Quiz", allquiz);
-    console.log("All category", allcategory);
+    console.log("Loading");
   }, [allquiz, allcategory]);
 
   useEffect(() => {
@@ -117,10 +116,10 @@ const Myquiz = () => {
           },
         }}
       />
-      <Flex mt={4} flexDirection={["column", "row"]}>
+      <Flex mt={4} flexDirection={["column","row", "row"]}>
         {isDesktop ? (
           <Box
-            width={[1, 1, 1 / 5]}
+            width={[1, 2/4, 1 / 5]}
             ml={2}
             sx={{
               height: "800px",
@@ -237,7 +236,7 @@ const Myquiz = () => {
           sx={{
             // backgroundColor: "rgba(255,255,255,1)",
             borderBottom: "1px solid rgba(255,255,255,0.50)",
-            height: "800px",
+            height: "100%",
             borderRadius: "10px",
             display: "flex",
             flexWrap: "wrap",
@@ -297,10 +296,9 @@ const Myquiz = () => {
                     borderRadius: "10px",
                     overflow: "hidden",
                     cursor: "pointer",
-                    flexShrink: 0,
-                    mb: 4,
                   }}
                   mx={[2, 4]}
+                  mb={4}
                   onMouseDown={(e) => e.preventDefault()}
                   onClick={() => gotodetail(quiz.group_id)}
                 >
@@ -315,7 +313,6 @@ const Myquiz = () => {
                       opacity: 0.7,
                       display: "flex",
                       flexDirection: "column",
-                      alignItems: "flex-start",
                       justifyContent: "center",
                       p: 2,
                     }}

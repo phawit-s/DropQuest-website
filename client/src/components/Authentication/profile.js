@@ -1,15 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { useHistory, Redirect } from "react-router-dom";
-import { Box, Text, Card, Flex, Button, Image } from "rebass";
+import { Redirect } from "react-router-dom";
+import { Box, Text, Card, Flex, Image } from "rebass";
 import Header from "../Header";
 import Mobileheader from "../Mobileheader";
-import { useToasts } from "react-toast-notifications";
 import { Label, Input } from "@rebass/forms";
 import { useAuth } from "../../contexts/AuthContext";
 
 const Profile = () => {
-  const history = useHistory();
-  const { currentUser, editprofile } = useAuth();
+  const { currentUser } = useAuth();
   const [picture, setPicture] = useState(null);
   const [username, setUsername] = useState(currentUser.username);
   const [photo, setPhoto] = useState(null);
@@ -17,7 +15,7 @@ const Profile = () => {
   const [isselected, setIsselected] = useState(false);
   const [profile, setEditprofile] = useState(false);
   const [isDesktop, setIsDesktop] = useState(window.innerWidth > 768);
-  const { addToast } = useToasts();
+
 
   useEffect(() => {
     const handleResize = () => {
@@ -46,29 +44,6 @@ const Profile = () => {
     }
   };
 
-  const register = () => {
-    let checkelse = false;
-    if (!picture || !photo) {
-      setCheckimageerror(true);
-      checkelse = true;
-      addToast("กรุณาเพิ่มรูปภาพ", {
-        appearance: "error",
-        autoDismiss: true,
-      });
-    } else if (!checkelse) {
-      const editsuccess = editprofile(username, photo);
-      try {
-        if (editsuccess) {
-          history.push({
-            pathname: `/`,
-          });
-        }
-      } catch (err) {
-        alert(err);
-      }
-    }
-  };
-
   return (
     <Box
       minHeight="100vh"
@@ -80,7 +55,7 @@ const Profile = () => {
       <Flex mt={4} sx={{ justifyContent: "center" }}>
         <Flex width={3 / 4} justifyContent="center">
           <Card
-            width={[1, 1 / 2]}
+            width={[1, 1,1 / 2]}
             py={4}
             pr={4}
             sx={{
@@ -225,56 +200,6 @@ const Profile = () => {
             </Flex>
           </Card>
         </Flex>
-      </Flex>
-      <Flex mt={4} sx={{ justifyContent: "center" }}>
-        {profile ? (
-          <>
-            <Button
-              sx={{
-                cursor: "pointer",
-                border: "3px solid red",
-                borderRadius: "10px",
-                backgroundColor: "red",
-                mx: 4,
-              }}
-            >
-              <Text
-                sx={{ color: "black" }}
-                onClick={() => setEditprofile(false)}
-              >
-                {" "}
-                ยกเลิก
-              </Text>
-            </Button>
-            <Button
-              sx={{
-                cursor: "pointer",
-                border: "3px solid green",
-                borderRadius: "10px",
-                backgroundColor: "green",
-              }}
-            >
-              <Text sx={{ color: "black" }} onClick={register}>
-                {" "}
-                บันทึก
-              </Text>
-            </Button>
-          </>
-        ) : (
-          <Button
-            sx={{
-              cursor: "pointer",
-              border: "3px solid #23aaff",
-              borderRadius: "10px",
-              backgroundColor: "#fff",
-            }}
-          >
-            <Text sx={{ color: "black" }} onClick={() => setEditprofile(true)}>
-              {" "}
-              แก้ไขโปรไฟล์
-            </Text>
-          </Button>
-        )}
       </Flex>
     </Box>
   );

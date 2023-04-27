@@ -1,9 +1,8 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { Redirect, useHistory } from "react-router-dom";
-import { Box, Heading, Text, Card, Flex, Link, Button, Image } from "rebass";
-import { Label, Input, Select, Textarea, Radio, Checkbox } from "@rebass/forms";
-import { Scrollbars } from "react-custom-scrollbars";
-import { Modal, Typography } from "@mui/material";
+import { Box, Text, Flex, Button } from "rebass";
+import { Label, Input, Select } from "@rebass/forms";
+import { Modal } from "@mui/material";
 import { useAuth } from "../../contexts/AuthContext";
 import { useToasts } from "react-toast-notifications";
 import api from "../../api";
@@ -55,8 +54,7 @@ const Createroom = () => {
   }, [numRooms]);
 
   useEffect(() => {
-    console.log("Showing my Quiz", allquiz);
-    console.log("All category", allcategory);
+    console.log("Loading");
     if (allquiz && allquiz.length > 0) {
       setQuizid(allquiz[0].group_id);
     }
@@ -146,7 +144,6 @@ const Createroom = () => {
       setErrorname(false);
       setErrorstartdate(false);
       setErrorenddate(false);
-      console.log(quizid);
       createroom(name, startDate, endDate, quizid, rooms).then(() => {
         history.push({
           pathname: `/`,
@@ -248,9 +245,9 @@ const Createroom = () => {
         </Box>
       </Modal>
 
-      <Flex mt={4} ml={[0, 4]} flexDirection={["column", "row"]}>
+      <Flex mt={4} ml={[0, 4]} flexDirection={["column", "column", "row"]}>
         <Box
-          width={[1, 1 / 5]}
+          width={[1, 4 / 5, 1 / 5]}
           ml={2}
           px={4}
           sx={{
@@ -505,8 +502,9 @@ const Createroom = () => {
           </Flex>
         </Box>
         <Box
-          width={[1, 1]}
-          mx={4}
+          width={[1, 4 / 5, 1]}
+          
+          ml={2}
           sx={{
             // backgroundColor: "rgba(255,255,255,1)",
             borderBottom: "1px solid rgba(255,255,255,0.50)",

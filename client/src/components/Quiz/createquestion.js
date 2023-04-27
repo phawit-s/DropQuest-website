@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Redirect, useHistory } from "react-router-dom";
-import { Box, Heading, Text, Card, Flex, Link, Button, Image } from "rebass";
-import { Label, Input, Select, Textarea, Radio, Checkbox } from "@rebass/forms";
+import { Box, Text, Flex, Button } from "rebass";
+import { Label, Input, Select, Textarea } from "@rebass/forms";
 import { Scrollbars } from "react-custom-scrollbars";
-import { Modal, Typography } from "@mui/material";
+import { Modal } from "@mui/material";
 import { useAuth } from "../../contexts/AuthContext";
 import Header from "../Header";
 import Mobileheader from "../Mobileheader";
@@ -12,8 +12,6 @@ import { BsTrash } from "react-icons/bs";
 import { FaTrash } from "react-icons/fa";
 import { BiEdit } from "react-icons/bi";
 import {
-  AiOutlineCaretDown,
-  AiOutlineCaretUp,
   AiOutlineClose,
 } from "react-icons/ai";
 import api from "../../api";
@@ -238,7 +236,7 @@ const CreateQuestion = () => {
         });
       });
 
-      if (savenumber.includes(index) != true) {
+      if (savenumber.includes(index) !== true) {
         setSavenumber((prevState) => [...prevState, index]);
       }
       if (page === "finish") {
@@ -266,7 +264,7 @@ const CreateQuestion = () => {
         });
       });
 
-      if (savenumber.includes(index) != true) {
+      if (savenumber.includes(index) !== true) {
         setSavenumber((prevState) => [...prevState, index]);
       }
       if (page === "finish") {

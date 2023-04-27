@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, {useState } from "react";
 import { useHistory, Redirect } from "react-router-dom";
-import { Box, Heading, Text, Card, Flex, Link, Button, Image } from "rebass";
+import { Box, Text, Flex, Image } from "rebass";
 import { useAuth } from "../../contexts/AuthContext";
 import { motion } from "framer-motion";
 import { AiOutlineCaretDown, AiOutlineCaretUp } from "react-icons/ai";
@@ -16,7 +16,6 @@ const Header = () => {
   const [profilecolor, setProfileColor] = useState("");
   const [createroomcolor, setCreateroomcolor] = useState("");
   const [myroomcolor, setMyroomcolor] = useState("");
-  const [scorecolor, setScorecolor] = useState("");
   const getproductstorage = window.localStorage.getItem("Question");
   const question = getproductstorage ? JSON.parse(getproductstorage) : [];
   const toggleroom = () => {
@@ -127,25 +126,7 @@ const Header = () => {
     }
   };
 
-  const gotosummary = () => {
-    if (question.length === 0) {
-      history.push({
-        pathname: `/summary`,
-      });
-    } else {
-      const confirmed = window.confirm(
-        "Are you sure you want to change the page? Any unsaved changes will be lost."
-      );
 
-      if (confirmed) {
-        window.localStorage.removeItem("Question");
-        window.localStorage.removeItem("EditQuiz");
-        history.push({
-          pathname: `/summary`,
-        });
-      }
-    }
-  };
 
   const gotoprofile = () => {
     if (question.length === 0) {
@@ -263,14 +244,6 @@ const Header = () => {
               >
                 ห้องของฉัน
               </Text>
-              {/* <Text
-                onMouseEnter={() => setScorecolor("#364AFF")}
-                onMouseLeave={() => setScorecolor("")}
-                sx={{ cursor: "pointer", color: scorecolor }}
-                onClick={gotosummary}
-              >
-                สรุปผล
-              </Text> */}
             </Box>
           </motion.div>
         </motion.div>
@@ -393,7 +366,6 @@ const Header = () => {
         }}
       />
     </Flex>
-    //</Flex>
   );
 };
 

@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, Redirect, useHistory } from "react-router-dom";
-import { Box, Heading, Text, Card, Flex, Link, Button, Image } from "rebass";
-import { Label, Input, Select } from "@rebass/forms";
-import { Modal, Typography } from "@mui/material";
+import { Box, Text, Flex, Button } from "rebass";
+import {  Select } from "@rebass/forms";
+import { Modal } from "@mui/material";
 import { useAuth } from "../contexts/AuthContext";
 import { useToasts } from "react-toast-notifications";
 import Header from "./Header";
@@ -36,9 +36,7 @@ const Detail = () => {
     };
   }, []);
   useEffect(() => {
-    console.log("Showing all Questions", quizdetail);
-    console.log("Loading id", quizid);
-    console.log("Showing Quiz Topic", quiztopic);
+    console.log("Loading");
   }, [quizdetail, quizid, quiztopic]);
 
   useEffect(() => {
@@ -245,11 +243,11 @@ const Detail = () => {
           </Box>
         );
       })}
-      <Flex mt={3} ml={[0, 4]} flexDirection={["column", "row"]}>
+      <Flex mt={3} ml={[0, 4]} flexDirection={["column", "column", "row"]}>
         <Box
-          width={[1, 1, 1 / 5]}
+          width={[1, 4 / 5, 1 / 5]}
           px={4}
-          ml={[0, 1]}
+          ml={[0, 4, 1]}
           mb={3}
           sx={{
             backgroundColor: "rgba(255,255,255,0.75)",
@@ -334,8 +332,8 @@ const Detail = () => {
         </Box>
         <Flex flexDirection="column" width="100%">
           <Box
-            width={[1, 1]}
-            ml={[0, 4]}
+            width={[1,4/5, 1]}
+            ml={[0,4, 4]}
             mr={4}
             sx={{
               backgroundColor: "rgba(255,255,255,1)",
@@ -353,7 +351,7 @@ const Detail = () => {
               if (index === loadquestion) {
                 return (
                   <Box sx={{ ml: 4, mt: 3 }} key={index}>
-                    <Text ml={[2,4]} my={4} fontSize={["24px","26px"]}>
+                    <Text ml={[2, 4]} my={4} fontSize={["24px", "26px"]}>
                       {question.question_name}
                     </Text>
                     <Text
@@ -423,7 +421,7 @@ const Detail = () => {
           {checkid.length > 0 ? (
             <Flex>
               <Button
-                ml={[4, "auto"]}
+                ml={[4, 3,"auto"]}
                 my={4}
                 p={12}
                 sx={{

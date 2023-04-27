@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Redirect, useHistory } from "react-router-dom";
-import { Box, Heading, Text, Card, Flex, Link, Button, Image } from "rebass";
-import { Label, Input, Select, Textarea, Radio, Checkbox } from "@rebass/forms";
+import { Box, Text, Flex, Button } from "rebass";
+import { Label, Input, Select, Textarea } from "@rebass/forms";
 import { Scrollbars } from "react-custom-scrollbars";
-import { Modal, Typography } from "@mui/material";
+import { Modal } from "@mui/material";
 import { useAuth } from "../../contexts/AuthContext";
 import { useToasts } from "react-toast-notifications";
 import api from "../../api";
@@ -52,9 +52,7 @@ const CreateQuiz = () => {
   }, []);
 
   useEffect(() => {
-    console.log("Loading questiondata", questiondata);
-    console.log("Loading Editdata", quizdata);
-    console.log("Loading All Topic", alltopic);
+    console.log("Loading");
   }, [questiondata, quizdata, alltopic]);
 
   useEffect(() => {
@@ -139,7 +137,7 @@ const CreateQuiz = () => {
     const result = alltopic.find(
       ({ g_name }) => g_name === quizname.current.value
     );
-    const samename =  quizdata.find(
+    const samename = quizdata.find(
       ({ g_name }) => g_name === quizname.current.value
     );
     if (quizname.current.value === "") {
@@ -185,7 +183,6 @@ const CreateQuiz = () => {
       setErrorScore(true);
       setErrorTime(true);
       setErrorDescription(true);
-      console.log(question, questiondata);
       editquiz(updatedata, question, quizid).then(() => {
         history.push({
           pathname: `/`,
@@ -204,7 +201,6 @@ const CreateQuiz = () => {
       description: description.current.value,
     };
 
-    console.log(quizdata, question, photo, "quizdata, question, photo", "test");
     const result = alltopic.find(
       ({ g_name }) => g_name === quizname.current.value
     );
@@ -247,7 +243,6 @@ const CreateQuiz = () => {
       alert("คำถามยังไม่ถูกสร้าง");
       setOpenmodal(false);
     } else {
-      
       setErrorQuizname(true);
       setErrorScore(true);
       setErrorTime(true);
@@ -430,12 +425,12 @@ const CreateQuiz = () => {
         </Box>
       </Modal>
 
-      <Flex mt={3} flexDirection={["column", "row"]}>
+      <Flex mt={3} flexDirection={["column", "column", "row"]}>
         <Box
-          width={[1, 1, 1 / 5]}
+          width={[1, 3 / 4, 1 / 5]}
           px={4}
-          ml={[1, 4]}
-          mb={[4, 0]}
+          ml={[1, 4, 4]}
+          mb={[4, 4, 0]}
           sx={{
             backgroundColor: "rgba(255,255,255,0.75)",
             // backdropFilter: "blur(15px)",
@@ -654,7 +649,7 @@ const CreateQuiz = () => {
         </Box>
 
         <Box
-          width={[1, 4 / 5]}
+          width={[1, 3 / 4, 4 / 5]}
           ml={[1, 4]}
           mr={[0, 4]}
           mb={[4, 0]}
