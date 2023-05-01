@@ -874,6 +874,39 @@ conn
           );
         });
 
+
+        app.post("/resscore", (req, res) => {
+          const { name, score, course_id } = req.body;
+          // Insert into room table
+          db.query(
+            "INSERT INTO studentlist (student_name, score) VALUES (?, ?)",
+            [name, score],
+            (err, result) => {
+              if (err) {
+                console.log(err);
+                return res.status(500).send(err);
+              }
+
+              const student_id = result.insertId;
+
+              // Insert into course table for each room code
+              roomCodes.forEach((code) => {
+                db.query(
+                  "INSERT INTO studentlist_has_course (studentlist_student_id,course_course_id) VALUES (?,?)",
+                  [student_id, course_id],
+                  (err, result) => {
+                    if (err) {
+                      console.log(err);
+                      return res.status(500).send(err);
+                    }
+                  }
+                );
+              });
+              return res.status(200).send("Sent score successfully");
+            }
+          );
+        });
+
         // start the server
         const port = 4001;
         app.listen(port, 'dropquest.it.kmitl.ac.th' ,function () {
