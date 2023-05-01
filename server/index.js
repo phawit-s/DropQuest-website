@@ -46,7 +46,8 @@ conn
         });
 
         app.get("/gameinfo", function (req, res) {
-          db.query("SELECT course_id, course_code,room_id, name, startdate, enddate, g_name,question_time ,question_score, question_name, choice1, choice2, choice3, choice4, correct_choice FROM course join room ON room.room_id = course.room_room_id JOIN question_group ON room.question_group_group_id = question_group.group_id JOIN question_list_has_question_group ON question_group.group_id = question_list_has_question_group.question_group_group_id JOIN question_list ON question_list_has_question_group.question_list_question_id = question_list.question_id where room.room_id = ?;", (err, result) => {
+          const code = req.body.course_code
+          db.query("SELECT course_id, course_code,room_id, name, startdate, enddate, g_name,question_time ,question_score, question_name, choice1, choice2, choice3, choice4, correct_choice FROM course join room ON room.room_id = course.room_room_id JOIN question_group ON room.question_group_group_id = question_group.group_id JOIN question_list_has_question_group ON question_group.group_id = question_list_has_question_group.question_group_group_id JOIN question_list ON question_list_has_question_group.question_list_question_id = question_list.question_id where course.course_code = ?;",[code] ,(err, result) => {
             if (err) {
               console.log(err);
             } else {
