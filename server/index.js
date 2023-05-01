@@ -224,20 +224,20 @@ conn
           });
         });
 
-          app.post("/code", function (req, res) {
-            const code = req.body.code;
-            db.query(
-              "SELECT * FROM question_list JOIN question_list_has_question_group ON question_list_has_question_group.question_list_question_id = question_list.question_id JOIN question_group ON question_group.group_id = question_list_has_question_group.question_group_group_id  JOIN room ON question_group.group_id = room.question_group_group_id Join course On room.room_id = course.room_room_id where course.course_code = ?;",
-              [code],
-              (err, result) => {
-                if (err) {
-                  console.log(err);
-                } else {
-                  res.send(result);
-                }
+        app.post("/code", function (req, res) {
+          const code = req.body.code;
+          db.query(
+            "SELECT * FROM question_list JOIN question_list_has_question_group ON question_list_has_question_group.question_list_question_id = question_list.question_id JOIN question_group ON question_group.group_id = question_list_has_question_group.question_group_group_id  JOIN room ON question_group.group_id = room.question_group_group_id Join course On room.room_id = course.room_room_id where course.course_code = ?;",
+            [code],
+            (err, result) => {
+              if (err) {
+                console.log(err);
+              } else {
+                res.send(result);
               }
-            );
-          });
+            }
+          );
+        });
 
         app.post("/editprofile", upload.single("image"), (req, res) => {
           const userid = req.body.userid;
@@ -889,19 +889,19 @@ conn
 
               const student_id = result.insertId;
 
-              // Insert into course table for each room code
-              roomCodes.forEach((code) => {
-                db.query(
-                  "INSERT INTO studentlist_has_course (studentlist_student_id,course_course_id) VALUES (?,?)",
-                  [student_id, course_id],
-                  (err, result) => {
-                    if (err) {
-                      console.log(err);
-                      return res.status(500).send(err);
-                    }
+
+
+              db.query(
+                "INSERT INTO studentlist_has_course (studentlist_student_id,course_course_id) VALUES (?,?)",
+                [student_id, course_id],
+                (err, result) => {
+                  if (err) {
+                    console.log(err);
+                    return res.status(500).send(err);
                   }
-                );
-              });
+                }
+              );
+
               return res.status(200).send("Sent score successfully");
             }
           );
