@@ -11,9 +11,7 @@ import { useToasts } from "react-toast-notifications";
 import { BsTrash } from "react-icons/bs";
 import { FaTrash } from "react-icons/fa";
 import { BiEdit } from "react-icons/bi";
-import {
-  AiOutlineClose,
-} from "react-icons/ai";
+import { AiOutlineClose } from "react-icons/ai";
 import api from "../../api";
 
 const CreateQuestion = () => {
@@ -50,10 +48,8 @@ const CreateQuestion = () => {
   const refchoice2 = [];
   const refchoice3 = [];
   const refchoice4 = [];
-  const getproductstorage = window.localStorage.getItem("Question");
-  // const getfavourite = window.localStorage.getItem("Favourite Question");
-  // const favouritequestion = getfavourite ? JSON.parse(getfavourite) : [];
-  const question = getproductstorage ? JSON.parse(getproductstorage) : [];
+  const getQuestionstorage = window.localStorage.getItem("Question");
+  const question = getQuestionstorage ? JSON.parse(getQuestionstorage) : [];
   const [isDesktop, setIsDesktop] = useState(window.innerWidth > 768);
 
   useEffect(() => {
@@ -74,11 +70,7 @@ const CreateQuestion = () => {
   }, []);
 
   useEffect(() => {
-    console.log("Adding Question", dataquestion);
-    console.log("Favourite Question", favouritequestion);
-    console.log("Checking Question", datacheckquestion);
-    console.log("Checking same Question", samequestion);
-    console.log("Using Question", savenumber);
+    console.log("Loading", favouritequestion);
   }, [
     dataquestion,
     favouritequestion,
@@ -170,7 +162,7 @@ const CreateQuestion = () => {
           !q.choice3.includes(refquestion.choice3) &&
           !q.choice4.includes(refquestion.choice4)
       );
-      console.log(hasQuestion, "hasQuestion");
+
       if (hasQuestion) {
         setSamequestion((prevState) => [
           ...prevState,
@@ -500,7 +492,6 @@ const CreateQuestion = () => {
   const dq = dataquestion.find(
     (dq) => dq.question_name === samequestion[nextquestion]
   );
-  console.log(dq);
   return (
     <Box
       minHeight="100vh"
@@ -1086,82 +1077,92 @@ const CreateQuestion = () => {
           >
             <AiOutlineClose />
           </Box>
-          {favouritequestion.map((question, index) => {
-            if (favindex === index) {
-              return (
-                <Box key={index}>
-                  <Text
-                    fontSize="22px"
-                    ml={4}
-                    mb={4}
-                    mr={3}
-                    mt={4}
-                    textAlign="left"
-                  >
-                    คำถาม : {question.question_name}
-                  </Text>
-                  <Text
-                    fontSize="20px"
-                    ml={4}
-                    mb={4}
-                    mr={3}
-                    mt={3}
-                    color={question.correct_choice === 1 ? "green" : "black"}
-                    textAlign="left"
-                  >
-                    ข้อที่ 1 : {question.choice1}
-                  </Text>
-                  <Text
-                    fontSize="20px"
-                    ml={4}
-                    mb={4}
-                    mr={3}
-                    mt={3}
-                    color={question.correct_choice === 2 ? "green" : "black"}
-                    textAlign="left"
-                  >
-                    ข้อที่ 2 : {question.choice2}
-                  </Text>
-                  <Text
-                    fontSize="20px"
-                    ml={4}
-                    mb={4}
-                    mr={3}
-                    mt={3}
-                    color={question.correct_choice === 3 ? "green" : "black"}
-                    textAlign="left"
-                  >
-                    ข้อที่ 3 : {question.choice3}
-                  </Text>
-                  <Text
-                    fontSize="20px"
-                    ml={4}
-                    mb={4}
-                    mr={3}
-                    mt={3}
-                    color={question.correct_choice === 4 ? "green" : "black"}
-                    textAlign="left"
-                  >
-                    ข้อที่ 4 : {question.choice4}
-                  </Text>
-                  <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-                    <Button
-                      mt={3}
-                      sx={{
-                        border: "3px solid #fff",
-                        borderRadius: "10px",
-                        backgroundColor: "green",
-                        cursor: "pointer",
-                      }}
-                      onClick={() => usefavquestion(index)}
-                    >
-                      <Text sx={{ color: "black" }}>ใช้คำถาม</Text>
-                    </Button>
-                  </Box>
-                </Box>
-              );
-            }
-          })}
+          {favouritequestion
+            ? favouritequestion.map((question, index) => {
+                if (favindex === index) {
+                  return (
+                    <Box key={index}>
+                      <Text
+                        fontSize="22px"
+                        ml={4}
+                        mb={4}
+                        mr={3}
+                        mt={4}
+                        textAlign="left"
+                      >
+                        คำถาม : {question.question_name}
+                      </Text>
+                      <Text
+                        fontSize="20px"
+                        ml={4}
+                        mb={4}
+                        mr={3}
+                        mt={3}
+                        color={
+                          question.correct_choice === 1 ? "green" : "black"
+                        }
+                        textAlign="left"
+                      >
+                        ข้อที่ 1 : {question.choice1}
+                      </Text>
+                      <Text
+                        fontSize="20px"
+                        ml={4}
+                        mb={4}
+                        mr={3}
+                        mt={3}
+                        color={
+                          question.correct_choice === 2 ? "green" : "black"
+                        }
+                        textAlign="left"
+                      >
+                        ข้อที่ 2 : {question.choice2}
+                      </Text>
+                      <Text
+                        fontSize="20px"
+                        ml={4}
+                        mb={4}
+                        mr={3}
+                        mt={3}
+                        color={
+                          question.correct_choice === 3 ? "green" : "black"
+                        }
+                        textAlign="left"
+                      >
+                        ข้อที่ 3 : {question.choice3}
+                      </Text>
+                      <Text
+                        fontSize="20px"
+                        ml={4}
+                        mb={4}
+                        mr={3}
+                        mt={3}
+                        color={
+                          question.correct_choice === 4 ? "green" : "black"
+                        }
+                        textAlign="left"
+                      >
+                        ข้อที่ 4 : {question.choice4}
+                      </Text>
+                      <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                        <Button
+                          mt={3}
+                          sx={{
+                            border: "3px solid #fff",
+                            borderRadius: "10px",
+                            backgroundColor: "green",
+                            cursor: "pointer",
+                          }}
+                          onClick={() => usefavquestion(index)}
+                        >
+                          <Text sx={{ color: "black" }}>ใช้คำถาม</Text>
+                        </Button>
+                      </Box>
+                    </Box>
+                  );
+                }
+              })
+            : ""}
         </Box>
       </Modal>
 
@@ -1187,7 +1188,7 @@ const CreateQuestion = () => {
             flexDirection: "column",
           }}
         >
-          {favouritequestion.length !== 0 ? (
+          {favouritequestion ? (
             <Scrollbars
               style={{ width: "100%", height: "100%", overflow: "hidden" }}
             >

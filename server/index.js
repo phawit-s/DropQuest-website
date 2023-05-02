@@ -47,7 +47,7 @@ conn
 
         app.get("/gameinfo", function (req, res) {
           const code = req.body.course_code
-          db.query("SELECT course_id, course_code,room_id, name, startdate, enddate, g_name,question_time ,question_score, question_name, choice1, choice2, choice3, choice4, correct_choice FROM course join room ON room.room_id = course.room_room_id JOIN question_group ON room.question_group_group_id = question_group.group_id JOIN question_list_has_question_group ON question_group.group_id = question_list_has_question_group.question_group_group_id JOIN question_list ON question_list_has_question_group.question_list_question_id = question_list.question_id where course.course_code = ?;",[code] ,(err, result) => {
+          db.query("SELECT course_id, course_code,room_id, name, startdate, enddate, g_name,question_time ,question_score, question_name, choice1, choice2, choice3, choice4, correct_choice FROM course join room ON room.room_id = course.room_room_id JOIN question_group ON room.question_group_group_id = question_group.group_id JOIN question_list_has_question_group ON question_group.group_id = question_list_has_question_group.question_group_group_id JOIN question_list ON question_list_has_question_group.question_list_question_id = question_list.question_id where course.course_code = ?;", [code], (err, result) => {
             if (err) {
               console.log(err);
             } else {
@@ -349,7 +349,7 @@ conn
           const image = req.file;
           const imageBuffer = image.buffer;
 
-          // Check if email already exists in database
+
           const checkUserSql =
             "SELECT * FROM users WHERE email = ? and password = ?";
           const checkUserValues = [email, password];
@@ -358,7 +358,7 @@ conn
               console.log(err);
               res.status(500).send({ message: "Error checking user" });
             } else if (result.length > 0) {
-              // Email already exists in database, log user in
+
               res.status(200).send({
                 message: "Logged in",
                 email: result[0]?.email,
@@ -368,7 +368,7 @@ conn
                 status: result[0]?.googlestatus,
               });
             } else {
-              // Email doesn't exist in database, insert new record
+
               const insertUserSql =
                 "INSERT INTO users (email, username, password, image, googlestatus) VALUES (?,?,?,?,?)";
               sharp(imageBuffer)
@@ -440,7 +440,7 @@ conn
             } else {
               const passwordHash = result[0].password;
 
-              // Compare the provided password with the hashed password in the database
+
               bcrypt.compare(password, passwordHash, (err, match) => {
                 if (err) {
                   console.log(err);
@@ -466,7 +466,7 @@ conn
 
         app.post("/resetpassword", (req, res) => {
           const email = req.body.email;
-          // Check if email exists in the database
+
           const sql = "SELECT * FROM users WHERE email = ?";
           const values = [email];
           db.query(sql, values, (err, result) => {
@@ -476,9 +476,9 @@ conn
             } else if (result.length === 0) {
               res.status(400).send({ message: "Email not found" });
             } else {
-              // Generate a password reset token
+
               const resetToken = crypto.randomBytes(20).toString("hex");
-              // Save the reset token to the database
+
               const sql = "UPDATE users SET reset_token = ? WHERE email = ?";
               const values = [resetToken, email];
               db.query(sql, values, (err, result) => {
@@ -486,7 +486,7 @@ conn
                   console.log(err);
                   res.status(500).send({ message: "Error saving reset token" });
                 } else {
-                  // Send an email with a password reset link
+
                   const resetLink = `http://dropquest.it.kmitl.ac.th/resetpassword/${resetToken}`;
                   const message = `Click the link to reset your password: ${resetLink}`;
                   const mailer = nodemailer.createTransport({
@@ -525,7 +525,7 @@ conn
           const resetToken = req.body.token;
           const newPassword = req.body.password;
 
-          // Check if reset token is valid
+
           const sql = "SELECT * FROM users WHERE reset_token = ?";
           const values = [resetToken];
           db.query(sql, values, (err, result) => {
@@ -535,9 +535,9 @@ conn
             } else if (result.length === 0) {
               res.status(400).send({ message: "Invalid reset token" });
             } else {
-              // Hash the new password
+
               const hash = bcrypt.hashSync(newPassword, 10);
-              // Update the password in the database
+
               const sql =
                 "UPDATE users SET password = ?, reset_token = null WHERE reset_token = ?";
               const values = [hash, resetToken];
@@ -554,7 +554,7 @@ conn
         });
 
         app.post("/createquiz", upload.single("image"), (req, res) => {
-          // Extract user id and quiz data from request body
+
           const userId = req.body.userid;
           const {
             groupname,
@@ -574,7 +574,6 @@ conn
             .then((data) => {
               const imageBuffer = data;
 
-              // Insert data into question_group table
               db.query(
                 "INSERT INTO question_group (g_name, createddate,question_time, question_score,privacy, user_user_id, category_category_id, question_image,question_description) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 [
@@ -593,10 +592,9 @@ conn
                     return res.status(500).send(err);
                   }
 
-                  // Get the inserted group id
                   const groupId = result.insertId;
                   const data = JSON.parse(req.body.questiondata);
-                  // Insert data into question_list table and question_list_has_question_group table
+
                   const questionListPromises = data.map((question) => {
                     return new Promise((resolve, reject) => {
                       db.query(
@@ -674,7 +672,6 @@ conn
         });
 
         app.post("/updatequiz", upload.none(), (req, res) => {
-          // Extract quiz data from request body
           const {
             groupname,
             category,
@@ -686,7 +683,6 @@ conn
 
           const quizid = req.body.quizid;
 
-          // Update data in question_group table
           db.query(
             "UPDATE question_group SET g_name = ?, createddate = ?, question_time = ?, question_score = ?, category_category_id = ?, question_description = ? WHERE group_id = ?",
             [
@@ -705,7 +701,6 @@ conn
 
               const data = JSON.parse(req.body.questiondata);
 
-              // Delete questions that are no longer used in this quiz
               db.query(
                 "DELETE FROM question_list_has_question_group WHERE question_group_group_id = ?",
                 [quizid],
@@ -714,7 +709,6 @@ conn
                     return res.status(500).send(err);
                   }
 
-                  // Update or add new questions
                   const questionListPromises = data.map((question) => {
                     return new Promise((resolve, reject) => {
                       db.query(
@@ -803,7 +797,7 @@ conn
           const quizId = req.params.id;
 
           db.query(
-            "SET FOREIGN_KEY_CHECKS = 0", // disable foreign key constraint
+            "SET FOREIGN_KEY_CHECKS = 0",
             (err, result) => {
               if (err) {
                 return res.status(500).send(err);
@@ -830,7 +824,7 @@ conn
                             return res.status(500).send(err);
                           }
                           db.query(
-                            "SET FOREIGN_KEY_CHECKS = 1", // re-enable foreign key constraint
+                            "SET FOREIGN_KEY_CHECKS = 1",
                             (err, result) => {
                               if (err) {
                                 return res.status(500).send(err);
@@ -854,8 +848,6 @@ conn
           const { name, startdate, enddate, quizid, room } = req.body;
           const userid = req.body.userid;
           const roomCodes = JSON.parse(room);
-
-          // Insert into room table
           db.query(
             "INSERT INTO room (name, startdate, enddate, question_group_group_id, user_user_id) VALUES (?, ?, ?, ?,?)",
             [name, startdate, enddate, quizid, userid],
@@ -866,8 +858,6 @@ conn
               }
 
               const roomId = result.insertId;
-
-              // Insert into course table for each room code
               roomCodes.forEach((code) => {
                 db.query(
                   "INSERT INTO course (course_code,room_room_id) VALUES (?,?)",
@@ -887,35 +877,31 @@ conn
 
 
         app.post("/resscore", (req, res) => {
-          const { name, score, course_id } = req.body;
-          // Insert into room table
-          db.query(
-            "INSERT INTO studentlist (student_name, score) VALUES (?, ?)",
-            [name, score],
-            (err, result) => {
-              if (err) {
-                console.log(err);
-                return res.status(500).send(err);
-              }
-
-              const student_id = result.insertId;
-
-
-
-              db.query(
-                "INSERT INTO studentlist_has_course (studentlist_student_id,course_course_id) VALUES (?,?)",
-                [student_id, course_id],
-                (err, result) => {
-                  if (err) {
-                    console.log(err);
-                    return res.status(500).send(err);
-                  }
+          const { summary, course_id } = req.body;
+          summary.forEach((code) => {
+            db.query(
+              "INSERT INTO studentlist (student_name, score) VALUES (?, ?)",
+              [code.name, code.score],
+              (err, result) => {
+                if (err) {
+                  console.log(err);
+                  return res.status(500).send(err);
                 }
-              );
-
-              return res.status(200).send("Sent score successfully");
-            }
-          );
+                const student_id = result.insertId;
+                db.query(
+                  "INSERT INTO studentlist_has_course (studentlist_student_id,course_course_id) VALUES (?,?)",
+                  [student_id, course_id],
+                  (err, result) => {
+                    if (err) {
+                      console.log(err);
+                      return res.status(500).send(err);
+                    }
+                  }
+                );
+                return res.status(200).send("Sent score successfully");
+              }
+            );
+          });
         });
 
         // start the server

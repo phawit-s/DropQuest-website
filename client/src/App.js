@@ -20,7 +20,7 @@ import theme from "./contexts/theme";
 
 function App() {
   useEffect(() => {
-    document.title = "Dropquest"; // set the tab name
+    document.title = "Dropquest";
   }, []);
   return (
     <ThemeProvider theme={theme}>

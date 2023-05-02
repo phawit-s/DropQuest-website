@@ -204,6 +204,7 @@ const Login = () => {
               },
             }}
             onClick={gotoregister}
+            
           >
             ลงทะเบียน
           </Text>

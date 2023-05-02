@@ -352,6 +352,11 @@ export default function Register() {
             backgroundColor="#23aaff;"
             type="button"
             onClick={register}
+            onKeyDown={(event) => {
+              if (event.keyCode === 13) {
+                register();
+              }
+            }}
           >
             <Text
               sx={{

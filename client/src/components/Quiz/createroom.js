@@ -502,9 +502,8 @@ const Createroom = () => {
           </Flex>
         </Box>
         <Box
-          width={[1, 4 / 5, 1]}
-          
-          ml={2}
+          width={[1, 4 / 5, 1]}   
+          ml={[4,2]}
           sx={{
             // backgroundColor: "rgba(255,255,255,1)",
             borderBottom: "1px solid rgba(255,255,255,0.50)",

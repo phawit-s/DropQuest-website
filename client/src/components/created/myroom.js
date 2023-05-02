@@ -375,12 +375,12 @@ const Myroom = () => {
                   cursor: "pointer",
                   position: "absolute",
                   right: 60,
-                  border: "1px solid black",
+                  border: "1px solid white",
                   borderRadius: "10px",
                 }}
                 width={[2 / 5, 1 / 5]}
                 fontSize={3}
-                backgroundColor="rgb(240, 242, 245);"
+                backgroundColor="rgb(240, 242, 100);"
                 type="button"
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => gotosummary(loadroom)}

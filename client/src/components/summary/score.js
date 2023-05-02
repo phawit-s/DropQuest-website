@@ -5,7 +5,9 @@ import { useAuth } from "../../contexts/AuthContext";
 import Header from "../Header";
 import Mobileheader from "../Mobileheader";
 import {
+  ComposedChart,
   BarChart,
+  LineChart,
   Bar,
   XAxis,
   YAxis,
@@ -13,6 +15,8 @@ import {
   Tooltip,
   Legend,
   ReferenceLine,
+  ResponsiveContainer,
+  Line,
 } from "recharts";
 import api from "../../api";
 
@@ -113,7 +117,8 @@ const Score = () => {
     const csvData = data.map((row) =>
       [row.student_name, row.score, row.course_code].join(",")
     );
-    const csv = "data:text/csv;charset=utf-8,\uFEFF" + [header, ...csvData].join("\n");
+    const csv =
+      "data:text/csv;charset=utf-8,\uFEFF" + [header, ...csvData].join("\n");
     const link = document.createElement("a");
     link.setAttribute("href", encodeURI(csv));
     link.setAttribute("download", `คะแนนของห้อง ${name}.csv`);
@@ -156,7 +161,7 @@ const Score = () => {
 
       <Flex mt={4} ml={[0, 4]} flexDirection={["column", "column", "row"]}>
         <Box
-          width={["100%", "80%", "30%"]}
+          width={["100%", "80%", "40%"]}
           ml={[0, 4]}
           mt={4}
           sx={{
@@ -224,13 +229,13 @@ const Score = () => {
                         backgroundColor: index % 2 === 0 ? "#fff" : "#f5f5f5",
                       }}
                     >
-                      <Text as="td" px={2} py={1}>
+                      <Text as="td" px={2} py={1} textAlign={"center"}>
                         {row.student_name}
                       </Text>
-                      <Text as="td" px={2} py={1}>
+                      <Text as="td" px={2} py={1} textAlign={"center"}>
                         {row.score}
                       </Text>
-                      <Text as="td" px={2} py={1}>
+                      <Text as="td" px={2} py={1} textAlign={"center"}>
                         {row.course_code}
                       </Text>
                     </Box>
@@ -255,7 +260,7 @@ const Score = () => {
         </Box>
 
         <Box
-          width={["100%", "80%", "65%"]}
+          width={["100%", "80%", "50%"]}
           ml={[0, 4]}
           mt={4}
           sx={{
@@ -266,7 +271,7 @@ const Score = () => {
             display: "flex",
             flexDirection: "column",
             justifyContent: "center",
-            alignItems: "left",
+            alignItems: "center",
           }}
         >
           {data.length === 0 ? (
@@ -284,29 +289,18 @@ const Score = () => {
               <Text mt={2} fontSize="22px" ml={4} mb={4}>
                 คะแนนต่อสุด = {minScore} คะแนน
               </Text>
-              <BarChart width={600} height={400} data={data}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="student_name" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="score" fill="#8884d8" />
-                <ReferenceLine
-                  y={averageScore}
-                  stroke="gray"
-                  label="ค่าเฉลี่ย"
-                />
-                <ReferenceLine
-                  y={minScore}
-                  stroke="green"
-                  label="คะแนนต่ำสุด"
-                />
-                <ReferenceLine
-                  y={maxScore}
-                  stroke="orange"
-                  label="คะแนนสูงสุด"
-                />
-              </BarChart>
+
+              <ResponsiveContainer width="90%" height={400}>
+                <ComposedChart data={data}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="student_name" />
+                  <YAxis label=""/>
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="score" fill="#8884d8" />
+                  <Line type="monotone" dataKey="score" stroke="red" />
+                </ComposedChart>
+              </ResponsiveContainer>
             </>
           )}
         </Box>

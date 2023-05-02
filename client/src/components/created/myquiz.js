@@ -96,6 +96,7 @@ const Myquiz = () => {
         placeholder="ค้นหาแบบทดสอบ"
         value={searchQuery}
         onChange={(event) => setSearchQuery(event.target.value)}
+      
         sx={{
           width: "55%",
           border: "2px solid gray",
