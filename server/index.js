@@ -878,7 +878,9 @@ conn
 
         app.post("/resscore", (req, res) => {
           const { summary, course_id } = req.body;
+          console.log(summary);
           summary.forEach((code) => {
+            console.log(code);
             db.query(
               "INSERT INTO studentlist (student_name, score) VALUES (?, ?)",
               [code.name, code.score],
