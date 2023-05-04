@@ -46,14 +46,18 @@ conn
         });
 
         app.get("/gameinfo", function (req, res) {
-          const code = req.body.course_code
-          db.query("SELECT course_id, course_code,room_id, name, startdate, enddate, g_name,question_time ,question_score, question_name, choice1, choice2, choice3, choice4, correct_choice FROM course join room ON room.room_id = course.room_room_id JOIN question_group ON room.question_group_group_id = question_group.group_id JOIN question_list_has_question_group ON question_group.group_id = question_list_has_question_group.question_group_group_id JOIN question_list ON question_list_has_question_group.question_list_question_id = question_list.question_id where course.course_code = ?;", [code], (err, result) => {
-            if (err) {
-              console.log(err);
-            } else {
-              res.send(result);
+          const code = req.body.course_code;
+          db.query(
+            "SELECT course_id, course_code,room_id, name, startdate, enddate, g_name,question_time ,question_score, question_name, choice1, choice2, choice3, choice4, correct_choice FROM course join room ON room.room_id = course.room_room_id JOIN question_group ON room.question_group_group_id = question_group.group_id JOIN question_list_has_question_group ON question_group.group_id = question_list_has_question_group.question_group_group_id JOIN question_list ON question_list_has_question_group.question_list_question_id = question_list.question_id where course.course_code = ?;",
+            [code],
+            (err, result) => {
+              if (err) {
+                console.log(err);
+              } else {
+                res.send(result);
+              }
             }
-          });
+          );
         });
 
         app.get("/question", function (req, res) {
@@ -349,7 +353,6 @@ conn
           const image = req.file;
           const imageBuffer = image.buffer;
 
-
           const checkUserSql =
             "SELECT * FROM users WHERE email = ? and password = ?";
           const checkUserValues = [email, password];
@@ -358,7 +361,6 @@ conn
               console.log(err);
               res.status(500).send({ message: "Error checking user" });
             } else if (result.length > 0) {
-
               res.status(200).send({
                 message: "Logged in",
                 email: result[0]?.email,
@@ -368,7 +370,6 @@ conn
                 status: result[0]?.googlestatus,
               });
             } else {
-
               const insertUserSql =
                 "INSERT INTO users (email, username, password, image, googlestatus) VALUES (?,?,?,?,?)";
               sharp(imageBuffer)
@@ -440,7 +441,6 @@ conn
             } else {
               const passwordHash = result[0].password;
 
-
               bcrypt.compare(password, passwordHash, (err, match) => {
                 if (err) {
                   console.log(err);
@@ -476,7 +476,6 @@ conn
             } else if (result.length === 0) {
               res.status(400).send({ message: "Email not found" });
             } else {
-
               const resetToken = crypto.randomBytes(20).toString("hex");
 
               const sql = "UPDATE users SET reset_token = ? WHERE email = ?";
@@ -486,7 +485,6 @@ conn
                   console.log(err);
                   res.status(500).send({ message: "Error saving reset token" });
                 } else {
-
                   const resetLink = `http://dropquest.it.kmitl.ac.th/resetpassword/${resetToken}`;
                   const message = `Click the link to reset your password: ${resetLink}`;
                   const mailer = nodemailer.createTransport({
@@ -525,7 +523,6 @@ conn
           const resetToken = req.body.token;
           const newPassword = req.body.password;
 
-
           const sql = "SELECT * FROM users WHERE reset_token = ?";
           const values = [resetToken];
           db.query(sql, values, (err, result) => {
@@ -535,7 +532,6 @@ conn
             } else if (result.length === 0) {
               res.status(400).send({ message: "Invalid reset token" });
             } else {
-
               const hash = bcrypt.hashSync(newPassword, 10);
 
               const sql =
@@ -554,7 +550,6 @@ conn
         });
 
         app.post("/createquiz", upload.single("image"), (req, res) => {
-
           const userId = req.body.userid;
           const {
             groupname,
@@ -796,52 +791,49 @@ conn
         app.delete("/deletequiz/:id", (req, res) => {
           const quizId = req.params.id;
 
-          db.query(
-            "SET FOREIGN_KEY_CHECKS = 0",
-            (err, result) => {
-              if (err) {
-                return res.status(500).send(err);
-              }
-              db.query(
-                "DELETE FROM question_list_has_question_group WHERE question_group_group_id = ?",
-                [quizId],
-                (err, result) => {
-                  if (err) {
-                    return res.status(500).send(err);
-                  }
-                  db.query(
-                    "DELETE FROM question_list WHERE question_id NOT IN (SELECT question_list_question_id FROM question_list_has_question_group)",
-                    [quizId],
-                    (err, result) => {
-                      if (err) {
-                        return res.status(500).send(err);
-                      }
-                      db.query(
-                        "DELETE FROM question_group WHERE group_id = ?",
-                        [quizId],
-                        (err, result) => {
-                          if (err) {
-                            return res.status(500).send(err);
-                          }
-                          db.query(
-                            "SET FOREIGN_KEY_CHECKS = 1",
-                            (err, result) => {
-                              if (err) {
-                                return res.status(500).send(err);
-                              }
-                              return res
-                                .status(200)
-                                .send("Quiz deleted successfully");
-                            }
-                          );
-                        }
-                      );
-                    }
-                  );
-                }
-              );
+          db.query("SET FOREIGN_KEY_CHECKS = 0", (err, result) => {
+            if (err) {
+              return res.status(500).send(err);
             }
-          );
+            db.query(
+              "DELETE FROM question_list_has_question_group WHERE question_group_group_id = ?",
+              [quizId],
+              (err, result) => {
+                if (err) {
+                  return res.status(500).send(err);
+                }
+                db.query(
+                  "DELETE FROM question_list WHERE question_id NOT IN (SELECT question_list_question_id FROM question_list_has_question_group)",
+                  [quizId],
+                  (err, result) => {
+                    if (err) {
+                      return res.status(500).send(err);
+                    }
+                    db.query(
+                      "DELETE FROM question_group WHERE group_id = ?",
+                      [quizId],
+                      (err, result) => {
+                        if (err) {
+                          return res.status(500).send(err);
+                        }
+                        db.query(
+                          "SET FOREIGN_KEY_CHECKS = 1",
+                          (err, result) => {
+                            if (err) {
+                              return res.status(500).send(err);
+                            }
+                            return res
+                              .status(200)
+                              .send("Quiz deleted successfully");
+                          }
+                        );
+                      }
+                    );
+                  }
+                );
+              }
+            );
+          });
         });
 
         app.post("/createroom", (req, res) => {
@@ -875,7 +867,6 @@ conn
           );
         });
 
-
         app.post("/resscore", (req, res) => {
           const { summary, course_id } = req.body;
           console.log(summary);
@@ -900,15 +891,16 @@ conn
                     }
                   }
                 );
-                return res.status(200).send("Sent score successfully");
               }
             );
+
+            return res.status(200).send("Sent score successfully");
           });
         });
 
         // start the server
         const port = 4001;
-        app.listen(port, 'dropquest.it.kmitl.ac.th' ,function () {
+        app.listen(port, "dropquest.it.kmitl.ac.th", function () {
           console.log(`Server listening on port ${port}`);
         });
       }
