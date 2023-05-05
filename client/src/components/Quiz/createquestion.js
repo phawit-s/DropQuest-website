@@ -145,12 +145,9 @@ const CreateQuestion = () => {
 
     dataquestion.map((refquestion) => {
       const uniqueQuestions = datacheckquestion.reduce((acc, curr) => {
-        // Check if `acc` already contains an element with the same `question` property as `curr`
         if (!acc.some((q) => q.question_name === curr.question_name)) {
-          // If it doesn't, add `curr` to the `acc` array using `push()`
           acc.push(curr);
         }
-        // Return the updated `acc` array for the next iteration of `reduce()`
         return acc;
       }, []);
 
@@ -1188,7 +1185,7 @@ const CreateQuestion = () => {
             flexDirection: "column",
           }}
         >
-          {favouritequestion ? (
+          {favouritequestion.length > 0 ? (
             <Scrollbars
               style={{ width: "100%", height: "100%", overflow: "hidden" }}
             >
@@ -1246,6 +1243,7 @@ const CreateQuestion = () => {
                   display: "flex",
                   justifyContent: "center",
                   fontSize: "20px",
+                  zIndex:10
                 }}
                 mt={4}
               >

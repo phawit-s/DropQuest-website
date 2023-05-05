@@ -56,36 +56,6 @@ const CreateQuiz = () => {
   }, [questiondata, quizdata, alltopic]);
 
   useEffect(() => {
-    const handleBeforeUnload = (event) => {
-      event.preventDefault();
-      event.returnValue = "";
-    };
-
-    window.addEventListener("beforeunload", handleBeforeUnload);
-
-    const handleKeyDown = (event) => {
-      if ((event.metaKey || event.ctrlKey) && event.key === "r") {
-        event.preventDefault();
-        const confirmed = window.confirm(
-          "Are you sure you want to reload the page? Any unsaved changes will be lost."
-        );
-
-        if (confirmed) {
-          window.removeEventListener("beforeunload", handleBeforeUnload);
-          window.location.reload();
-        }
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, []);
-
-  useEffect(() => {
     if (question) {
       setQuestiondata([...question]);
     }
@@ -251,6 +221,7 @@ const CreateQuiz = () => {
         history.push({
           pathname: `/`,
         });
+        window.location.reload();
       });
     }
   };
