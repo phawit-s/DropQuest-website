@@ -6,15 +6,12 @@ import Header from "../Header";
 import Mobileheader from "../Mobileheader";
 import {
   ComposedChart,
-  BarChart,
-  LineChart,
   Bar,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   Legend,
-  ReferenceLine,
   ResponsiveContainer,
   Line,
 } from "recharts";
@@ -152,7 +149,7 @@ const Score = () => {
           as="span"
           ml={2}
           mb={2}
-          color={timeLeft == "หมดเวลา" ? "red" : "black"}
+          color={timeLeft === "หมดเวลา" ? "red" : "black"}
           fontSize={"32px"}
         >
           {timeLeft}
