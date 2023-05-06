@@ -1185,7 +1185,7 @@ const CreateQuestion = () => {
             flexDirection: "column",
           }}
         >
-          {favouritequestion.length > 0 ? (
+          {favouritequestion ? (
             <Scrollbars
               style={{ width: "100%", height: "100%", overflow: "hidden" }}
             >
