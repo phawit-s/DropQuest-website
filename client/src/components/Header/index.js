@@ -1,9 +1,13 @@
-import React, {useState } from "react";
+import React, { useState } from "react";
 import { useHistory, Redirect } from "react-router-dom";
 import { Box, Text, Flex, Image } from "rebass";
 import { useAuth } from "../../contexts/AuthContext";
 import { motion } from "framer-motion";
-import { AiOutlineCaretDown, AiOutlineCaretUp } from "react-icons/ai";
+import {
+  AiOutlineCaretDown,
+  AiOutlineCaretUp,
+  AiOutlineBook,
+} from "react-icons/ai";
 
 const Header = () => {
   const history = useHistory();
@@ -86,6 +90,26 @@ const Header = () => {
     }
   };
 
+  const gototutorial = () => {
+    if (question.length === 0) {
+      history.push({
+        pathname: `/tutorial`,
+      });
+    } else {
+      const confirmed = window.confirm(
+        "Are you sure you want to change the page? Any unsaved changes will be lost."
+      );
+
+      if (confirmed) {
+        window.localStorage.removeItem("Question");
+        window.localStorage.removeItem("EditQuiz");
+        history.push({
+          pathname: `/tutorial`,
+        });
+      }
+    }
+  };
+
   const gotocreateroom = () => {
     if (question.length === 0) {
       history.push({
@@ -125,8 +149,6 @@ const Header = () => {
       }
     }
   };
-
-
 
   const gotoprofile = () => {
     if (question.length === 0) {
@@ -193,6 +215,13 @@ const Header = () => {
         },
       }}
     >
+      <Box
+        mr={3}
+        sx={{ cursor: "pointer" }}
+        onClick={gototutorial}
+      >
+        <AiOutlineBook style={{ width: "25px", height: "25px" }} />
+      </Box>
       <Text
         fontSize="20px"
         mr={3}

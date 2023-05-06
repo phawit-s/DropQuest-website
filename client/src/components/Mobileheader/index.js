@@ -111,6 +111,27 @@ const Mobileheader = () => {
     }
   };
 
+  const gototutorial = () => {
+    if (question.length === 0) {
+      history.push({
+        pathname: `/tutorial`,
+      });
+    } else {
+      const confirmed = window.confirm(
+        "Are you sure you want to change the page? Any unsaved changes will be lost."
+      );
+
+      if (confirmed) {
+        window.localStorage.removeItem("Question");
+        window.localStorage.removeItem("EditQuiz");
+        history.push({
+          pathname: `/tutorial`,
+        });
+      }
+    }
+  };
+
+
   const gotoprofile = () => {
     if (question.length === 0) {
       history.push({
@@ -246,6 +267,15 @@ const Mobileheader = () => {
                   onClick={gotoprofile}
                 >
                   โปรไฟล์
+                </Text>
+                <Text
+                  fontSize="20px"
+                  mr={3}
+                  sx={{ cursor: "pointer" }}
+                  mb={2}
+                  onClick={gototutorial}
+                >
+                  วิธีการใช้
                 </Text>
                 <Text
                   fontSize="20px"

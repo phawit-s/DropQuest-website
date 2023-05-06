@@ -15,6 +15,7 @@ import Myquiz from "./components/created/myquiz";
 import Createroom from "./components/Quiz/createroom";
 import Myroom from "./components/created/myroom";
 import Score from "./components/summary/score";
+import Tutorial from "./components/tutorial";
 import { ThemeProvider } from "styled-components";
 import theme from "./contexts/theme";
 
@@ -41,6 +42,7 @@ function App() {
               <Route exact path="/createroom" component={Createroom} />
               <Route exact path="/myroom" component={Myroom} />
               <Route exact path="/summary" component={Score} />
+              <Route exact path="/tutorial" component={Tutorial} />
             </Switch>
           </Router>
         </AuthProvider>
