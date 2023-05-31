@@ -505,8 +505,8 @@ conn
                   const mailer = nodemailer.createTransport({
                     service: "Gmail",
                     auth: {
-                      user: "62070144@kmitl.ac.th",
-                      pass: "Imnayeon1995",
+                      user: "",
+                      pass: "",
                     },
                   });
 
