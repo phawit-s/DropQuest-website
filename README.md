@@ -1,7 +1,9 @@
 # Content Management Web for DropQuest
 ## เกมต้นแบบ ( Dropquest )
 
-### [Dropquest](https://www.youtube.com/watch?v=SBG5_DJoOIk&t=1s)
+<a href="https://www.youtube.com/watch?v=SBG5_DJoOIk&t=1s" target="_blank">
+ <img src="https://cdn.discordapp.com/attachments/686119492723802132/1113506675693998122/image.png" alt="Watch the video" width="600" height="300" border="10" />
+</a>
 
 ## วัตถุประสงค์
    เว็บไซต์ที่จัดการเนื้อหาภายในเกมเพื่อการเรียนรู้บนมือถือบนระบบปฎิบัติการ แอนดรอยด์ และพัฒนาเว็บไซต์ที่สามารถปรับแต่งรูปแบบเกมตามความต้องการของผู้ใช้งาน 
